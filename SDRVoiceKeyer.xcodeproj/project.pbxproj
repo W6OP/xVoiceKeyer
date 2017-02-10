@@ -1,0 +1,296 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		996AC07C1E4E3D4800C20AA8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 996AC07B1E4E3D4800C20AA8 /* AppDelegate.swift */; };
+		996AC07E1E4E3D4800C20AA8 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 996AC07D1E4E3D4800C20AA8 /* ViewController.swift */; };
+		996AC0801E4E3D4800C20AA8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 996AC07F1E4E3D4800C20AA8 /* Assets.xcassets */; };
+		996AC0831E4E3D4800C20AA8 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 996AC0811E4E3D4800C20AA8 /* Main.storyboard */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		996AC0781E4E3D4800C20AA8 /* SDRVoiceKeyer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SDRVoiceKeyer.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		996AC07B1E4E3D4800C20AA8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		996AC07D1E4E3D4800C20AA8 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		996AC07F1E4E3D4800C20AA8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		996AC0821E4E3D4800C20AA8 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		996AC0841E4E3D4800C20AA8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		996AC0751E4E3D4800C20AA8 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		996AC06F1E4E3D4800C20AA8 = {
+			isa = PBXGroup;
+			children = (
+				996AC07A1E4E3D4800C20AA8 /* SDRVoiceKeyer */,
+				996AC0791E4E3D4800C20AA8 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		996AC0791E4E3D4800C20AA8 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				996AC0781E4E3D4800C20AA8 /* SDRVoiceKeyer.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		996AC07A1E4E3D4800C20AA8 /* SDRVoiceKeyer */ = {
+			isa = PBXGroup;
+			children = (
+				996AC07B1E4E3D4800C20AA8 /* AppDelegate.swift */,
+				996AC07D1E4E3D4800C20AA8 /* ViewController.swift */,
+				996AC07F1E4E3D4800C20AA8 /* Assets.xcassets */,
+				996AC0811E4E3D4800C20AA8 /* Main.storyboard */,
+				996AC0841E4E3D4800C20AA8 /* Info.plist */,
+			);
+			path = SDRVoiceKeyer;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		996AC0771E4E3D4800C20AA8 /* SDRVoiceKeyer */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 996AC0871E4E3D4800C20AA8 /* Build configuration list for PBXNativeTarget "SDRVoiceKeyer" */;
+			buildPhases = (
+				996AC0741E4E3D4800C20AA8 /* Sources */,
+				996AC0751E4E3D4800C20AA8 /* Frameworks */,
+				996AC0761E4E3D4800C20AA8 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SDRVoiceKeyer;
+			productName = SDRVoiceKeyer;
+			productReference = 996AC0781E4E3D4800C20AA8 /* SDRVoiceKeyer.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		996AC0701E4E3D4800C20AA8 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 0820;
+				LastUpgradeCheck = 0820;
+				ORGANIZATIONNAME = "Peter Bourget";
+				TargetAttributes = {
+					996AC0771E4E3D4800C20AA8 = {
+						CreatedOnToolsVersion = 8.2.1;
+						DevelopmentTeam = B87W7787L4;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 996AC0731E4E3D4800C20AA8 /* Build configuration list for PBXProject "SDRVoiceKeyer" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 996AC06F1E4E3D4800C20AA8;
+			productRefGroup = 996AC0791E4E3D4800C20AA8 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				996AC0771E4E3D4800C20AA8 /* SDRVoiceKeyer */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		996AC0761E4E3D4800C20AA8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				996AC0801E4E3D4800C20AA8 /* Assets.xcassets in Resources */,
+				996AC0831E4E3D4800C20AA8 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		996AC0741E4E3D4800C20AA8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				996AC07E1E4E3D4800C20AA8 /* ViewController.swift in Sources */,
+				996AC07C1E4E3D4800C20AA8 /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		996AC0811E4E3D4800C20AA8 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				996AC0821E4E3D4800C20AA8 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		996AC0851E4E3D4800C20AA8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		996AC0861E4E3D4800C20AA8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+			};
+			name = Release;
+		};
+		996AC0881E4E3D4800C20AA8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = B87W7787L4;
+				INFOPLIST_FILE = SDRVoiceKeyer/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.w6op.SDRVoiceKeyer;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
+			};
+			name = Debug;
+		};
+		996AC0891E4E3D4800C20AA8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = B87W7787L4;
+				INFOPLIST_FILE = SDRVoiceKeyer/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.w6op.SDRVoiceKeyer;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		996AC0731E4E3D4800C20AA8 /* Build configuration list for PBXProject "SDRVoiceKeyer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				996AC0851E4E3D4800C20AA8 /* Debug */,
+				996AC0861E4E3D4800C20AA8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		996AC0871E4E3D4800C20AA8 /* Build configuration list for PBXNativeTarget "SDRVoiceKeyer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				996AC0881E4E3D4800C20AA8 /* Debug */,
+				996AC0891E4E3D4800C20AA8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 996AC0701E4E3D4800C20AA8 /* Project object */;
+}
