@@ -11,6 +11,8 @@
 		996AC07E1E4E3D4800C20AA8 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 996AC07D1E4E3D4800C20AA8 /* ViewController.swift */; };
 		996AC0801E4E3D4800C20AA8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 996AC07F1E4E3D4800C20AA8 /* Assets.xcassets */; };
 		996AC0831E4E3D4800C20AA8 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 996AC0811E4E3D4800C20AA8 /* Main.storyboard */; };
+		996AC08C1E4E3F2A00C20AA8 /* smartsdr-objective-c-master in Resources */ = {isa = PBXBuildFile; fileRef = 996AC08B1E4E3F2A00C20AA8 /* smartsdr-objective-c-master */; };
+		996AC08E1E4E3FA200C20AA8 /* CocoaAsyncSocket-master-src in Resources */ = {isa = PBXBuildFile; fileRef = 996AC08D1E4E3FA200C20AA8 /* CocoaAsyncSocket-master-src */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -20,6 +22,9 @@
 		996AC07F1E4E3D4800C20AA8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		996AC0821E4E3D4800C20AA8 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		996AC0841E4E3D4800C20AA8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		996AC08A1E4E3E3000C20AA8 /* SDRVoiceKeyer-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "SDRVoiceKeyer-Bridging-Header.h"; sourceTree = "<group>"; };
+		996AC08B1E4E3F2A00C20AA8 /* smartsdr-objective-c-master */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "smartsdr-objective-c-master"; path = "../smartsdr-objective-c-master"; sourceTree = "<group>"; };
+		996AC08D1E4E3FA200C20AA8 /* CocoaAsyncSocket-master-src */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "CocoaAsyncSocket-master-src"; path = "../CocoaAsyncSocket-master-src"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -36,6 +41,8 @@
 		996AC06F1E4E3D4800C20AA8 = {
 			isa = PBXGroup;
 			children = (
+				996AC08D1E4E3FA200C20AA8 /* CocoaAsyncSocket-master-src */,
+				996AC08B1E4E3F2A00C20AA8 /* smartsdr-objective-c-master */,
 				996AC07A1E4E3D4800C20AA8 /* SDRVoiceKeyer */,
 				996AC0791E4E3D4800C20AA8 /* Products */,
 			);
@@ -57,6 +64,7 @@
 				996AC07F1E4E3D4800C20AA8 /* Assets.xcassets */,
 				996AC0811E4E3D4800C20AA8 /* Main.storyboard */,
 				996AC0841E4E3D4800C20AA8 /* Info.plist */,
+				996AC08A1E4E3E3000C20AA8 /* SDRVoiceKeyer-Bridging-Header.h */,
 			);
 			path = SDRVoiceKeyer;
 			sourceTree = "<group>";
@@ -122,7 +130,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				996AC0801E4E3D4800C20AA8 /* Assets.xcassets in Resources */,
+				996AC08E1E4E3FA200C20AA8 /* CocoaAsyncSocket-master-src in Resources */,
 				996AC0831E4E3D4800C20AA8 /* Main.storyboard in Resources */,
+				996AC08C1E4E3F2A00C20AA8 /* smartsdr-objective-c-master in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -246,12 +256,18 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = B87W7787L4;
+				HEADER_SEARCH_PATHS = (
+					"\"$(SRCROOT)/../smartsdr-objective-c-master\"",
+					"\"$(SRCROOT)/../CocoaAsyncSocket-master-src\"",
+				);
 				INFOPLIST_FILE = SDRVoiceKeyer/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.w6op.SDRVoiceKeyer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/SDRVoiceKeyer/SDRVoiceKeyer-Bridging-Header.h";
 				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
@@ -260,12 +276,18 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = B87W7787L4;
+				HEADER_SEARCH_PATHS = (
+					"\"$(SRCROOT)/../smartsdr-objective-c-master\"",
+					"\"$(SRCROOT)/../CocoaAsyncSocket-master-src\"",
+				);
 				INFOPLIST_FILE = SDRVoiceKeyer/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.w6op.SDRVoiceKeyer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/SDRVoiceKeyer/SDRVoiceKeyer-Bridging-Header.h";
 				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
