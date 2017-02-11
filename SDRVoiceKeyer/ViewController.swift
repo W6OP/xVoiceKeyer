@@ -36,15 +36,13 @@ class ViewController: NSViewController {
     // actions
     
     @IBAction func voiceButtonClicked(_ sender: NSButton) {
-        //let radio = RadioFactory()
-        //let instance = radio.availableRadioInstances()
-        
-        // debug.print
-        //print ("The width of someResolution is \(instance?.count)")
-        
-        
+                
          let radio: RadioFactory = RadioFactory()
-         //let instance = radio.availableRadioInstances()
+         let instance = radio.availableRadioInstances()
+        
+         //myLabel.integerValue = instance?.count
+        
+         print ("The number of radios on the network is \(instance?.count)")
         
         
         

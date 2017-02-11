@@ -11,8 +11,15 @@
 		996AC07E1E4E3D4800C20AA8 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 996AC07D1E4E3D4800C20AA8 /* ViewController.swift */; };
 		996AC0801E4E3D4800C20AA8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 996AC07F1E4E3D4800C20AA8 /* Assets.xcassets */; };
 		996AC0831E4E3D4800C20AA8 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 996AC0811E4E3D4800C20AA8 /* Main.storyboard */; };
-		996AC08C1E4E3F2A00C20AA8 /* smartsdr-objective-c-master in Resources */ = {isa = PBXBuildFile; fileRef = 996AC08B1E4E3F2A00C20AA8 /* smartsdr-objective-c-master */; };
-		996AC0931E4E5D6A00C20AA8 /* CocoaAsyncSocket-master-src in Resources */ = {isa = PBXBuildFile; fileRef = 996AC08D1E4E3FA200C20AA8 /* CocoaAsyncSocket-master-src */; };
+		996AC1011E4F7A1D00C20AA8 /* RadioFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 996AC0F31E4F7A1D00C20AA8 /* RadioFactory.m */; };
+		996AC1021E4F7A1D00C20AA8 /* Equalizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 996AC0F51E4F7A1D00C20AA8 /* Equalizer.m */; };
+		996AC1031E4F7A1D00C20AA8 /* FilterSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 996AC0F71E4F7A1D00C20AA8 /* FilterSpec.m */; };
+		996AC1041E4F7A1D00C20AA8 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 996AC0F81E4F7A1D00C20AA8 /* LICENSE */; };
+		996AC1051E4F7A1D00C20AA8 /* Radio.m in Sources */ = {isa = PBXBuildFile; fileRef = 996AC0FA1E4F7A1D00C20AA8 /* Radio.m */; };
+		996AC1071E4F7A1D00C20AA8 /* Slice.m in Sources */ = {isa = PBXBuildFile; fileRef = 996AC0FE1E4F7A1D00C20AA8 /* Slice.m */; };
+		996AC1081E4F7A1D00C20AA8 /* VITA.m in Sources */ = {isa = PBXBuildFile; fileRef = 996AC1001E4F7A1D00C20AA8 /* VITA.m */; };
+		996AC10D1E4F7A5B00C20AA8 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 996AC10A1E4F7A5B00C20AA8 /* GCDAsyncSocket.m */; };
+		996AC10E1E4F7A5B00C20AA8 /* GCDAsyncUdpSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 996AC10C1E4F7A5B00C20AA8 /* GCDAsyncUdpSocket.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -23,9 +30,24 @@
 		996AC0821E4E3D4800C20AA8 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		996AC0841E4E3D4800C20AA8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		996AC08A1E4E3E3000C20AA8 /* SDRVoiceKeyer-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "SDRVoiceKeyer-Bridging-Header.h"; sourceTree = "<group>"; };
-		996AC08B1E4E3F2A00C20AA8 /* smartsdr-objective-c-master */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "smartsdr-objective-c-master"; path = "../smartsdr-objective-c-master"; sourceTree = "<group>"; };
-		996AC08D1E4E3FA200C20AA8 /* CocoaAsyncSocket-master-src */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "CocoaAsyncSocket-master-src"; path = "../CocoaAsyncSocket-master-src"; sourceTree = "<group>"; };
 		996AC0911E4E5C3000C20AA8 /* CocoaAsyncSocket-master */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "CocoaAsyncSocket-master"; path = "../CocoaAsyncSocket-master"; sourceTree = "<group>"; };
+		996AC0F31E4F7A1D00C20AA8 /* RadioFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RadioFactory.m; path = "../../smartsdr-objective-c-master/RadioFactory.m"; sourceTree = "<group>"; };
+		996AC0F41E4F7A1D00C20AA8 /* Equalizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Equalizer.h; path = "../../smartsdr-objective-c-master/Equalizer.h"; sourceTree = "<group>"; };
+		996AC0F51E4F7A1D00C20AA8 /* Equalizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Equalizer.m; path = "../../smartsdr-objective-c-master/Equalizer.m"; sourceTree = "<group>"; };
+		996AC0F61E4F7A1D00C20AA8 /* FilterSpec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FilterSpec.h; path = "../../smartsdr-objective-c-master/FilterSpec.h"; sourceTree = "<group>"; };
+		996AC0F71E4F7A1D00C20AA8 /* FilterSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FilterSpec.m; path = "../../smartsdr-objective-c-master/FilterSpec.m"; sourceTree = "<group>"; };
+		996AC0F81E4F7A1D00C20AA8 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LICENSE; path = "../../smartsdr-objective-c-master/LICENSE"; sourceTree = "<group>"; };
+		996AC0F91E4F7A1D00C20AA8 /* Radio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Radio.h; path = "../../smartsdr-objective-c-master/Radio.h"; sourceTree = "<group>"; };
+		996AC0FA1E4F7A1D00C20AA8 /* Radio.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Radio.m; path = "../../smartsdr-objective-c-master/Radio.m"; sourceTree = "<group>"; };
+		996AC0FB1E4F7A1D00C20AA8 /* RadioFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RadioFactory.h; path = "../../smartsdr-objective-c-master/RadioFactory.h"; sourceTree = "<group>"; };
+		996AC0FD1E4F7A1D00C20AA8 /* Slice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Slice.h; path = "../../smartsdr-objective-c-master/Slice.h"; sourceTree = "<group>"; };
+		996AC0FE1E4F7A1D00C20AA8 /* Slice.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Slice.m; path = "../../smartsdr-objective-c-master/Slice.m"; sourceTree = "<group>"; };
+		996AC0FF1E4F7A1D00C20AA8 /* VITA.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VITA.h; path = "../../smartsdr-objective-c-master/VITA.h"; sourceTree = "<group>"; };
+		996AC1001E4F7A1D00C20AA8 /* VITA.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = VITA.m; path = "../../smartsdr-objective-c-master/VITA.m"; sourceTree = "<group>"; };
+		996AC1091E4F7A5B00C20AA8 /* GCDAsyncSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GCDAsyncSocket.h; path = "../../CocoaAsyncSocket-master/Source/GCD/GCDAsyncSocket.h"; sourceTree = "<group>"; };
+		996AC10A1E4F7A5B00C20AA8 /* GCDAsyncSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GCDAsyncSocket.m; path = "../../CocoaAsyncSocket-master/Source/GCD/GCDAsyncSocket.m"; sourceTree = "<group>"; };
+		996AC10B1E4F7A5B00C20AA8 /* GCDAsyncUdpSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GCDAsyncUdpSocket.h; path = "../../CocoaAsyncSocket-master/Source/GCD/GCDAsyncUdpSocket.h"; sourceTree = "<group>"; };
+		996AC10C1E4F7A5B00C20AA8 /* GCDAsyncUdpSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GCDAsyncUdpSocket.m; path = "../../CocoaAsyncSocket-master/Source/GCD/GCDAsyncUdpSocket.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -42,8 +64,6 @@
 		996AC06F1E4E3D4800C20AA8 = {
 			isa = PBXGroup;
 			children = (
-				996AC08D1E4E3FA200C20AA8 /* CocoaAsyncSocket-master-src */,
-				996AC08B1E4E3F2A00C20AA8 /* smartsdr-objective-c-master */,
 				996AC07A1E4E3D4800C20AA8 /* SDRVoiceKeyer */,
 				996AC0791E4E3D4800C20AA8 /* Products */,
 				996AC0901E4E5C3000C20AA8 /* Frameworks */,
@@ -61,6 +81,8 @@
 		996AC07A1E4E3D4800C20AA8 /* SDRVoiceKeyer */ = {
 			isa = PBXGroup;
 			children = (
+				996AC0F21E4F79F200C20AA8 /* CocoaAsyncSocket-master-src */,
+				996AC0F11E4F79E400C20AA8 /* smartsdr-objective-c-master */,
 				996AC07B1E4E3D4800C20AA8 /* AppDelegate.swift */,
 				996AC07D1E4E3D4800C20AA8 /* ViewController.swift */,
 				996AC07F1E4E3D4800C20AA8 /* Assets.xcassets */,
@@ -77,6 +99,37 @@
 				996AC0911E4E5C3000C20AA8 /* CocoaAsyncSocket-master */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		996AC0F11E4F79E400C20AA8 /* smartsdr-objective-c-master */ = {
+			isa = PBXGroup;
+			children = (
+				996AC0F31E4F7A1D00C20AA8 /* RadioFactory.m */,
+				996AC0F41E4F7A1D00C20AA8 /* Equalizer.h */,
+				996AC0F51E4F7A1D00C20AA8 /* Equalizer.m */,
+				996AC0F61E4F7A1D00C20AA8 /* FilterSpec.h */,
+				996AC0F71E4F7A1D00C20AA8 /* FilterSpec.m */,
+				996AC0F81E4F7A1D00C20AA8 /* LICENSE */,
+				996AC0F91E4F7A1D00C20AA8 /* Radio.h */,
+				996AC0FA1E4F7A1D00C20AA8 /* Radio.m */,
+				996AC0FB1E4F7A1D00C20AA8 /* RadioFactory.h */,
+				996AC0FD1E4F7A1D00C20AA8 /* Slice.h */,
+				996AC0FE1E4F7A1D00C20AA8 /* Slice.m */,
+				996AC0FF1E4F7A1D00C20AA8 /* VITA.h */,
+				996AC1001E4F7A1D00C20AA8 /* VITA.m */,
+			);
+			name = "smartsdr-objective-c-master";
+			sourceTree = "<group>";
+		};
+		996AC0F21E4F79F200C20AA8 /* CocoaAsyncSocket-master-src */ = {
+			isa = PBXGroup;
+			children = (
+				996AC1091E4F7A5B00C20AA8 /* GCDAsyncSocket.h */,
+				996AC10A1E4F7A5B00C20AA8 /* GCDAsyncSocket.m */,
+				996AC10B1E4F7A5B00C20AA8 /* GCDAsyncUdpSocket.h */,
+				996AC10C1E4F7A5B00C20AA8 /* GCDAsyncUdpSocket.m */,
+			);
+			name = "CocoaAsyncSocket-master-src";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -140,9 +193,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				996AC0801E4E3D4800C20AA8 /* Assets.xcassets in Resources */,
-				996AC0931E4E5D6A00C20AA8 /* CocoaAsyncSocket-master-src in Resources */,
 				996AC0831E4E3D4800C20AA8 /* Main.storyboard in Resources */,
-				996AC08C1E4E3F2A00C20AA8 /* smartsdr-objective-c-master in Resources */,
+				996AC1041E4F7A1D00C20AA8 /* LICENSE in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -153,8 +205,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				996AC1021E4F7A1D00C20AA8 /* Equalizer.m in Sources */,
 				996AC07E1E4E3D4800C20AA8 /* ViewController.swift in Sources */,
+				996AC1071E4F7A1D00C20AA8 /* Slice.m in Sources */,
+				996AC1031E4F7A1D00C20AA8 /* FilterSpec.m in Sources */,
+				996AC1051E4F7A1D00C20AA8 /* Radio.m in Sources */,
 				996AC07C1E4E3D4800C20AA8 /* AppDelegate.swift in Sources */,
+				996AC10E1E4F7A5B00C20AA8 /* GCDAsyncUdpSocket.m in Sources */,
+				996AC10D1E4F7A5B00C20AA8 /* GCDAsyncSocket.m in Sources */,
+				996AC1011E4F7A1D00C20AA8 /* RadioFactory.m in Sources */,
+				996AC1081E4F7A1D00C20AA8 /* VITA.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
