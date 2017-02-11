@@ -9,7 +9,13 @@
 import Cocoa
 
 class ViewController: NSViewController {
+    
+    
+   
+    
+    
 
+    // generated code
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -22,6 +28,29 @@ class ViewController: NSViewController {
         }
     }
 
+    // outlets
+    
+    @IBOutlet weak var voiceButton1: NSButton!
+    
+    
+    // actions
+    
+    @IBAction func voiceButtonClicked(_ sender: NSButton) {
+        //let radio = RadioFactory()
+        //let instance = radio.availableRadioInstances()
+        
+        // debug.print
+        //print ("The width of someResolution is \(instance?.count)")
+        
+        
+         let radio: RadioFactory = RadioFactory()
+         //let instance = radio.availableRadioInstances()
+        
+        
+        
+        
+        
+    }
 
-}
+} // end class
 
