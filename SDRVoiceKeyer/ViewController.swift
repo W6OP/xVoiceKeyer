@@ -36,13 +36,43 @@ class ViewController: NSViewController {
     // actions
     
     @IBAction func voiceButtonClicked(_ sender: NSButton) {
-                
-         let radio: RadioFactory = RadioFactory()
-         let instance = radio.availableRadioInstances()
+        var ipaddress: String
+        
+        let radioFactory: RadioFactory = RadioFactory()
+        let instance = radioFactory.availableRadioInstances()
+        
+        var radioInstance = [RadioInstance]()
+        // this force casts an NSArray to Swift Array
+        radioInstance = instance as! [RadioInstance]
+        
+        
+        ipaddress = radioInstance[0].ipAddress
+        
+        
+        
+        
+        //var someInts = [RadioInstance]()
+        //someInts =  radioFactory.discoveredRadios
+
+        
+        //var radio: Radio
+        var numberOfRadios = 0
+        
+        switch instance!.count {
+            case 0:
+            // pop message
+            numberOfRadios = 0
+        case 1:
+            //radio = radioFactory[0]
+            numberOfRadios = 1
+        default:
+            // do something else
+            numberOfRadios = instance!.count
+        }
         
          //myLabel.integerValue = instance?.count
         
-         print ("The number of radios on the network is \(instance?.count)")
+         print ("The number of radios on the network is \(numberOfRadios)")
         
         
         
