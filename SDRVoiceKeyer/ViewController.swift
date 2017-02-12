@@ -20,6 +20,14 @@ class ViewController: NSViewController {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
+          let radioManager = RadioManager()
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(radioManager.discoveredRadios), name: NSNotification.Name.init(rawValue: "K6TURadioFactory"), object: nil)
+
+      
+        
+        //radioManager.DiscoverRadio()
+        
     }
 
     override var representedObject: Any? {
@@ -27,6 +35,15 @@ class ViewController: NSViewController {
         // Update the view, if already loaded.
         }
     }
+    
+    // my code
+    @objc func discoveredRadios(notification: NSNotification){
+        //do stuff
+        // debug.print
+        print ("Notification received. 2")
+        
+    }
+
 
     // outlets
     
@@ -36,47 +53,6 @@ class ViewController: NSViewController {
     // actions
     
     @IBAction func voiceButtonClicked(_ sender: NSButton) {
-        var ipaddress: String
-        
-        let radioFactory: RadioFactory = RadioFactory()
-        let instance = radioFactory.availableRadioInstances()
-        
-        var radioInstance = [RadioInstance]()
-        // this force casts an NSArray to Swift Array
-        radioInstance = instance as! [RadioInstance]
-        
-        
-        ipaddress = radioInstance[0].ipAddress
-        
-        
-        
-        
-        //var someInts = [RadioInstance]()
-        //someInts =  radioFactory.discoveredRadios
-
-        
-        //var radio: Radio
-        var numberOfRadios = 0
-        
-        switch instance!.count {
-            case 0:
-            // pop message
-            numberOfRadios = 0
-        case 1:
-            //radio = radioFactory[0]
-            numberOfRadios = 1
-        default:
-            // do something else
-            numberOfRadios = instance!.count
-        }
-        
-         //myLabel.integerValue = instance?.count
-        
-         print ("The number of radios on the network is \(numberOfRadios)")
-        
-        
-        
-        
         
     }
 
