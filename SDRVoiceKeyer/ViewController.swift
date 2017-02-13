@@ -12,17 +12,18 @@ class ViewController: NSViewController {
     
     
    
+    var radioManager: RadioManager!
     
-    
+   
 
     // generated code
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
-          let radioManager = RadioManager()
+        radioManager = RadioManager()
         
-        NotificationCenter.default.addObserver(self, selector: #selector(radioManager.discoveredRadios), name: NSNotification.Name.init(rawValue: "K6TURadioFactory"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.discoveredRadios), name: NSNotification.Name.init(rawValue: "K6TURadioFactory"), object: nil)
 
       
         
@@ -41,6 +42,8 @@ class ViewController: NSViewController {
         //do stuff
         // debug.print
         print ("Notification received. 2")
+        
+        radioManager.DiscoverRadio()
         
     }
 
