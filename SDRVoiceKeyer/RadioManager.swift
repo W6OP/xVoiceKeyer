@@ -44,15 +44,25 @@ internal class RadioManager {
                 numberOfRadios = radioInstances.count
             }
             
-            //radio = radioInstances[0] as! Radio
+            radio.radioInstance = radioInstances[0]
+            
+            CreateSlice()
             
             printDebugMessage ("The number of radios on the network is \(numberOfRadios) -- \(serialNumber)")
+            
         } else {
             printDebugMessage ("The number of radios on the network is 0")
         }
         
         return serialNumber
         
+    }
+    
+    // Create a slice for the radio - or should we be getting the active slice?
+    func CreateSlice() {
+        //for slice: Slice in radio {
+            
+        //}
     }
     
     
