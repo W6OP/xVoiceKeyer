@@ -6,89 +6,60 @@
 //  Copyright © 2017 Peter Bourget. All rights reserved.
 //
 
-import Foundation
+import Cocoa
 
 internal class RadioManager {
     
     
     var radioFactory: RadioFactory
+    var radio: Radio
     
     init() {
         
         radioFactory  = RadioFactory()
-        
+        radio = Radio()
     }
     
-   internal func DiscoverRadio () {
-        var ipaddress: String
+    // Create a RadioFactory which starts the discovery process
+    // Get the first radio's serial number to return to the view controller
+    // TODO: Account for being called multiple times
+    // TODO: Account for multiple radios
+    internal func DiscoverRadio () -> String {
         
-    
+        var serialNumber = "Radio Not Found"
+        var numberOfRadios = 0
+        var radioInstances = [RadioInstance]()
         
-//        NotificationCenter.default.addObserver(
-//            self,
-//            selector: #selector(self.DicoverRadio),
-//            name: .discoveredRadios,
-//            object: nil)
-
-    
-    
-    
-    //let nc = NotificationCenter.default
-    //nc.addObserver(forName:discoveredRadios, object:nil, queue:nil, using:catchNotification)
-    
-    
-    
-        
-    //radioFactory  = RadioFactory()
-    
-
-        let instance = radioFactory.availableRadioInstances()
-        
-        var radioInstance = [RadioInstance]()
-    
         // this force casts an NSArray to Swift Array
-        radioInstance = instance as! [RadioInstance]
-
-    
-        if radioInstance.count > 0 {
+        radioInstances = radioFactory.availableRadioInstances() as! [RadioInstance]
+        
+        if radioInstances.count > 0 {
+            serialNumber = radioInstances[0].serialNum
             
-            
-            ipaddress = radioInstance[0].ipAddress
-            
-            //var someInts = [RadioInstance]()
-            //someInts =  radioFactory.discoveredRadios
-            
-            
-            //var radio: Radio
-            var numberOfRadios = 0
-            
-            switch instance!.count {
-            case 0:
-                // pop message
-                numberOfRadios = 0
+            switch radioInstances.count {
             case 1:
-                //radio = radioFactory[0]
                 numberOfRadios = 1
             default:
                 // do something else
-                numberOfRadios = instance!.count
+                numberOfRadios = radioInstances.count
             }
             
-            //myLabel.integerValue = instance?.count
+            //radio = radioInstances[0] as! Radio
             
-            print ("The number of radios on the network is \(numberOfRadios) -- \(ipaddress)")
+            printDebugMessage ("The number of radios on the network is \(numberOfRadios) -- \(serialNumber)")
         } else {
-            print ("The number of radios on the network is 0")
+            printDebugMessage ("The number of radios on the network is 0")
         }
-    
+        
+        return serialNumber
+        
     }
     
     
-//   @objc func discoveredRadios(notification: NSNotification){
-//        //do stuff
-//        // debug.print
-//        print ("Notification received. 1")
-//        
-//    }
+    func printDebugMessage (_ object: Any) {
+        #if DEBUG
+            print(object)
+        #endif
+    }
 
 } // end class
