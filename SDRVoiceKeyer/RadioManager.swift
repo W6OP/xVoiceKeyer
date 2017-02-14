@@ -15,7 +15,8 @@ internal class RadioManager {
     var radio: Radio
     
     init() throws {
-        radioFactory  = RadioFactory()
+        
+        radioFactory = RadioFactory()
         radio = Radio()
     }
     

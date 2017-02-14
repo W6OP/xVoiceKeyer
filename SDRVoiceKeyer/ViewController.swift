@@ -50,6 +50,11 @@ class ViewController: NSViewController {
         }
     }
     
+    // cleanup network sockets
+    override func viewWillDisappear() {
+        radioManager.radioFactory.close()
+    }
+    
     // my code
     
     // Notification handler - this will fire when the first radio is discovered and
@@ -89,6 +94,17 @@ class ViewController: NSViewController {
 //        }
         
     }
+    
+//    func getSocket () {
+//       var udpSocket: GCDAsyncUdpSocket
+//        
+//        udpSocket = GCDAsyncUdpSocket()
+//        
+//        udpSocket.didRe
+//        
+//        
+//        
+//    }
     
 
     // outlets
