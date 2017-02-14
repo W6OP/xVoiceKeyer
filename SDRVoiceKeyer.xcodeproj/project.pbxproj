@@ -21,6 +21,7 @@
 		996AC10D1E4F7A5B00C20AA8 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 996AC10A1E4F7A5B00C20AA8 /* GCDAsyncSocket.m */; };
 		996AC10E1E4F7A5B00C20AA8 /* GCDAsyncUdpSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 996AC10C1E4F7A5B00C20AA8 /* GCDAsyncUdpSocket.m */; };
 		99B9C76F1E50EC7100772B91 /* RadioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B9C76E1E50EC7100772B91 /* RadioManager.swift */; };
+		99E659881E538F6700983302 /* ObjC.m in Sources */ = {isa = PBXBuildFile; fileRef = 99E659871E538F6700983302 /* ObjC.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -50,6 +51,8 @@
 		996AC10B1E4F7A5B00C20AA8 /* GCDAsyncUdpSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GCDAsyncUdpSocket.h; path = "../../CocoaAsyncSocket-master/Source/GCD/GCDAsyncUdpSocket.h"; sourceTree = "<group>"; };
 		996AC10C1E4F7A5B00C20AA8 /* GCDAsyncUdpSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GCDAsyncUdpSocket.m; path = "../../CocoaAsyncSocket-master/Source/GCD/GCDAsyncUdpSocket.m"; sourceTree = "<group>"; };
 		99B9C76E1E50EC7100772B91 /* RadioManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadioManager.swift; sourceTree = "<group>"; };
+		99E659871E538F6700983302 /* ObjC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ObjC.m; sourceTree = "<group>"; };
+		99E659891E538FBE00983302 /* ObjC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjC.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -92,6 +95,8 @@
 				996AC0841E4E3D4800C20AA8 /* Info.plist */,
 				996AC08A1E4E3E3000C20AA8 /* SDRVoiceKeyer-Bridging-Header.h */,
 				99B9C76E1E50EC7100772B91 /* RadioManager.swift */,
+				99E659871E538F6700983302 /* ObjC.m */,
+				99E659891E538FBE00983302 /* ObjC.h */,
 			);
 			path = SDRVoiceKeyer;
 			sourceTree = "<group>";
@@ -219,6 +224,7 @@
 				996AC10D1E4F7A5B00C20AA8 /* GCDAsyncSocket.m in Sources */,
 				996AC1011E4F7A1D00C20AA8 /* RadioFactory.m in Sources */,
 				996AC1081E4F7A1D00C20AA8 /* VITA.m in Sources */,
+				99E659881E538F6700983302 /* ObjC.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

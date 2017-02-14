@@ -31,8 +31,15 @@ class ViewController: NSViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+       
         // Do any additional setup after loading the view.
-        radioManager = RadioManager()
+        do {
+            try radioManager = RadioManager()
+        }
+        catch let error as NSError {
+            // debug.print
+            print("Error: \(error.userInfo.description)")
+        }
         
         NotificationCenter.default.addObserver(self, selector: #selector(self.discoveredRadios), name: NSNotification.Name.init(rawValue: "K6TURadioFactory"), object: nil)
     }
@@ -55,8 +62,14 @@ class ViewController: NSViewController {
             button.isEnabled = true
         }
 
+        do {
+            serialNumberLabel.stringValue = try "S/N " + radioManager.DiscoverRadio()
+        }
+            catch let error as NSError {
+                // debug.print
+                print("Error: \(error.domain)")
+            }
         
-        serialNumberLabel.stringValue = "S/N " + radioManager.DiscoverRadio()
         
     }
 

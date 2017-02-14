@@ -14,8 +14,7 @@ internal class RadioManager {
     var radioFactory: RadioFactory
     var radio: Radio
     
-    init() {
-        
+    init() throws {
         radioFactory  = RadioFactory()
         radio = Radio()
     }
@@ -24,7 +23,7 @@ internal class RadioManager {
     // Get the first radio's serial number to return to the view controller
     // TODO: Account for being called multiple times
     // TODO: Account for multiple radios
-    internal func DiscoverRadio () -> String {
+    internal func DiscoverRadio () throws -> String {
         
         var serialNumber = "Radio Not Found"
         var numberOfRadios = 0
@@ -55,7 +54,6 @@ internal class RadioManager {
         }
         
         return serialNumber
-        
     }
     
     // Create a slice for the radio - or should we be getting the active slice?

@@ -12,5 +12,6 @@
 #import <RadioFactory.h>
 #import <Radio.h>
 #import <Slice.h>
+#import "ObjC.h"
 
 #endif /* SDRVoiceKeyer_Bridging_Header_h */
