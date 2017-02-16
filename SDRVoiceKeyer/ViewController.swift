@@ -31,7 +31,8 @@ class ViewController: NSViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-       
+        NotificationCenter.default.addObserver(self, selector: #selector(self.discoveredRadios), name: NSNotification.Name.init(rawValue: "K6TURadioFactory"), object: nil)
+        
         // Do any additional setup after loading the view.
         do {
             try radioManager = RadioManager()
@@ -41,7 +42,7 @@ class ViewController: NSViewController {
             print("Error: \(error.userInfo.description)")
         }
         
-        NotificationCenter.default.addObserver(self, selector: #selector(self.discoveredRadios), name: NSNotification.Name.init(rawValue: "K6TURadioFactory"), object: nil)
+       
     }
 
     override var representedObject: Any? {
@@ -60,20 +61,34 @@ class ViewController: NSViewController {
     // Notification handler - this will fire when the first radio is discovered and
     // anytime a new radio is discovered, or an existing radio has a major change
     // TODO: Need to account for multiple entries into this function
-    @objc func discoveredRadios(notification: NSNotification){
+    func discoveredRadios(notification: NSNotification){
         
-        // enable buttons
-        for case let button as NSButton in buttonStackView.subviews {
-            button.isEnabled = true
+        if let info = notification.userInfo as? Dictionary<String,String> {
+            // Check if value present before using it
+            if let s = info["Error"] {
+                serialNumberLabel.stringValue = s
+                //print ("Error: " + s)
+                return
+            }
         }
-
-        do {
-            serialNumberLabel.stringValue = try "S/N " + radioManager.DiscoverRadio()
-        }
+        
+        if radioManager != nil {
+            do {
+                serialNumberLabel.stringValue = try "S/N " + radioManager.DiscoverRadio()
+                // enable buttons
+                for case let button as NSButton in buttonStackView.subviews {
+                    button.isEnabled = true
+                }
+            }
             catch let error as NSError {
                 // debug.print
                 print("Error: \(error.domain)")
             }
+        } else {
+            serialNumberLabel.stringValue = "Unable to find radio"
+        }
+
+        
         
         
     }

@@ -16,8 +16,14 @@ internal class RadioManager {
     
     init() throws {
         
-        radioFactory = RadioFactory()
+        
+        radioFactory = RadioFactory.init()
+        
+       
         radio = Radio()
+        
+        
+       
     }
     
     // Create a RadioFactory which starts the discovery process
