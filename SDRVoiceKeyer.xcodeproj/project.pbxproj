@@ -112,7 +112,6 @@
 		996AC0F11E4F79E400C20AA8 /* smartsdr-objective-c-master */ = {
 			isa = PBXGroup;
 			children = (
-				996AC0F31E4F7A1D00C20AA8 /* RadioFactory.m */,
 				996AC0F41E4F7A1D00C20AA8 /* Equalizer.h */,
 				996AC0F51E4F7A1D00C20AA8 /* Equalizer.m */,
 				996AC0F61E4F7A1D00C20AA8 /* FilterSpec.h */,
@@ -120,6 +119,7 @@
 				996AC0F81E4F7A1D00C20AA8 /* LICENSE */,
 				996AC0F91E4F7A1D00C20AA8 /* Radio.h */,
 				996AC0FA1E4F7A1D00C20AA8 /* Radio.m */,
+				996AC0F31E4F7A1D00C20AA8 /* RadioFactory.m */,
 				996AC0FB1E4F7A1D00C20AA8 /* RadioFactory.h */,
 				996AC0FD1E4F7A1D00C20AA8 /* Slice.h */,
 				996AC0FE1E4F7A1D00C20AA8 /* Slice.m */,

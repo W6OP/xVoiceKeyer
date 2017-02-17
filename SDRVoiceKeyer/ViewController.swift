@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  MainViewController.swift
 //  SDRVoiceKeyer
 //
 //  Created by Peter Bourget on 2/10/17.
@@ -8,24 +8,21 @@
 
 import Cocoa
 
-// http://stackoverflow.com/questions/29418310/set-color-of-nsbutton-programmatically-swift
-extension NSImage {
-    class func swatchWithColor(color: NSColor, size: NSSize) -> NSImage {
-        let image = NSImage(size: size)
-        image.lockFocus()
-        color.drawSwatch(in: NSMakeRect(0, 0, size.width, size.height))
-        image.unlockFocus()
-        return image
+extension ViewController: RadioManagerDelegate {
+    func didUpdateRadio(sender: RadioManager) {
+        // do stuff like updating the UI
+        
+        var a = 1
+        
+      
     }
 }
 
+// http://stackoverflow.com/questions/29418310/set-color-of-nsbutton-programmatically-swift
+
 class ViewController: NSViewController {
     
-    
-   
     var radioManager: RadioManager!
-    
-   
 
     // generated code
     override func viewDidLoad() {
@@ -33,9 +30,10 @@ class ViewController: NSViewController {
 
         NotificationCenter.default.addObserver(self, selector: #selector(self.discoveredRadios), name: NSNotification.Name.init(rawValue: "K6TURadioFactory"), object: nil)
         
-        // Do any additional setup after loading the view.
+        // create an instance of my radio manager
         do {
             try radioManager = RadioManager()
+            radioManager.delegate = self
         }
         catch let error as NSError {
             // debug.print
@@ -51,7 +49,7 @@ class ViewController: NSViewController {
         }
     }
     
-    // cleanup network sockets
+    // cleanup network sockets when application terminates
     override func viewWillDisappear() {
         radioManager.radioFactory.close()
     }
@@ -60,21 +58,21 @@ class ViewController: NSViewController {
     
     // Notification handler - this will fire when the first radio is discovered and
     // anytime a new radio is discovered, or an existing radio has a major change
+    // If an error occurs in the RadioFactory.m a dictionary will be posted
     // TODO: Need to account for multiple entries into this function
     func discoveredRadios(notification: NSNotification){
         
         if let info = notification.userInfo as? Dictionary<String,String> {
             // Check if value present before using it
-            if let s = info["Error"] {
-                serialNumberLabel.stringValue = s
-                //print ("Error: " + s)
+            if let error = info["Error"] {
+                serialNumberLabel.stringValue = error
                 return
             }
         }
         
         if radioManager != nil {
             do {
-                serialNumberLabel.stringValue = try "S/N " + radioManager.DiscoverRadio()
+                serialNumberLabel.stringValue = try "S/N " + radioManager.DiscoverRadioInstances()
                 // enable buttons
                 for case let button as NSButton in buttonStackView.subviews {
                     button.isEnabled = true
@@ -82,32 +80,19 @@ class ViewController: NSViewController {
             }
             catch let error as NSError {
                 // debug.print
-                print("Error: \(error.domain)")
+                print("Error: \(error.localizedDescription)")
             }
         } else {
             serialNumberLabel.stringValue = "Unable to find radio"
         }
-
-        
-        
         
     }
 
     // actions
     
-    // button width = 46
-    // button height = 32
-    // var aaa = myButton.frame.size.width
-    // var bbb = myButton.frame.size.height
     @IBAction func voiceButtonClicked(_ sender: NSButton) {
         
-        
-        //sender.image = NSImage.swatchWithColor ( color: NSColor.green, size: NSMakeSize (46, 32) )
-//        for case let button as NSButton in self.view.subviews {
-//            button.image = NSImage.swatchWithColor ( color: NSColor.green, size: NSMakeSize(100, 100) )
-//
-//        }
-        
+        activeSliceLabel.stringValue = "Button Clicked"
     }
     
 //    func getSocket () {
@@ -127,6 +112,7 @@ class ViewController: NSViewController {
     @IBOutlet weak var voiceButton1: NSButton!
     
     @IBOutlet weak var serialNumberLabel: NSTextField!
+    @IBOutlet weak var activeSliceLabel: NSTextField!
     
     @IBOutlet weak var buttonStackView: NSStackView!
     
