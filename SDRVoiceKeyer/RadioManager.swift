@@ -71,19 +71,19 @@ internal class RadioManager {
     // TODO: need to close radio connection
     func CreateRadio(radioInstance: RadioInstance) {
         
-        radio = Radio.init(radioInstanceAndDelegate: radioInstance, delegate: MyDelegateRx)
+        radio = Radio.init(radioInstanceAndDelegate: radioInstance, delegate: radioDelegate)
         
         // we have a radio, let the GUI know
         radioDelegate?.didUpdateRadio(sender: radio)
         
-    }
-    
-    func MyDelegateRx(radio: Radio) {
         
-               // debug.print
-        print (radio.slices.count)
     }
     
+    internal func CloseAll() {
+        radio.close()
+        radioFactory.close()
+    }
+        
     
     func printDebugMessage (_ object: Any) {
         #if DEBUG

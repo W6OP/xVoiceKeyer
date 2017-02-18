@@ -52,7 +52,7 @@ class ViewController: NSViewController, RadioManagerDelegate {
     // cleanup network sockets when application terminates
     // TODO: put method in RadioManager and also close Radio object
     override func viewWillDisappear() {
-        radioManager.radioFactory.close()
+        radioManager.CloseAll()
     }
     
     // my code
@@ -60,26 +60,29 @@ class ViewController: NSViewController, RadioManagerDelegate {
     func didUpdateRadio(sender: Radio) {
             // do stuff like updating the UI
     
-        let radio: Radio = sender
+        //let radio: Radio = sender
       
-        for slice in radio.slices! {
-            //var activeSlice: Bool = slice.sliceActive
-            if slice is NSNull {
-                // debug.print
-                print (" null slice")
-            } else {
-                var a = 1
-                
-                
-            }
-        }
+//        for slice in radio.slices! {
+//            //var activeSlice: Bool = slice.sliceActive
+//            if slice is NSNull {
+//                // debug.print
+//                print (" null slice")
+//            } else {
+//                var a = 1
+//                
+//                
+//            }
+//        }
+        
+        
+//        let a = radio.radioConnectionState
+//        
+//        if (radio.radioInstance != nil) {
+            activeSliceLabel.stringValue = "Connected"
+//        }
         
         
         
-        
-        
-        activeSliceLabel.stringValue = "Connected"
-    
     
     }
 
