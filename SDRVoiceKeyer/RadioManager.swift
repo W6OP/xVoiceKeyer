@@ -8,15 +8,14 @@
 
 import Cocoa
 
+//
 protocol RadioManagerDelegate: class {
-    func didUpdateRadio(sender: RadioManager)
+    func didUpdateRadio(sender: Radio)
 }
-
-
 
 internal class RadioManager {
     
-    weak var delegate:RadioManagerDelegate?
+    weak var radioDelegate:RadioManagerDelegate?
     
     var radioFactory: RadioFactory
     var radio: Radio
@@ -26,8 +25,6 @@ internal class RadioManager {
         
         radioFactory = RadioFactory.init()
         radio = Radio()
-        
-        
        
     }
     
@@ -76,7 +73,8 @@ internal class RadioManager {
         
         radio = Radio.init(radioInstanceAndDelegate: radioInstance, delegate: MyDelegateRx)
         
-        delegate?.didUpdateRadio(sender: self)
+        // we have a radio, let the GUI know
+        radioDelegate?.didUpdateRadio(sender: radio)
         
     }
     

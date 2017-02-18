@@ -8,19 +8,19 @@
 
 import Cocoa
 
-extension ViewController: RadioManagerDelegate {
-    func didUpdateRadio(sender: RadioManager) {
-        // do stuff like updating the UI
-        
-        var a = 1
-        
-      
-    }
-}
+//extension ViewController: RadioManagerDelegate {
+//    func didUpdateRadio(sender: RadioManager) {
+//        // do stuff like updating the UI
+//        
+//        var a = 1
+//        
+//      
+//    }
+//}
 
 // http://stackoverflow.com/questions/29418310/set-color-of-nsbutton-programmatically-swift
 
-class ViewController: NSViewController {
+class ViewController: NSViewController, RadioManagerDelegate {
     
     var radioManager: RadioManager!
 
@@ -33,7 +33,7 @@ class ViewController: NSViewController {
         // create an instance of my radio manager
         do {
             try radioManager = RadioManager()
-            radioManager.delegate = self
+            radioManager.radioDelegate = self
         }
         catch let error as NSError {
             // debug.print
@@ -50,12 +50,39 @@ class ViewController: NSViewController {
     }
     
     // cleanup network sockets when application terminates
+    // TODO: put method in RadioManager and also close Radio object
     override func viewWillDisappear() {
         radioManager.radioFactory.close()
     }
     
     // my code
     
+    func didUpdateRadio(sender: Radio) {
+            // do stuff like updating the UI
+    
+        let radio: Radio = sender
+      
+        for slice in radio.slices! {
+            //var activeSlice: Bool = slice.sliceActive
+            if slice is NSNull {
+                // debug.print
+                print (" null slice")
+            } else {
+                var a = 1
+                
+                
+            }
+        }
+        
+        
+        
+        
+        
+        activeSliceLabel.stringValue = "Connected"
+    
+    
+    }
+
     // Notification handler - this will fire when the first radio is discovered and
     // anytime a new radio is discovered, or an existing radio has a major change
     // If an error occurs in the RadioFactory.m a dictionary will be posted
