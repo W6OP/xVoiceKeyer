@@ -28,7 +28,7 @@ class ViewController: NSViewController, RadioManagerDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        NotificationCenter.default.addObserver(self, selector: #selector(self.discoveredRadios), name: NSNotification.Name.init(rawValue: "K6TURadioFactory"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.radioChanged), name: NSNotification.Name.init(rawValue: "K6TURadioFactory"), object: nil)
         
         // create an instance of my radio manager
         do {
@@ -57,42 +57,19 @@ class ViewController: NSViewController, RadioManagerDelegate {
     
     // my code
     
+     // event handler from Radiomanager - do stuff like updating the UI
     func didUpdateRadio(sender: Radio) {
-            // do stuff like updating the UI
-    
-        //let radio: Radio = sender
-      
-//        for slice in radio.slices! {
-//            //var activeSlice: Bool = slice.sliceActive
-//            if slice is NSNull {
-//                // debug.print
-//                print (" null slice")
-//            } else {
-//                var a = 1
-//                
-//                
-//            }
-//        }
+            //activeSliceLabel.stringValue = "Connected"
         
-        
-//        let a = radio.radioConnectionState
-//        
-//        if (radio.radioInstance != nil) {
-            activeSliceLabel.stringValue = "Connected"
-//        }
-        
-        
-        
-    
     }
 
     // Notification handler - this will fire when the first radio is discovered and
     // anytime a new radio is discovered, or an existing radio has a major change
     // If an error occurs in the RadioFactory.m a dictionary will be posted
     // TODO: Need to account for multiple entries into this function
-    func discoveredRadios(notification: NSNotification){
+    func radioChanged(notification: NSNotification){
         
-        if let info = notification.userInfo as? Dictionary<String,String> {
+        if var info = notification.userInfo as? Dictionary<String,String> {
             // Check if value present before using it
             if let error = info["Error"] {
                 serialNumberLabel.stringValue = error
@@ -100,9 +77,23 @@ class ViewController: NSViewController, RadioManagerDelegate {
             }
         }
         
+        var fields: RadioManager.Fields
+        
+        if var info = notification.userInfo as? Dictionary<String,String> {
+            // Check if value present before using it
+            if let payload = info["RadioPayload"] {
+                // debug.print
+                print ("Payload Data --> \(payload)")
+                fields = radioManager.analyzePayload(payload: payload)
+                return
+            }
+        }
+        
+      
         if radioManager != nil {
             do {
-                serialNumberLabel.stringValue = try "S/N " + radioManager.DiscoverRadioInstances()
+                serialNumberLabel.stringValue = try "S/N " + radioManager.InitializeRadioInstances()
+                activeSliceLabel.stringValue = "Connected"
                 // enable buttons
                 for case let button as NSButton in buttonStackView.subviews {
                     button.isEnabled = true

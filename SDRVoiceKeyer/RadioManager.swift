@@ -7,8 +7,33 @@
 //
 
 import Cocoa
+import Foundation
 
-//
+extension Scanner {
+    
+    func scanUpToCharactersFrom(_ set: CharacterSet) -> String? {
+        var result: NSString?                                                           // 1.
+        return scanUpToCharacters(from: set, into: &result) ? (result as? String) : nil // 2.
+    }
+    
+    func scanUpTo(_ string: String) -> String? {
+        var result: NSString?
+        return self.scanUpTo(string, into: &result) ? (result as? String) : nil
+    }
+    
+    func scanDouble() -> Double? {
+        var double: Double = 0
+        return scanDouble(&double) ? double : nil
+    }
+}
+
+struct SliceInfo {
+    // the fields' values once extracted placed in the properties
+    let slice: String
+    let mode: String
+    let tx: String
+}
+
 protocol RadioManagerDelegate: class {
     func didUpdateRadio(sender: Radio)
 }
@@ -32,7 +57,7 @@ internal class RadioManager {
     // Get the first radio's serial number to return to the view controller
     // TODO: Account for being called multiple times
     // TODO: Account for multiple radios
-    internal func DiscoverRadioInstances () throws -> String {
+    internal func InitializeRadioInstances () throws -> String {
         
         var serialNumber = "Radio Not Found"
         var numberOfRadios = 0
@@ -52,10 +77,8 @@ internal class RadioManager {
                 numberOfRadios = radioInstances.count
             }
             
-            //radio.radioInstance = radioInstances[0]
-            //radio = Radio.init(radioInstanceAndDelegate: radioInstances[0], delegate: RadioDelegate.self)
-            
-            CreateRadio(radioInstance: radioInstances[0])
+            //InitializeRadio(radioInstance: radioInstances[0])
+            radio = Radio.init(radioInstanceAndDelegate: radioInstances[0], delegate: radioDelegate)
             
             printDebugMessage ("The number of radios on the network is \(numberOfRadios) -- \(serialNumber)")
             
@@ -66,16 +89,50 @@ internal class RadioManager {
         return serialNumber
     }
     
-    // Create a slice for the radio - or should we be getting the active slice?
-    // maybe need SliceManager.swift code file
-    // TODO: need to close radio connection
-    func CreateRadio(radioInstance: RadioInstance) {
+    
+    typealias Fields = (slice: String, mode: String, tx: String)
+    
+    // need to get all the slices
+    // find one that has tx=1
+    // check if the mode = USB or LSB or AM
+    // should I return a string or send in event? - probably return a string
+    internal func analyzePayload(payload: String) -> Fields{
         
-        radio = Radio.init(radioInstanceAndDelegate: radioInstance, delegate: radioDelegate)
+        var (slice, mode, tx) = ("", "", "")
         
-        // we have a radio, let the GUI know
+        
+        let scanner = Scanner(string: payload)
+        //scanner.charactersToBeSkipped = CharacterSet(charactersIn: "|")
+        
+        while !scanner.isAtEnd {                  // A
+            //let field = scanner.scanUpTo("|") ?? "" // B
+            scanner.scanUpTo("slice")
+            let info = scanner.scanUpTo(" ") ?? "" // C
+            let field = scanner.scanUpTo(" ")  ?? ""
+            
+            // D
+            switch info {
+                case "slice": slice = field
+                // debug.print
+                print ("Slice was found ----------------------------------- \(field)  ")
+                case "mode": mode = field
+                case "tx": tx = field
+                default: break
+            }
+            
+           
+        }
+         return (slice, mode, tx)
+
+    }
+    
+    
+    // raise event and send to view controller
+    func UpdateRadio(radioInstance: RadioInstance) {
+        
+        
+        // we have an update, let the GUI know
         radioDelegate?.didUpdateRadio(sender: radio)
-        
         
     }
     
