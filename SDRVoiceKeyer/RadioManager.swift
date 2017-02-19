@@ -27,6 +27,14 @@ extension Scanner {
     }
 }
 
+extension Array  {
+    var indexedDictionary: [Int: Element] {
+        var result: [Int: Element] = [:]
+        enumerated().forEach({ result[$0.offset] = $0.element })
+        return result
+    }
+}
+
 struct SliceInfo {
     // the fields' values once extracted placed in the properties
     let slice: String
@@ -90,41 +98,91 @@ internal class RadioManager {
     }
     
     
-    typealias Fields = (slice: String, mode: String, tx: String)
-    
+    //typealias Fields = (slice: String, mode: String, tx: String, handle: String)
+    var sliceInfo = (handle: "", slice: "", mode: "", tx: "", complete: false)
     // need to get all the slices
     // find one that has tx=1
     // check if the mode = USB or LSB or AM
     // should I return a string or send in event? - probably return a string
-    internal func analyzePayload(payload: String) -> Fields{
+    internal func analyzePayload(payload: String) -> (handle: String, slice: String, mode: String, tx: String, complete: Bool){
         
-        var (slice, mode, tx) = ("", "", "")
+        //var (slice, mode, tx, handle) = ("", "", "", "")
         
+        var sliceHandle: String
+        var count = 0
+        
+        // Create a CharacterSet of delimiters.
+        let separators = CharacterSet(charactersIn: "| =")
+        // Split based on characters.
+        let parts = payload.components(separatedBy: separators)
+
         
         let scanner = Scanner(string: payload)
-        //scanner.charactersToBeSkipped = CharacterSet(charactersIn: "|")
+        //scanner.charactersToBeSkipped = nil //CharacterSet(charactersIn: "|")
         
-        while !scanner.isAtEnd {                  // A
-            //let field = scanner.scanUpTo("|") ?? "" // B
-            scanner.scanUpTo("slice")
-            let info = scanner.scanUpTo(" ") ?? "" // C
-            let field = scanner.scanUpTo(" ")  ?? ""
-            
-            // D
-            switch info {
-                case "slice": slice = field
-                // debug.print
-                print ("Slice was found ----------------------------------- \(field)  ")
-                case "mode": mode = field
-                case "tx": tx = field
-                default: break
+        var temp = scanner.scanUpTo("|")! // gets the status handle
+        sliceHandle = temp
+        
+        temp = scanner.scanUpTo("slice ") ?? "" // this gets us the "|"
+        temp = scanner.scanUpTo(" ") ?? "" // gets us "slice"
+        
+        if temp == "slice" {
+            if sliceHandle != sliceInfo.handle { // this may never happen
+                sliceInfo = (handle: "", slice: "", mode: "", tx: "", complete: false)
             }
             
-           
+            sliceInfo.handle = sliceHandle
+            for (index, items) in parts.enumerated() {
+                if items == "slice" {
+                    sliceInfo.slice = parts[index + 1]
+                    count += 1
+                }
+                
+                if items == "mode" {
+                    sliceInfo.mode = parts[index + 1]
+                    count += 1
+                }
+                
+                if items == "tx" {
+                    sliceInfo.tx = parts[index + 1]
+                    count += 1
+                }
+                
+                if items == "active" {
+                    sliceInfo.tx = parts[index + 1]
+                    count += 1
+                }
+            }
         }
-         return (slice, mode, tx)
-
+        
+        if count >= 3 {
+            sliceInfo.complete = true
+        }
+        
+        return sliceInfo
     }
+    
+//    func parseSlice (parts: [String]) -> (slice: "0", mode: "", tx: "0");){
+//
+//        var sliceInfo = (slice: "0", mode: "", tx: "0")
+//        
+//        for (index, items) in parts.enumerated() {
+//            if items == "mode" {
+//                sliceInfo.mode = parts[index + 1]
+//    
+//            }
+//            
+//            if items == "tx" {
+//                sliceInfo.tx = parts[index + 1]
+//                
+//            }
+//        }
+//        
+//        return sliceInfo
+//    }
+    
+    
+
     
     
     // raise event and send to view controller

@@ -23,6 +23,7 @@ import Cocoa
 class ViewController: NSViewController, RadioManagerDelegate {
     
     var radioManager: RadioManager!
+    var activeSliceHandle = ""
 
     // generated code
     override func viewDidLoad() {
@@ -69,6 +70,9 @@ class ViewController: NSViewController, RadioManagerDelegate {
     // TODO: Need to account for multiple entries into this function
     func radioChanged(notification: NSNotification){
         
+        var sliceInfo = (handle: "", slice: "", mode: "", tx: "", complete: false)
+
+        
         if var info = notification.userInfo as? Dictionary<String,String> {
             // Check if value present before using it
             if let error = info["Error"] {
@@ -77,14 +81,55 @@ class ViewController: NSViewController, RadioManagerDelegate {
             }
         }
         
-        var fields: RadioManager.Fields
+        // debug.print
+        //print (" A- " + activeSliceHandle + " slice - " + sliceInfo.handle)
         
         if var info = notification.userInfo as? Dictionary<String,String> {
             // Check if value present before using it
             if let payload = info["RadioPayload"] {
                 // debug.print
                 print ("Payload Data --> \(payload)")
-                fields = radioManager.analyzePayload(payload: payload)
+                sliceInfo = radioManager.analyzePayload(payload: payload)
+                
+                // debug.print
+                //print (" A- " + activeSliceHandle + " slice - " + sliceInfo.handle)
+                
+                // TODO: see what happens if radio is on but SmartSDR not running
+                if sliceInfo.complete { // this will be when radio is first contacted
+                    if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM"){
+                        switch sliceInfo.slice {
+                            case "0":
+                                activeSliceLabel.stringValue = "Slice A Active"
+                                activeSliceHandle = sliceInfo.handle
+                            case "1":
+                                activeSliceLabel.stringValue = "Slice B Active"
+                                activeSliceHandle = sliceInfo.handle
+                            case "2":
+                                activeSliceLabel.stringValue = "Slice C Active"
+                                activeSliceHandle = sliceInfo.handle
+                            case "3":
+                                activeSliceLabel.stringValue = "Slice D Active"
+                                activeSliceHandle = sliceInfo.handle
+                            case "4":
+                                activeSliceLabel.stringValue = "Slice E Active"
+                                activeSliceHandle = sliceInfo.handle
+                            case "5":
+                                activeSliceLabel.stringValue = "Slice F Active"
+                                activeSliceHandle = sliceInfo.handle
+                            case "6":
+                                activeSliceLabel.stringValue = "Slice G Active"
+                                activeSliceHandle = sliceInfo.handle
+                            case "7":
+                                activeSliceLabel.stringValue = "Slice H Active"
+                                activeSliceHandle = sliceInfo.handle
+                            default:
+                                activeSliceLabel.stringValue = "No Active Slice 2"
+                        }
+                    } else if activeSliceHandle == sliceInfo.handle {
+                        //activeSliceLabel.stringValue = "No Active Slice"
+                    }
+                }
+                
                 return
             }
         }
