@@ -8,15 +8,6 @@
 
 import Cocoa
 
-//extension ViewController: RadioManagerDelegate {
-//    func didUpdateRadio(sender: RadioManager) {
-//        // do stuff like updating the UI
-//        
-//        var a = 1
-//        
-//      
-//    }
-//}
 
 // http://stackoverflow.com/questions/29418310/set-color-of-nsbutton-programmatically-swift
 
@@ -24,14 +15,28 @@ class ViewController: NSViewController, RadioManagerDelegate {
     
     var radioManager: RadioManager!
     var activeSliceHandle = ""
+    
+    
+    // outlets
+    @IBOutlet weak var voiceButton1: NSButton!
+    @IBOutlet weak var serialNumberLabel: NSTextField!
+    @IBOutlet weak var activeSliceLabel: NSTextField!
+    @IBOutlet weak var buttonStackView: NSStackView!
 
+    // actions
+    @IBAction func voiceButtonClicked(_ sender: NSButton) {
+        
+        activeSliceLabel.stringValue = "Button Clicked"
+    }
+    
     // generated code
     override func viewDidLoad() {
         super.viewDidLoad()
 
         NotificationCenter.default.addObserver(self, selector: #selector(self.radioChanged), name: NSNotification.Name.init(rawValue: "K6TURadioFactory"), object: nil)
         
-        // create an instance of my radio manager
+        // create an instance of my radio manager and assign a delegate from it
+        // so I can handle events it raises
         do {
             try radioManager = RadioManager()
             radioManager.radioDelegate = self
@@ -40,8 +45,6 @@ class ViewController: NSViewController, RadioManagerDelegate {
             // debug.print
             print("Error: \(error.userInfo.description)")
         }
-        
-       
     }
 
     override var representedObject: Any? {
@@ -60,7 +63,7 @@ class ViewController: NSViewController, RadioManagerDelegate {
     
      // event handler from Radiomanager - do stuff like updating the UI
     func didUpdateRadio(sender: Radio) {
-            //activeSliceLabel.stringValue = "Connected"
+        //activeSliceLabel.stringValue = "Connected"
         
     }
 
@@ -70,9 +73,6 @@ class ViewController: NSViewController, RadioManagerDelegate {
     // TODO: Need to account for multiple entries into this function
     func radioChanged(notification: NSNotification){
         
-        var sliceInfo = (handle: "", slice: "", mode: "", tx: "", complete: false)
-
-        
         if var info = notification.userInfo as? Dictionary<String,String> {
             // Check if value present before using it
             if let error = info["Error"] {
@@ -81,60 +81,62 @@ class ViewController: NSViewController, RadioManagerDelegate {
             }
         }
         
-        // debug.print
-        //print (" A- " + activeSliceHandle + " slice - " + sliceInfo.handle)
-        
+        // this calls RadioManager.analyzePayload
         if var info = notification.userInfo as? Dictionary<String,String> {
             // Check if value present before using it
             if let payload = info["RadioPayload"] {
                 // debug.print
                 print ("Payload Data --> \(payload)")
-                sliceInfo = radioManager.analyzePayload(payload: payload)
                 
-                // debug.print
-                //print (" A- " + activeSliceHandle + " slice - " + sliceInfo.handle)
+                let availableSlices = radioManager.analyzePayload(payload: payload) as [String: SliceInfo]
                 
-                // TODO: see what happens if radio is on but SmartSDR not running
-                if sliceInfo.complete { // this will be when radio is first contacted
-                    if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM"){
-                        switch sliceInfo.slice {
-                            case "0":
+                activeSliceLabel.stringValue = "No Active Slice"
+                for (slice, sliceInfo) in availableSlices {
+                    switch slice {
+                        case "slice0":
+                            if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
                                 activeSliceLabel.stringValue = "Slice A Active"
-                                activeSliceHandle = sliceInfo.handle
-                            case "1":
+                            }
+                        case "slice1":
+                            if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
                                 activeSliceLabel.stringValue = "Slice B Active"
-                                activeSliceHandle = sliceInfo.handle
-                            case "2":
+                            }
+                        case "slice2":
+                            if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
                                 activeSliceLabel.stringValue = "Slice C Active"
-                                activeSliceHandle = sliceInfo.handle
-                            case "3":
+                            }
+                        case "slice3":
+                            if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
                                 activeSliceLabel.stringValue = "Slice D Active"
-                                activeSliceHandle = sliceInfo.handle
-                            case "4":
+                            }
+                        case "slice4":
+                            if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
                                 activeSliceLabel.stringValue = "Slice E Active"
-                                activeSliceHandle = sliceInfo.handle
-                            case "5":
+                            }
+                        case "slice5":
+                            if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
                                 activeSliceLabel.stringValue = "Slice F Active"
-                                activeSliceHandle = sliceInfo.handle
-                            case "6":
+                            }
+                        case "slice6":
+                            if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
                                 activeSliceLabel.stringValue = "Slice G Active"
-                                activeSliceHandle = sliceInfo.handle
-                            case "7":
+                            }
+                        case "slice7":
+                            if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
                                 activeSliceLabel.stringValue = "Slice H Active"
-                                activeSliceHandle = sliceInfo.handle
-                            default:
-                                activeSliceLabel.stringValue = "No Active Slice 2"
-                        }
-                    } else if activeSliceHandle == sliceInfo.handle {
-                        //activeSliceLabel.stringValue = "No Active Slice"
+                            }
+                        default:
+                        activeSliceLabel.stringValue = "No Active Slice"
                     }
+                    
                 }
                 
                 return
+                
             }
         }
         
-      
+        // initialization
         if radioManager != nil {
             do {
                 serialNumberLabel.stringValue = try "S/N " + radioManager.InitializeRadioInstances()
@@ -153,34 +155,6 @@ class ViewController: NSViewController, RadioManagerDelegate {
         }
         
     }
-
-    // actions
-    
-    @IBAction func voiceButtonClicked(_ sender: NSButton) {
-        
-        activeSliceLabel.stringValue = "Button Clicked"
-    }
-    
-//    func getSocket () {
-//       var udpSocket: GCDAsyncUdpSocket
-//        
-//        udpSocket = GCDAsyncUdpSocket()
-//        
-//        udpSocket.didRe
-//        
-//        
-//        
-//    }
-    
-
-    // outlets
-    
-    @IBOutlet weak var voiceButton1: NSButton!
-    
-    @IBOutlet weak var serialNumberLabel: NSTextField!
-    @IBOutlet weak var activeSliceLabel: NSTextField!
-    
-    @IBOutlet weak var buttonStackView: NSStackView!
     
 } // end class
 
