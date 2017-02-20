@@ -44,7 +44,7 @@ protocol RadioManagerDelegate: class {
 }
 
 // begin class
-internal class RadioManager {
+internal class RadioManager: NSObject {
     
     weak var radioDelegate:RadioManagerDelegate?
     
@@ -53,7 +53,7 @@ internal class RadioManager {
     var availableSlices = [String: SliceInfo]()
     
     // TODO: Make sure exception handling works
-    init() throws {
+    override init() {
         
         radioFactory = RadioFactory.init()
         radio = Radio()

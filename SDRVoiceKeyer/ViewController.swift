@@ -86,7 +86,7 @@ class ViewController: NSViewController, RadioManagerDelegate {
             // Check if value present before using it
             if let payload = info["RadioPayload"] {
                 // debug.print
-                print ("Payload Data --> \(payload)")
+                //print ("Payload Data --> \(payload)")
                 
                 let availableSlices = radioManager.analyzePayload(payload: payload) as [String: SliceInfo]
                 

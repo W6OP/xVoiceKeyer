@@ -21,6 +21,7 @@
 		996AC10D1E4F7A5B00C20AA8 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 996AC10A1E4F7A5B00C20AA8 /* GCDAsyncSocket.m */; };
 		996AC10E1E4F7A5B00C20AA8 /* GCDAsyncUdpSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 996AC10C1E4F7A5B00C20AA8 /* GCDAsyncUdpSocket.m */; };
 		99B9C76F1E50EC7100772B91 /* RadioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B9C76E1E50EC7100772B91 /* RadioManager.swift */; };
+		99D64A2F1E5B9BEB0053ED1F /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D64A2E1E5B9BEB0053ED1F /* AudioManager.swift */; };
 		99E659881E538F6700983302 /* ObjC.m in Sources */ = {isa = PBXBuildFile; fileRef = 99E659871E538F6700983302 /* ObjC.m */; };
 /* End PBXBuildFile section */
 
@@ -51,6 +52,7 @@
 		996AC10B1E4F7A5B00C20AA8 /* GCDAsyncUdpSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GCDAsyncUdpSocket.h; path = "../../CocoaAsyncSocket-master/Source/GCD/GCDAsyncUdpSocket.h"; sourceTree = "<group>"; };
 		996AC10C1E4F7A5B00C20AA8 /* GCDAsyncUdpSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GCDAsyncUdpSocket.m; path = "../../CocoaAsyncSocket-master/Source/GCD/GCDAsyncUdpSocket.m"; sourceTree = "<group>"; };
 		99B9C76E1E50EC7100772B91 /* RadioManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadioManager.swift; sourceTree = "<group>"; };
+		99D64A2E1E5B9BEB0053ED1F /* AudioManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioManager.swift; sourceTree = "<group>"; };
 		99E659871E538F6700983302 /* ObjC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ObjC.m; sourceTree = "<group>"; };
 		99E659891E538FBE00983302 /* ObjC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjC.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -97,6 +99,7 @@
 				99B9C76E1E50EC7100772B91 /* RadioManager.swift */,
 				99E659871E538F6700983302 /* ObjC.m */,
 				99E659891E538FBE00983302 /* ObjC.h */,
+				99D64A2E1E5B9BEB0053ED1F /* AudioManager.swift */,
 			);
 			path = SDRVoiceKeyer;
 			sourceTree = "<group>";
@@ -217,6 +220,7 @@
 				996AC07E1E4E3D4800C20AA8 /* ViewController.swift in Sources */,
 				996AC1071E4F7A1D00C20AA8 /* Slice.m in Sources */,
 				996AC1031E4F7A1D00C20AA8 /* FilterSpec.m in Sources */,
+				99D64A2F1E5B9BEB0053ED1F /* AudioManager.swift in Sources */,
 				99B9C76F1E50EC7100772B91 /* RadioManager.swift in Sources */,
 				996AC1051E4F7A1D00C20AA8 /* Radio.m in Sources */,
 				996AC07C1E4E3D4800C20AA8 /* AppDelegate.swift in Sources */,
