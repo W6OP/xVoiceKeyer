@@ -102,10 +102,10 @@ internal class RadioManager: NSObject {
     internal func analyzePayload(payload: String) -> [String: SliceInfo] {
         
         var sliceInfo: SliceInfo!
-        var sliceHandle: String = ""
-        var slice: String = ""
-        var mode: String = ""
-        var tx: String = ""
+        var sliceHandle = ""
+        var slice = ""
+        var mode = ""
+        var tx = ""
         var complete = false
         var count = 0
         
@@ -125,10 +125,6 @@ internal class RadioManager: NSObject {
         temp = scanner.scanUpTo(" ") ?? "" // gets us "slice"
         
         if temp == "slice" {
-//            if sliceHandle != sliceInfo.handle { // this may never happen - may mean it's from another radio
-//                sliceInfo = (handle: "", slice: "", mode: "", tx: "", complete: false)
-//            }
-
             for (index, items) in parts.enumerated() {
                 if items == "slice" {
                     slice = parts[index + 1]
@@ -155,7 +151,7 @@ internal class RadioManager: NSObject {
                 complete = true
             }
             
-            sliceInfo = SliceInfo(handle: sliceHandle, slice: slice, mode: mode, tx: tx, complete: true)
+            sliceInfo = SliceInfo(handle: sliceHandle, slice: slice, mode: mode, tx: tx, complete: complete)
             
             updateAvailableSlices(sliceInfo: sliceInfo)
         }
