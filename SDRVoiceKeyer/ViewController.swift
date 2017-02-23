@@ -29,6 +29,11 @@ class ViewController: NSViewController, RadioManagerDelegate {
         activeSliceLabel.stringValue = "Button Clicked"
     }
     
+    
+    @IBAction func buttonShowPreferences(_ sender: AnyObject) {
+        showPreferences(sender)
+    }
+    
     // generated code
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -153,7 +158,15 @@ class ViewController: NSViewController, RadioManagerDelegate {
         } else {
             serialNumberLabel.stringValue = "Unable to find radio"
         }
+    }
+    
+    
+    // show the preferences panel and populate it
+    func showPreferences(_ sender: AnyObject) {
+        let SB = NSStoryboard(name: "Main", bundle: nil)
+        let PVC: RadioPreferences = SB.instantiateController(withIdentifier: "radioPreferences") as! RadioPreferences
         
+        self.presentViewControllerAsSheet(PVC)
     }
     
 } // end class

@@ -15,4 +15,10 @@ class RadioPreferences: NSViewController {
         // Do view setup here.
     }
     
+    
+    
+    @IBAction func buttonOk(_ sender: Any) {
+        self.dismiss(self)
+    }
+    
 } // end class
