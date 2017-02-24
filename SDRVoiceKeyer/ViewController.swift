@@ -14,7 +14,8 @@ import Cocoa
 class ViewController: NSViewController, RadioManagerDelegate {
     
     var radioManager: RadioManager!
-    var activeSliceHandle = ""
+    var audiomanager: AudioManager!
+    //var activeSliceHandle = ""
     
     
     // outlets
@@ -25,8 +26,7 @@ class ViewController: NSViewController, RadioManagerDelegate {
 
     // actions
     @IBAction func voiceButtonClicked(_ sender: NSButton) {
-        
-        activeSliceLabel.stringValue = "Button Clicked"
+        audiomanager.selectAudioFile(tag: sender.tag)
     }
     
     
@@ -45,6 +45,8 @@ class ViewController: NSViewController, RadioManagerDelegate {
         do {
             try radioManager = RadioManager()
             radioManager.radioDelegate = self
+            
+            audiomanager = AudioManager()
         }
         catch let error as NSError {
             // debug.print

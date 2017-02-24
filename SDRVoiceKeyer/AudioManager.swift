@@ -7,27 +7,55 @@
 //
 
 import Cocoa
+import AVFoundation
 
 internal class AudioManager: NSObject {
+    
+    var audioPlayer: AVAudioPlayer!
     
     // TODO: Make sure exception handling works
     override init() {
         
     }
     
-//    internal func loadFile() {
-//        let panel = NSOpenPanel()
-//        // This method displays the panel and returns immediately.
-//        // The completion handler is called when the user selects an
-//        // item or cancels the panel.
-//        panel.begin(completionHandler: {(_ result: Int) -> Void in
-//            if result == NSFileHandlingPanelOKButton {
-//                let theDoc: URL? = panel.urls[0]
-//                print(theDoc?.absoluteURL) // this gives the file path
-//                // Open  the document.
-//               
-//            }
-//        })
-//    }
+    // When one of the buttons on the main form is clicked its tag will be sent.
+    // Retrieve the file from the user preferences that matches this tag and
+    // pass it on the the method that will load the file and send it to the radio
+    // TODO: add code for multiple profiles
+    internal func selectAudioFile(tag: Int) {
+        
+        if let filePath = UserDefaults.standard.string(forKey: String(tag)) {
+            playAudioFile(filePath: filePath)
+        }
+        
+    }
+    
+    // play the audio file when a button is clicked
+    func playAudioFile(filePath: String) {
+        
+        audioPlayer = AVAudioPlayer()
+        
+        let fileManager = FileManager.default
+        
+        if(fileManager.fileExists(atPath: filePath))
+        {
+            let soundUrl = URL(fileURLWithPath: filePath)
+            // Create audio player object and initialize with URL to sound
+            do {
+                self.audioPlayer = try AVAudioPlayer(contentsOf: soundUrl)
+                audioPlayer.play()
+            }
+            catch {
+                // debug.print
+                print (" failed ")
+            }
+        } else {
+            // TODO: will want to notify user
+        }
+
+    }
+    
+    
+    
 
 } // end class
