@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		99217D521E5D02A50042C787 /* RadioPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99217D511E5D02A50042C787 /* RadioPreferences.swift */; };
+		9934B7161E662EAC000141BC /* RadioFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9934B7151E662EAC000141BC /* RadioFactory.swift */; };
+		9934B7181E663A86000141BC /* RadioInstance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9934B7171E663A86000141BC /* RadioInstance.swift */; };
 		993D1E691E5F811D00BB5236 /* PreferenceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 993D1E681E5F811D00BB5236 /* PreferenceManager.swift */; };
 		996AC07C1E4E3D4800C20AA8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 996AC07B1E4E3D4800C20AA8 /* AppDelegate.swift */; };
 		996AC07E1E4E3D4800C20AA8 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 996AC07D1E4E3D4800C20AA8 /* ViewController.swift */; };
@@ -29,6 +31,8 @@
 
 /* Begin PBXFileReference section */
 		99217D511E5D02A50042C787 /* RadioPreferences.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadioPreferences.swift; sourceTree = "<group>"; };
+		9934B7151E662EAC000141BC /* RadioFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadioFactory.swift; sourceTree = "<group>"; };
+		9934B7171E663A86000141BC /* RadioInstance.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadioInstance.swift; sourceTree = "<group>"; };
 		993D1E681E5F811D00BB5236 /* PreferenceManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreferenceManager.swift; sourceTree = "<group>"; };
 		996AC0781E4E3D4800C20AA8 /* SDRVoiceKeyer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SDRVoiceKeyer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		996AC07B1E4E3D4800C20AA8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -106,6 +110,8 @@
 				993D1E681E5F811D00BB5236 /* PreferenceManager.swift */,
 				99E659871E538F6700983302 /* ObjC.m */,
 				99E659891E538FBE00983302 /* ObjC.h */,
+				9934B7151E662EAC000141BC /* RadioFactory.swift */,
+				9934B7171E663A86000141BC /* RadioInstance.swift */,
 			);
 			path = SDRVoiceKeyer;
 			sourceTree = "<group>";
@@ -128,8 +134,8 @@
 				996AC0F81E4F7A1D00C20AA8 /* LICENSE */,
 				996AC0F91E4F7A1D00C20AA8 /* Radio.h */,
 				996AC0FA1E4F7A1D00C20AA8 /* Radio.m */,
-				996AC0F31E4F7A1D00C20AA8 /* RadioFactory.m */,
 				996AC0FB1E4F7A1D00C20AA8 /* RadioFactory.h */,
+				996AC0F31E4F7A1D00C20AA8 /* RadioFactory.m */,
 				996AC0FD1E4F7A1D00C20AA8 /* Slice.h */,
 				996AC0FE1E4F7A1D00C20AA8 /* Slice.m */,
 				996AC0FF1E4F7A1D00C20AA8 /* VITA.h */,
@@ -230,12 +236,14 @@
 				99D64A2F1E5B9BEB0053ED1F /* AudioManager.swift in Sources */,
 				99B9C76F1E50EC7100772B91 /* RadioManager.swift in Sources */,
 				996AC1051E4F7A1D00C20AA8 /* Radio.m in Sources */,
+				9934B7161E662EAC000141BC /* RadioFactory.swift in Sources */,
 				996AC07C1E4E3D4800C20AA8 /* AppDelegate.swift in Sources */,
 				996AC10E1E4F7A5B00C20AA8 /* GCDAsyncUdpSocket.m in Sources */,
 				993D1E691E5F811D00BB5236 /* PreferenceManager.swift in Sources */,
 				996AC10D1E4F7A5B00C20AA8 /* GCDAsyncSocket.m in Sources */,
 				996AC1011E4F7A1D00C20AA8 /* RadioFactory.m in Sources */,
 				996AC1081E4F7A1D00C20AA8 /* VITA.m in Sources */,
+				9934B7181E663A86000141BC /* RadioInstance.swift in Sources */,
 				99E659881E538F6700983302 /* ObjC.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

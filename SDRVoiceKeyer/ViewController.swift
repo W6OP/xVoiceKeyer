@@ -53,6 +53,11 @@ class ViewController: NSViewController, RadioManagerDelegate {
             print("Error: \(error.userInfo.description)")
         }
     }
+    
+    // TODO: 
+    // Check TCP port
+    // Add port selection 5000 - 5010
+    // Globally hold all client handles - dictionary
 
     override var representedObject: Any? {
         didSet {
