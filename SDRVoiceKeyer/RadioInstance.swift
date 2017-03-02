@@ -14,11 +14,11 @@ import Foundation
 // the radio disovery protocol.
 
 // RENAME to RadioInstance Only when ready to use
-class RadioInstanceS {
+public class RadioInstance: NSObject {
 
     // ipAddress:  The IP address of the radio represented by this instance.
     // NOTE:  The IP address is in decimal doted format - ie "1.1.1.1" as a string.
-    var ipAddress: String = ""
+    public var ipAddress: String = ""
 
     // port: The TCP port number for accessing the Ethernet control API.
     var port: NSNumber!
@@ -48,39 +48,39 @@ class RadioInstanceS {
     // lastSeen:  The date and time of which a discovery message from this radio instance was last received.
     var lastSeen: Date!
 
-//    func initWithData(ipAddress: String, port: NSNumber, model: String, serialNum: String, name: String, callsign: String, dpVersion: String, version: String, status: String) -> RadioInstance{
-//
-//        self.ipAddress = ipAddress
-//        self.port = port
-//        self.model = model
-//        self.serialNum = serialNum
-//        self.name = name
-//        if callsign != "" {
-//            self.callsign = callsign
-//        }
-//        if dpVersion != "" {
-//            self.dpVersion = dpVersion
-//        }
-//        if version != "" {
-//            self.version = version
-//        }
-//        if status != "" {
-//            self.status = status
-//        }
-//        self.lastSeen = Date()
-//
-//    return self
-//
-//    }
+    func initWithData(ipAddress: String, port: NSNumber, model: String, serialNum: String, name: String, callsign: String, dpVersion: String, version: String, status: String) -> RadioInstance{
+
+        self.ipAddress = ipAddress
+        self.port = port
+        self.model = model
+        self.serialNum = serialNum
+        self.name = name
+        if callsign != "" {
+            self.callsign = callsign
+        }
+        if dpVersion != "" {
+            self.dpVersion = dpVersion
+        }
+        if version != "" {
+            self.version = version
+        }
+        if status != "" {
+            self.status = status
+        }
+        self.lastSeen = Date()
+
+    return self
+
+    }
     
    
     // may be better way with Swift
-    func isEqual(_ radio: RadioInstance) -> Bool {
-        //let radio: RadioInstance? = (object as? RadioInstance)
-        if (self.ipAddress == radio.ipAddress) && (self.port == radio.port) && (self.model == radio.model) && (self.serialNum == radio.serialNum) {
-            return true
-        }
-        return false
-    }
+//    func isEqual(_ radio: RadioInstance) -> Bool {
+//        //let radio: RadioInstance? = (object as? RadioInstance)
+//        if (self.ipAddress == radio.ipAddress) && (self.port == radio.port) && (self.model == radio.model) && (self.serialNum == radio.serialNum) {
+//            return true
+//        }
+//        return false
+//    }
 
 } // end class

@@ -13,7 +13,7 @@
 #import <Radio.h>
 #import <Slice.h>
 #import <VITA.h>
-#import <arpa/inet.h>
+#import "arpa/inet.h"
 #import "ObjC.h"
 
 #endif /* SDRVoiceKeyer_Bridging_Header_h */
