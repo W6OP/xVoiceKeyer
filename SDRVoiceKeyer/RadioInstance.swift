@@ -14,7 +14,7 @@ import Foundation
 // the radio disovery protocol.
 
 // RENAME to RadioInstance Only when ready to use
-public class RadioInstance: NSObject {
+ class RadioInstance: NSObject {
 
     // ipAddress:  The IP address of the radio represented by this instance.
     // NOTE:  The IP address is in decimal doted format - ie "1.1.1.1" as a string.
@@ -48,6 +48,7 @@ public class RadioInstance: NSObject {
     // lastSeen:  The date and time of which a discovery message from this radio instance was last received.
     var lastSeen: Date!
 
+    // func name is initWithDataWithIpAddress as far as objective c is concerned
     func initWithData(ipAddress: String, port: NSNumber, model: String, serialNum: String, name: String, callsign: String, dpVersion: String, version: String, status: String) -> RadioInstance{
 
         self.ipAddress = ipAddress
