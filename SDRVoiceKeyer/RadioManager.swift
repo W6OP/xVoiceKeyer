@@ -50,13 +50,16 @@ internal class RadioManager: NSObject {
     
     var radioFactory: RadioFactory
     var radio: Radio
-    var availableSlices = [String: SliceInfo]()
+    var availableRadioInstances: [RadioInstance]
+    var availableSlices: [String: SliceInfo]
     
     // TODO: Make sure exception handling works
     override init() {
         
         radioFactory = RadioFactory.init()
         radio = Radio()
+        availableRadioInstances = [RadioInstance]()
+        availableSlices = [String: SliceInfo]()
     }
     
     // Create a RadioFactory which starts the discovery process
@@ -70,7 +73,8 @@ internal class RadioManager: NSObject {
         var radioInstances = [RadioInstance]()
         
         // this force casts an NSArray to Swift Array
-        radioInstances = radioFactory.availableRadioInstances() as! [RadioInstance]
+        //radioInstances = radioFactory.availableRadioInstances() as! [RadioInstance]
+        radioInstances = self.availableRadioInstances // as! [RadioInstance]
         
         if radioInstances.count > 0 {
             serialNumber = radioInstances[0].serialNum
@@ -223,7 +227,7 @@ internal class RadioManager: NSObject {
     
     internal func CloseAll() {
         radio.close()
-        radioFactory.close()
+        //radioFactory.close()
     }
         
     
