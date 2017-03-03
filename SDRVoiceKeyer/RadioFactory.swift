@@ -38,6 +38,8 @@ enum vitaTokens : Int {
     case dpVersionToken
     case versionToken
     case statusToken
+    case inuseipToken
+    case inusehostToken
 }
 
 //  The converted code is limited by 2 KB.
@@ -51,7 +53,7 @@ class RadioFactory: NSObject, GCDAsyncUdpSocketDelegate {
     var availableRadioInstances: [String : RadioInstance]!
     var discoveredRadios: [String : RadioInstance]!
     var timeoutTimer: Timer!
-    var parserTokens = [AnyHashable: Any]()
+    var parserTokens = [AnyHashable: vitaTokens]()
     
     
     override init() {
@@ -95,7 +97,9 @@ class RadioFactory: NSObject, GCDAsyncUdpSocketDelegate {
             "nickname" : vitaTokens.nameToken,
             "discovery_protocol_version" : vitaTokens.dpVersionToken,
             "version" : vitaTokens.versionToken,
-            "status" : vitaTokens.statusToken
+            "status" : vitaTokens.statusToken,
+            "inuse_ip" : vitaTokens.inuseipToken,
+            "inuse_host" : vitaTokens.inusehostToken
         ]
     }
 
@@ -108,7 +112,7 @@ class RadioFactory: NSObject, GCDAsyncUdpSocketDelegate {
     }
     
     
-    
+    // TODO: All of this needs checking
     func radioFound(_ radio: RadioInstance) {
         // Check if in list...
         var key: String = radio.ipAddress
@@ -118,7 +122,10 @@ class RadioFactory: NSObject, GCDAsyncUdpSocketDelegate {
         let lockQueue = DispatchQueue(label: "self")
         
         lockQueue.sync {
-            inList = self.discoveredRadios[key]!
+            //inList = self.discoveredRadios[key]!
+            if let test = self.discoveredRadios[key] {
+                inList = self.discoveredRadios[key]!
+            }
         }
         
         if inList == nil {
@@ -128,18 +135,19 @@ class RadioFactory: NSObject, GCDAsyncUdpSocketDelegate {
                 self.discoveredRadios[key] = radio
             }
             
-            // FIX
             NotificationCenter.default.post(name: NSNotification.Name(rawValue: "K6TURadioFactory"), object: self)
             //NotificationCenter.default.post(name: "K6TURadioFactory", object: self)
             print("Radio added")
         }
-        else if !(inList?.isEqual(radio))! {
+//        else if !(inList?.isEqual(radio))! {
+        else if !(inList!.serialNum.isEqual(radio.serialNum)) {
             // The radio instance has changed... a different radio is at the same address
             // or some attribute of it has changed.
             let lockQueue = DispatchQueue(label: "self")
             lockQueue.sync {
                 self.discoveredRadios.removeValue(forKey: key)
                 self.discoveredRadios[key] = radio
+                radio.lastSeen = Date() // added W6OP
             }
             
             NotificationCenter.default.post(name: NSNotification.Name(rawValue: "K6TURadioFactory"), object: self)
@@ -150,18 +158,16 @@ class RadioFactory: NSObject, GCDAsyncUdpSocketDelegate {
             // Update the last time this radio was seen
             inList?.lastSeen = Date()
         }
-        
     }
     
+    //TODO: need to make sure this is working
     func radioTimeoutCheck(_ timer: Timer) {
         var now = Date()
         var sendNotification: Bool = false
         var keys = [String] (discoveredRadios.keys)
-        #if DEBUG
-            // [[NSNotificationCenter defaultCenter] postNotificationName:@"K6TURadioFactory" object:self];
-            // return;   // Comment this out to renable timeout
-        #endif
+        
         let lockQueue = DispatchQueue(label: "self")
+        
         lockQueue.sync {
             //keys = self.discoveredRadios.keys
             //for i in 0..<keys.count {
@@ -244,39 +250,54 @@ class RadioFactory: NSObject, GCDAsyncUdpSocketDelegate {
             // Vita encoded discovery packet - crack the payload and parse
             // Payload is a series of strings separated by ' '
             // this needs to be checked to make sure it works correctly, added describing:
-            let ds = String(describing: (bytes: vita.payload, length: vita.payloadLength, encoding: String.Encoding.ascii))
-            let fields: [String] = ds.components(separatedBy: " ")
+            //let ds = String(describing: (bytes: vita.payload, length: vita.payloadLength, encoding: String.Encoding.ascii))
+            //http://stackoverflow.com/questions/35620543/swift-converting-byte-array-into-string
+            var ds = NSString(bytes: vita.payload, length: Int(vita.payloadLength),encoding: String.Encoding.ascii.rawValue)
+            //NSString *ds = [[NSString alloc] initWithBytes:vita.payload length:vita.payloadLength encoding:NSASCIIStringEncoding];
+            let fields: [String] = ds!.components(separatedBy: " ")
             
             for p: String in fields {
                 var kv: [Any] = p.components(separatedBy: "=")
                 let k: String = kv[0] as! String
                 let v: String = kv[1] as! String
-                let token: Int = (self.parserTokens[k] as! NSString).integerValue
                 
-                switch vitaTokens(rawValue: token)! {
-                case vitaTokens.ipToken :
-                    newRadio.ipAddress = v
-                case vitaTokens.portToken :
-                    newRadio.port = Int((v as NSString).integerValue) as NSNumber!
-                case vitaTokens.modelToken :
-                    newRadio.model = v
-                case vitaTokens.serialToken :
-                    newRadio.serialNum = v
-                case vitaTokens.nameToken :
-                    newRadio.name = v
-                case vitaTokens.callsignToken :
-                    newRadio.callsign = v
-                case vitaTokens.dpVersionToken :
-                    newRadio.dpVersion = v
-                case vitaTokens.versionToken :
-                    newRadio.version = v
-                case vitaTokens.statusToken :
-                    newRadio.status = v
-                default:
-                    break
+                
+                //let token2: String = (self.parserTokens[k] as! NSString) as String
+                //let score = Int(self.parserTokens[k] as? String ?? "") ?? 0
+                
+                //let token: Int = (self.parserTokens[k] as! NSString).integerValue
+                let token: vitaTokens = self.parserTokens[k]!
+                
+                switch token {
+                    case vitaTokens.ipToken :
+                        newRadio.ipAddress = v
+                    case vitaTokens.portToken :
+                        newRadio.port = Int((v as NSString).integerValue) as NSNumber!
+                    case vitaTokens.modelToken :
+                        newRadio.model = v
+                    case vitaTokens.serialToken :
+                        newRadio.serialNum = v
+                    case vitaTokens.nameToken :
+                        newRadio.name = v
+                    case vitaTokens.callsignToken :
+                        newRadio.callsign = v
+                    case vitaTokens.dpVersionToken :
+                        newRadio.dpVersion = v
+                    case vitaTokens.versionToken :
+                        newRadio.version = v
+                    case vitaTokens.statusToken :
+                        newRadio.status = v
+                    case vitaTokens.inuseipToken:
+                        newRadio.status = v
+                    case vitaTokens.inusehostToken:
+                        newRadio.status = v
+                    default:
+                        break
+                    }
+                
+                    newRadio.lastSeen = Date()
                 }
-            }
-            self.radioFound(newRadio)
+                self.radioFound(newRadio)
             }
         //}
         
