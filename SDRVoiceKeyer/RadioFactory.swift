@@ -50,7 +50,7 @@ class RadioFactory: NSObject, GCDAsyncUdpSocketDelegate {
     var tag: Int = 0
     var udpSocket: GCDAsyncUdpSocket!
     
-    var availableRadioInstances: [String : RadioInstance]!
+    //var availableRadioInstances: [String : RadioInstance]!
     var discoveredRadios: [String : RadioInstance]!
     var timeoutTimer: Timer!
     var parserTokens = [AnyHashable: vitaTokens]()
@@ -124,7 +124,7 @@ class RadioFactory: NSObject, GCDAsyncUdpSocketDelegate {
     // TODO: All of this needs checking
     func radioFound(_ radio: RadioInstance) {
         // Check if in list...
-        var key: String = radio.ipAddress
+        var key: String = radio.serialNum
         var inList: RadioInstance?
         
         // TODO: need to figure out what means

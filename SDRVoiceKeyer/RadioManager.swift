@@ -40,7 +40,7 @@ struct SliceInfo {
 
 // event delegate
 protocol RadioManagerDelegate: class {
-    func didUpdateRadio(sender: Radio)
+    func didUpdateRadio(serialNumber: String, activeSlice: String)
 }
 
 // begin class
@@ -50,7 +50,7 @@ internal class RadioManager: NSObject {
     
     var radioFactory: RadioFactory
     var radio: Radio
-    var availableRadioInstances: [RadioInstance]
+    var availableRadioInstances: [String : RadioInstance]
     var availableSlices: [String: SliceInfo]
     
     // TODO: Make sure exception handling works
@@ -59,10 +59,12 @@ internal class RadioManager: NSObject {
         
         radioFactory = RadioFactory.init()
         radio = Radio()
-        availableRadioInstances = [RadioInstance]()
+        availableRadioInstances = [String : RadioInstance]()
         availableSlices = [String: SliceInfo]()
         
          super.init()
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(self.radioChanged), name: NSNotification.Name.init(rawValue: "K6TURadioFactory"), object: nil)
         
         radioFactory.InitializeRadioFactory()
     }
@@ -75,27 +77,35 @@ internal class RadioManager: NSObject {
         
         var serialNumber = "Radio Not Found"
         var numberOfRadios = 0
-        var radioInstances = [RadioInstance]()
+        var keys: [String]
+        //var radioInstances = [String : RadioInstance]()
         
         //radioFactory.InitializeRadioFactory()
         
         // this force casts an NSArray to Swift Array
         //radioInstances = radioFactory.availableRadioInstances() as! [RadioInstance]
-        radioInstances = self.availableRadioInstances // as! [RadioInstance]
         
-        if radioInstances.count > 0 {
-            serialNumber = radioInstances[0].serialNum
+        availableRadioInstances = radioFactory.discoveredRadios  //as! [RadioInstance]
+        
+        if availableRadioInstances.count > 0 {
             
-            switch radioInstances.count {
+            keys = Array(availableRadioInstances.keys)
+            
+            for key in keys {
+                serialNumber = key
+                break
+            }
+            
+            switch availableRadioInstances.count {
             case 1:
                 numberOfRadios = 1
             default:
                 // do something else
-                numberOfRadios = radioInstances.count
+                numberOfRadios = availableRadioInstances.count
             }
             
             //InitializeRadio(radioInstance: radioInstances[0])
-            radio = Radio.init(radioInstanceAndDelegate: radioInstances[0], delegate: radioDelegate)
+            radio = Radio.init(radioInstanceAndDelegate: availableRadioInstances[serialNumber], delegate: radioDelegate)
             
             printDebugMessage ("The number of radios on the network is \(numberOfRadios) -- \(serialNumber)")
             
@@ -220,16 +230,111 @@ internal class RadioManager: NSObject {
         }
         
     }
+    
+    // Notification handler - this will fire when the first radio is discovered and
+    // anytime a new radio is discovered, or an existing radio has a major change
+    // If an error occurs in the RadioFactory.m a dictionary will be posted
+    // TODO: Need to account for multiple entries into this function
+    func radioChanged(notification: NSNotification){
+        
+        var activeSlice = "No Active Slice"
+        var serialNumber: String
+        
+        if var info = notification.userInfo as? Dictionary<String,String> {
+            // Check if value present before using it
+            if let error = info["Error"] {
+                serialNumber = error
+                return
+            }
+        }
+        
+        // this calls RadioManager.analyzePayload
+        if var info = notification.userInfo as? Dictionary<String,String> {
+            // Check if value present before using it
+            if let payload = info["RadioPayload"] {
+                // debug.print
+                //print ("Payload Data --> \(payload)")
+                
+                let availableSlices = self.analyzePayload(payload: payload) as [String: SliceInfo]
+                
+                //activeSlice = "No Active Slice"
+                for (slice, sliceInfo) in availableSlices {
+                    switch slice {
+                    case "slice0":
+                        if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
+                            activeSlice = "Slice A Active"
+                        }
+                    case "slice1":
+                        if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
+                            activeSlice = "Slice B Active"
+                        }
+                    case "slice2":
+                        if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
+                            activeSlice = "Slice C Active"
+                        }
+                    case "slice3":
+                        if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
+                            activeSlice = "Slice D Active"
+                        }
+                    case "slice4":
+                        if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
+                            activeSlice = "Slice E Active"
+                        }
+                    case "slice5":
+                        if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
+                            activeSlice = "Slice F Active"
+                        }
+                    case "slice6":
+                        if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
+                            activeSlice = "Slice G Active"
+                        }
+                    case "slice7":
+                        if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
+                            activeSlice = "Slice H Active"
+                        }
+                    default:
+                        activeSlice = "No Active Slice"
+                    }
+                    
+                }
+                
+                return
+                
+            }
+        }
+        
+        // initialization
+        //if radioManager != nil {
+            do {
+                serialNumber = self.InitializeRadioInstances()
+                
+                serialNumber =  "S/N " + serialNumber
+                //activeSlice = "Connected"
+                
+                UpdateRadio(serialNumber: serialNumber, activeSlice: activeSlice)
+                // enable buttons
+//                for case let button as NSButton in buttonStackView.subviews {
+//                    button.isEnabled = true
+//                }
+            }
+            catch let error as NSError {
+                // debug.print
+                print("Error: \(error.localizedDescription)")
+            }
+//        } else {
+//            serialNumberLabel.stringValue = "Unable to find radio"
+//        }
+    }
 
     
     
     // raise event and send to view controller
     // not currently using
-    func UpdateRadio(radioInstance: RadioInstance) {
+    func UpdateRadio(serialNumber: String, activeSlice: String) {
         
         
         // we have an update, let the GUI know
-        radioDelegate?.didUpdateRadio(sender: radio)
+        radioDelegate?.didUpdateRadio(serialNumber: serialNumber, activeSlice: activeSlice)
         
     }
     
