@@ -53,6 +53,10 @@ internal class RadioManager: NSObject {
     var availableRadioInstances: [String : RadioInstance]
     var availableSlices: [String: SliceInfo]
     
+    
+    // temporary
+    var serialNumber: String = "Disconnected"
+    
     // TODO: Make sure exception handling works
     override init() {
        
@@ -78,9 +82,6 @@ internal class RadioManager: NSObject {
         var serialNumber = "Radio Not Found"
         var numberOfRadios = 0
         var keys: [String]
-        //var radioInstances = [String : RadioInstance]()
-        
-        //radioFactory.InitializeRadioFactory()
         
         // this force casts an NSArray to Swift Array
         //radioInstances = radioFactory.availableRadioInstances() as! [RadioInstance]
@@ -104,7 +105,6 @@ internal class RadioManager: NSObject {
                 numberOfRadios = availableRadioInstances.count
             }
             
-            //InitializeRadio(radioInstance: radioInstances[0])
             radio = Radio.init(radioInstanceAndDelegate: availableRadioInstances[serialNumber], delegate: radioDelegate)
             
             printDebugMessage ("The number of radios on the network is \(numberOfRadios) -- \(serialNumber)")
@@ -138,6 +138,9 @@ internal class RadioManager: NSObject {
         
         let scanner = Scanner(string: payload)
         //scanner.charactersToBeSkipped = nil //CharacterSet(charactersIn: "|")
+        
+        // debug.print
+        //print (payload)
         
         var temp = scanner.scanUpTo("|")! // gets the status handle
         sliceHandle = temp
@@ -238,7 +241,7 @@ internal class RadioManager: NSObject {
     func radioChanged(notification: NSNotification){
         
         var activeSlice = "No Active Slice"
-        var serialNumber: String
+        //var serialNumber: String = "Disconnected"
         
         if var info = notification.userInfo as? Dictionary<String,String> {
             // Check if value present before using it
@@ -298,6 +301,7 @@ internal class RadioManager: NSObject {
                     
                 }
                 
+                UpdateRadio(serialNumber: serialNumber, activeSlice: activeSlice)
                 return
                 
             }
