@@ -55,22 +55,29 @@ internal class RadioManager: NSObject {
     
     // TODO: Make sure exception handling works
     override init() {
+       
         
         radioFactory = RadioFactory.init()
         radio = Radio()
         availableRadioInstances = [RadioInstance]()
         availableSlices = [String: SliceInfo]()
+        
+         super.init()
+        
+        radioFactory.InitializeRadioFactory()
     }
     
     // Create a RadioFactory which starts the discovery process
     // Get the first radio's serial number to return to the view controller
     // TODO: Account for being called multiple times
     // TODO: Account for multiple radios
-    internal func InitializeRadioInstances () throws -> String {
+    internal func InitializeRadioInstances ()  -> String { // throws
         
         var serialNumber = "Radio Not Found"
         var numberOfRadios = 0
         var radioInstances = [RadioInstance]()
+        
+        //radioFactory.InitializeRadioFactory()
         
         // this force casts an NSArray to Swift Array
         //radioInstances = radioFactory.availableRadioInstances() as! [RadioInstance]
@@ -217,6 +224,7 @@ internal class RadioManager: NSObject {
     
     
     // raise event and send to view controller
+    // not currently using
     func UpdateRadio(radioInstance: RadioInstance) {
         
         

@@ -9,7 +9,7 @@
 #ifndef SDRVoiceKeyer_Bridging_Header_h
 #define SDRVoiceKeyer_Bridging_Header_h
 
-#import <RadioFactory.h>
+//#import <RadioFactory.h>
 #import <Radio.h>
 #import <Slice.h>
 #import <VITA.h>

@@ -58,6 +58,9 @@ class RadioFactory: NSObject, GCDAsyncUdpSocketDelegate {
     
     override init() {
         super.init()
+    }
+    
+   internal func InitializeRadioFactory() {
         
         udpSocket = GCDAsyncUdpSocket(delegate: self, delegateQueue: DispatchQueue.main)
         udpSocket.setPreferIPv4()
@@ -66,11 +69,13 @@ class RadioFactory: NSObject, GCDAsyncUdpSocketDelegate {
         // added W6OP 02/14/2017 so multiple clients can discover radio
         try? udpSocket.enableReusePort(true)
         
-        var error: Error? = nil
+        let error: Error? = nil
+    
         if !(((try? udpSocket.bind(toPort: UInt16(FLEX_DISCOVERY))) != nil)) {
             print("Error binding: \(error)")
             // can't get exceptions to work so post a message with the error // added W6OP 02/15/2017
-            var errorInfo: [AnyHashable: Any]? = ["Error": error?.localizedDescription]
+            let errorInfo: [AnyHashable: Any]? = ["Error": error?.localizedDescription ?? ""]
+            
             NotificationCenter.default.post(name: NSNotification.Name(rawValue: "K6TURadioFactory"), object: self, userInfo: errorInfo)
             
             // TODO: Handle this error somehow
@@ -83,8 +88,10 @@ class RadioFactory: NSObject, GCDAsyncUdpSocketDelegate {
         
         // Initialize dictionary
         self.discoveredRadios = [String : RadioInstance]() /* capacity: 0 */
+    
         // Start timeout timer
         self.timeoutTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(self.radioTimeoutCheck), userInfo: nil, repeats: true)
+    
         print("Ready")
         
         // Initialize parser tokens
@@ -101,8 +108,10 @@ class RadioFactory: NSObject, GCDAsyncUdpSocketDelegate {
             "inuse_ip" : vitaTokens.inuseipToken,
             "inuse_host" : vitaTokens.inusehostToken
         ]
+        
     }
 
+    // cleanup when closing the application
     func close() {
         self.discoveredRadios.removeAll()
         udpSocket.close()
