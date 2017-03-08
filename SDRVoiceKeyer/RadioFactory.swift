@@ -281,7 +281,7 @@ class RadioFactory: NSObject, GCDAsyncUdpSocketDelegate {
                     case vitaTokens.ipToken :
                         newRadio.ipAddress = v
                     case vitaTokens.portToken :
-                        newRadio.port = Int((v as NSString).integerValue) as NSNumber!
+                        newRadio.port = NSNumber(value:Int(v)!) as NSNumber! // strang but only way I could get 4 digit port
                     case vitaTokens.modelToken :
                         newRadio.model = v
                     case vitaTokens.serialToken :
