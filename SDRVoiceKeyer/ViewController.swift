@@ -46,7 +46,7 @@ class ViewController: NSViewController, RadioManagerDelegate {
         // so I can handle events it raises
         do {
             try radioManager = RadioManager()
-            radioManager.radioDelegate = self
+            radioManager.radioManagerDelegate = self
             
             audiomanager = AudioManager()
         }

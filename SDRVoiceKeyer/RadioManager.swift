@@ -43,10 +43,12 @@ protocol RadioManagerDelegate: class {
     func didUpdateRadio(serialNumber: String, activeSlice: String)
 }
 
+//var radioDelegate: RadioManagerDelegate
+
 // begin class
 internal class RadioManager: NSObject {
     
-    weak var radioDelegate:RadioManagerDelegate?
+    var radioManagerDelegate:RadioManagerDelegate?
     
     var radioFactory: RadioFactory
     var radio: Radio
@@ -105,7 +107,7 @@ internal class RadioManager: NSObject {
                 numberOfRadios = availableRadioInstances.count
             }
             
-            radio = Radio.init(radioInstanceAndDelegate: availableRadioInstances[serialNumber], delegate: radioDelegate)
+            radio = Radio.init(radioInstanceAndDelegate: availableRadioInstances[serialNumber], delegate: radioManagerDelegate)
             
             printDebugMessage ("The number of radios on the network is \(numberOfRadios) -- \(serialNumber)")
             
@@ -338,7 +340,7 @@ internal class RadioManager: NSObject {
         
         
         // we have an update, let the GUI know
-        radioDelegate?.didUpdateRadio(serialNumber: serialNumber, activeSlice: activeSlice)
+        radioManagerDelegate?.didUpdateRadio(serialNumber: serialNumber, activeSlice: activeSlice)
         
     }
     
