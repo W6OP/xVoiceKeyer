@@ -44,7 +44,7 @@ class ViewController: NSViewController, RadioManagerDelegate {
     
     var radioManager: RadioManager!
     var audiomanager: AudioManager!
-    var radio: Radio!
+    //var radio: Radio!
     var transmitMode: TransmitMode = TransmitMode.Invalid
     
     // outlets
@@ -68,7 +68,7 @@ class ViewController: NSViewController, RadioManagerDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        radio = Radio()
+        //radio = Radio()
         
         // create an instance of my radio manager and assign a delegate from it so I can handle events it raises
         //do {

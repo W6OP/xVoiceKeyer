@@ -87,9 +87,9 @@ internal class RadioManager: NSObject {
     
     var radioManagerDelegate:RadioManagerDelegate?
     
-    var radioFactory: RadioFactory
-    var radio: Radio
-    var availableRadioInstances: [String : RadioInstance]
+    //var radioFactory: RadioFactory
+    //var radio: Radio
+    //var availableRadioInstances: [String : RadioInstance]
     var availableSlices: [String: SliceInfo]
     
     
@@ -100,16 +100,16 @@ internal class RadioManager: NSObject {
     override init() {
        
         
-        radioFactory = RadioFactory.init()
-        radio = Radio()
-        availableRadioInstances = [String : RadioInstance]()
+//        radioFactory = RadioFactory.init()
+//        radio = Radio()
+//        availableRadioInstances = [String : RadioInstance]()
         availableSlices = [String: SliceInfo]()
-        
+//
          super.init()
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(self.radioChanged), name: NSNotification.Name.init(rawValue: "K6TURadioFactory"), object: nil)
-        
-        radioFactory.InitializeRadioFactory()
+//
+//        NotificationCenter.default.addObserver(self, selector: #selector(self.radioChanged), name: NSNotification.Name.init(rawValue: "K6TURadioFactory"), object: nil)
+//
+//        radioFactory.InitializeRadioFactory()
     }
     
     // Create a RadioFactory which starts the discovery process
@@ -118,39 +118,39 @@ internal class RadioManager: NSObject {
     // TODO: Account for multiple radios
     internal func InitializeRadioInstances ()  -> String { // throws
         
-        var serialNumber = "Radio Not Found"
-        var numberOfRadios = 0
-        var keys: [String]
-        
-        // this force casts an NSArray to Swift Array
-        //radioInstances = radioFactory.availableRadioInstances() as! [RadioInstance]
-        
-        availableRadioInstances = radioFactory.discoveredRadios  //as! [RadioInstance]
-        
-        if availableRadioInstances.count > 0 {
-            
-            keys = Array(availableRadioInstances.keys)
-            
-            for key in keys {
-                serialNumber = key
-                break
-            }
-            
-            switch availableRadioInstances.count {
-            case 1:
-                numberOfRadios = 1
-            default:
-                // do something else
-                numberOfRadios = availableRadioInstances.count
-            }
-            
-            radio = Radio.init(radioInstanceAndDelegate: availableRadioInstances[serialNumber], delegate: radioManagerDelegate)
-            
-            printDebugMessage ("The number of radios on the network is \(numberOfRadios) -- \(serialNumber)")
-            
-        } else {
-            printDebugMessage ("Their were no radios found on the network")
-        }
+//        var serialNumber = "Radio Not Found"
+//        var numberOfRadios = 0
+//        var keys: [String]
+//
+//        // this force casts an NSArray to Swift Array
+//        //radioInstances = radioFactory.availableRadioInstances() as! [RadioInstance]
+//
+//        availableRadioInstances = radioFactory.discoveredRadios  //as! [RadioInstance]
+//
+//        if availableRadioInstances.count > 0 {
+//
+//            keys = Array(availableRadioInstances.keys)
+//
+//            for key in keys {
+//                serialNumber = key
+//                break
+//            }
+//
+//            switch availableRadioInstances.count {
+//            case 1:
+//                numberOfRadios = 1
+//            default:
+//                // do something else
+//                numberOfRadios = availableRadioInstances.count
+//            }
+//
+//            radio = Radio.init(radioInstanceAndDelegate: availableRadioInstances[serialNumber], delegate: radioManagerDelegate)
+//
+//            printDebugMessage ("The number of radios on the network is \(numberOfRadios) -- \(serialNumber)")
+//
+//        } else {
+//            printDebugMessage ("Their were no radios found on the network")
+//        }
         
         return serialNumber
     }
@@ -370,7 +370,7 @@ internal class RadioManager: NSObject {
     }
     
     internal func CloseAll() {
-        radio.close()
+        //radio.close()
         //radioFactory.close()
     }
         
