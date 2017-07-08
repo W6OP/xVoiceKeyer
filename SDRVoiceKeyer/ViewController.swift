@@ -1,3 +1,32 @@
+/**
+ * Copyright (c) 2017 W6OP
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * Notwithstanding the foregoing, you may not use, copy, modify, merge, publish,
+ * distribute, sublicense, create a derivative work, and/or sell copies of the
+ * Software in any work that is designed, intended, or marketed for pedagogical or
+ * instructional purposes related to programming, coding, application development,
+ * or information technology.  Permission for such use, copying, modification,
+ * merger, publication, distribution, sublicensing, creation of derivative works,
+ * or sale is expressly withheld.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 //
 //  MainViewController.swift
 //  SDRVoiceKeyer
@@ -16,8 +45,7 @@ class ViewController: NSViewController, RadioManagerDelegate {
     var radioManager: RadioManager!
     var audiomanager: AudioManager!
     var radio: Radio!
-    //var activeSliceHandle = ""
-    
+    var transmitMode: TransmitMode = TransmitMode.Invalid
     
     // outlets
     @IBOutlet weak var voiceButton1: NSButton!
@@ -26,11 +54,12 @@ class ViewController: NSViewController, RadioManagerDelegate {
     @IBOutlet weak var buttonStackView: NSStackView!
 
     // actions
+    // this handles all of the voice buttons - use the tag value to determine which audio file to load
     @IBAction func voiceButtonClicked(_ sender: NSButton) {
         audiomanager.selectAudioFile(tag: sender.tag)
     }
     
-    
+    // show the preference pane
     @IBAction func buttonShowPreferences(_ sender: AnyObject) {
         showPreferences(sender)
     }
@@ -40,26 +69,19 @@ class ViewController: NSViewController, RadioManagerDelegate {
         super.viewDidLoad()
 
         radio = Radio()
-//        NotificationCenter.default.addObserver(self, selector: #selector(self.radioChanged), name: NSNotification.Name.init(rawValue: "K6TURadioFactory"), object: nil)
-//        
-        // create an instance of my radio manager and assign a delegate from it
-        // so I can handle events it raises
-        do {
-            try radioManager = RadioManager()
+        
+        // create an instance of my radio manager and assign a delegate from it so I can handle events it raises
+        //do {
+            radioManager = RadioManager()
             radioManager.radioManagerDelegate = self
             
             audiomanager = AudioManager()
-        }
-        catch let error as NSError {
-            // debug.print
-            print("Error: \(error.userInfo.description)")
-        }
+//        }
+//        catch let error as NSError {
+//            // debug.print
+//            print("Error: \(error.userInfo.description)")
+//        }
     }
-    
-    // TODO: 
-    // Check TCP port
-    // Add port selection 5000 - 5010
-    // Globally hold all client handles - dictionary
 
     override var representedObject: Any? {
         didSet {
@@ -76,108 +98,20 @@ class ViewController: NSViewController, RadioManagerDelegate {
     // my code
     
      // event handler from Radiomanager - do stuff like updating the UI
-    func didUpdateRadio(serialNumber: String, activeSlice: String) {
+    // if we have a serial number, an active slice and the slice is set to a voice mode we can enable the buttons
+    func didUpdateRadio(serialNumber: String, activeSlice: String, transmitMode: TransmitMode) {
         
         serialNumberLabel.stringValue = serialNumber
         activeSliceLabel.stringValue = activeSlice
-        
+        self.transmitMode = transmitMode
     }
-
-//    // Notification handler - this will fire when the first radio is discovered and
-//    // anytime a new radio is discovered, or an existing radio has a major change
-//    // If an error occurs in the RadioFactory.m a dictionary will be posted
-//    // TODO: Need to account for multiple entries into this function
-//    func radioChanged(notification: NSNotification){
-//        
-//        if var info = notification.userInfo as? Dictionary<String,String> {
-//            // Check if value present before using it
-//            if let error = info["Error"] {
-//                serialNumberLabel.stringValue = error
-//                return
-//            }
-//        }
-//        
-//        // this calls RadioManager.analyzePayload
-//        if var info = notification.userInfo as? Dictionary<String,String> {
-//            // Check if value present before using it
-//            if let payload = info["RadioPayload"] {
-//                // debug.print
-//                //print ("Payload Data --> \(payload)")
-//                
-//                let availableSlices = radioManager.analyzePayload(payload: payload) as [String: SliceInfo]
-//                
-//                activeSliceLabel.stringValue = "No Active Slice"
-//                for (slice, sliceInfo) in availableSlices {
-//                    switch slice {
-//                        case "slice0":
-//                            if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
-//                                activeSliceLabel.stringValue = "Slice A Active"
-//                            }
-//                        case "slice1":
-//                            if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
-//                                activeSliceLabel.stringValue = "Slice B Active"
-//                            }
-//                        case "slice2":
-//                            if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
-//                                activeSliceLabel.stringValue = "Slice C Active"
-//                            }
-//                        case "slice3":
-//                            if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
-//                                activeSliceLabel.stringValue = "Slice D Active"
-//                            }
-//                        case "slice4":
-//                            if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
-//                                activeSliceLabel.stringValue = "Slice E Active"
-//                            }
-//                        case "slice5":
-//                            if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
-//                                activeSliceLabel.stringValue = "Slice F Active"
-//                            }
-//                        case "slice6":
-//                            if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
-//                                activeSliceLabel.stringValue = "Slice G Active"
-//                            }
-//                        case "slice7":
-//                            if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
-//                                activeSliceLabel.stringValue = "Slice H Active"
-//                            }
-//                        default:
-//                        activeSliceLabel.stringValue = "No Active Slice"
-//                    }
-//                    
-//                }
-//                
-//                return
-//                
-//            }
-//        }
-//        
-//        // initialization
-//        if radioManager != nil {
-//            do {
-//                serialNumberLabel.stringValue = try "S/N " + radioManager.InitializeRadioInstances()
-//                activeSliceLabel.stringValue = "Connected"
-//                // enable buttons
-//                for case let button as NSButton in buttonStackView.subviews {
-//                    button.isEnabled = true
-//                }
-//            }
-//            catch let error as NSError {
-//                // debug.print
-//                print("Error: \(error.localizedDescription)")
-//            }
-//        } else {
-//            serialNumberLabel.stringValue = "Unable to find radio"
-//        }
-//    }
-    
     
     // show the preferences panel and populate it
     func showPreferences(_ sender: AnyObject) {
         let SB = NSStoryboard(name: "Main", bundle: nil)
         let PVC: RadioPreferences = SB.instantiateController(withIdentifier: "radioPreferences") as! RadioPreferences
         
-        self.presentViewControllerAsSheet(PVC)
+        presentViewControllerAsSheet(PVC)
     }
     
 } // end class

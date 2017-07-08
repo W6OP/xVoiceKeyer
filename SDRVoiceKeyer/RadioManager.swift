@@ -1,3 +1,33 @@
+
+/**
+ * Copyright (c) 2017 W6OP
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * Notwithstanding the foregoing, you may not use, copy, modify, merge, publish,
+ * distribute, sublicense, create a derivative work, and/or sell copies of the
+ * Software in any work that is designed, intended, or marketed for pedagogical or
+ * instructional purposes related to programming, coding, application development,
+ * or information technology.  Permission for such use, copying, modification,
+ * merger, publication, distribution, sublicensing, creation of derivative works,
+ * or sale is expressly withheld.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 //
 //  RadioManager.swift
 //  SDRVoiceKeyer
@@ -15,12 +45,12 @@ extension Scanner {
     
     func scanUpToCharactersFrom(_ set: CharacterSet) -> String? {
         var result: NSString?                                                           // 1.
-        return scanUpToCharacters(from: set, into: &result) ? (result as? String) : nil // 2.
+        return scanUpToCharacters(from: set, into: &result) ? (result as String?) : nil // 2.
     }
     
     func scanUpTo(_ string: String) -> String? {
         var result: NSString?
-        return self.scanUpTo(string, into: &result) ? (result as? String) : nil
+        return self.scanUpTo(string, into: &result) ? (result as String?) : nil
     }
     
     func scanDouble() -> Double? {
@@ -38,12 +68,19 @@ struct SliceInfo {
     let complete: Bool
 }
 
-// event delegate
-protocol RadioManagerDelegate: class {
-    func didUpdateRadio(serialNumber: String, activeSlice: String)
+enum TransmitMode{
+    case Invalid
+    case USB
+    case LSB
+    case SSB
+    case AM
 }
 
-//var radioDelegate: RadioManagerDelegate
+// event delegate
+// implemnt in your viewcontroller to receive messages from the radio manager
+protocol RadioManagerDelegate: class {
+    func didUpdateRadio(serialNumber: String, activeSlice: String, transmitMode: TransmitMode)
+}
 
 // begin class
 internal class RadioManager: NSObject {
@@ -243,6 +280,7 @@ internal class RadioManager: NSObject {
     func radioChanged(notification: NSNotification){
         
         var activeSlice = "No Active Slice"
+        var mode = TransmitMode.USB
         //var serialNumber: String = "Disconnected"
         
         if var info = notification.userInfo as? Dictionary<String,String> {
@@ -303,44 +341,31 @@ internal class RadioManager: NSObject {
                     
                 }
                 
-                UpdateRadio(serialNumber: serialNumber, activeSlice: activeSlice)
+                UpdateRadio(serialNumber: serialNumber, activeSlice: activeSlice, mode: mode)
                 return
                 
             }
         }
         
-        // initialization
-        //if radioManager != nil {
-            do {
-                serialNumber = self.InitializeRadioInstances()
-                
-                serialNumber =  "S/N " + serialNumber
-                //activeSlice = "Connected"
-                
-                UpdateRadio(serialNumber: serialNumber, activeSlice: activeSlice)
-                // enable buttons
-//                for case let button as NSButton in buttonStackView.subviews {
-//                    button.isEnabled = true
-//                }
-            }
-            catch let error as NSError {
-                // debug.print
-                print("Error: \(error.localizedDescription)")
-            }
-//        } else {
-//            serialNumberLabel.stringValue = "Unable to find radio"
-//        }
+        do {
+            serialNumber = "S/N " + self.InitializeRadioInstances()
+            
+            UpdateRadio(serialNumber: serialNumber, activeSlice: activeSlice, mode: mode)
+        }
+        catch let error as NSError {
+            // debug.print
+            print("Error: \(error.localizedDescription)")
+        }
     }
 
     
     
     // raise event and send to view controller
     // not currently using
-    func UpdateRadio(serialNumber: String, activeSlice: String) {
-        
+    func UpdateRadio(serialNumber: String, activeSlice: String, mode: TransmitMode) {
         
         // we have an update, let the GUI know
-        radioManagerDelegate?.didUpdateRadio(serialNumber: serialNumber, activeSlice: activeSlice)
+        radioManagerDelegate?.didUpdateRadio(serialNumber: serialNumber, activeSlice: activeSlice, transmitMode: mode)
         
     }
     

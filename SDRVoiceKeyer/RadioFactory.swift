@@ -72,7 +72,7 @@ class RadioFactory: NSObject, GCDAsyncUdpSocketDelegate {
         let error: Error? = nil
     
         if !(((try? udpSocket.bind(toPort: UInt16(FLEX_DISCOVERY))) != nil)) {
-            print("Error binding: \(error)")
+            print("Error binding: \(error ?? "undefined error" as! Error)")
             // can't get exceptions to work so post a message with the error // added W6OP 02/15/2017
             let errorInfo: [AnyHashable: Any]? = ["Error": error?.localizedDescription ?? ""]
             
