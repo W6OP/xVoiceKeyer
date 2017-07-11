@@ -92,7 +92,7 @@ class ViewController: NSViewController, RadioManagerDelegate {
     // cleanup network sockets when application terminates
     // TODO: put method in RadioManager and also close Radio object
     override func viewWillDisappear() {
-        radioManager.CloseAll()
+        //radioManager.CloseAll()
     }
     
     // my code
@@ -106,10 +106,16 @@ class ViewController: NSViewController, RadioManagerDelegate {
         self.transmitMode = transmitMode
     }
     
+    func openRadioSelector(serialNumber: String) {
+        
+    }
+    
     // show the preferences panel and populate it
     func showPreferences(_ sender: AnyObject) {
-        let SB = NSStoryboard(name: "Main", bundle: nil)
-        let PVC: RadioPreferences = SB.instantiateController(withIdentifier: "radioPreferences") as! RadioPreferences
+        // let SB = NSStoryboard(name: NSStoryboard.Name(rawValue: "Main"), bundle: nil)
+        // let PVC: RadioPreferences = SB.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(rawValue: "radioPreferences")) as! RadioPreferences
+        let SB = NSStoryboard(name: NSStoryboard.Name(rawValue: "Main"), bundle: nil)
+        let PVC: RadioPreferences = SB.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(rawValue: "radioPreferences")) as! RadioPreferences
         
         presentViewControllerAsSheet(PVC)
     }

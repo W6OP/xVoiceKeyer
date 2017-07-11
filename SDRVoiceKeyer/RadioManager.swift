@@ -1,4 +1,3 @@
-
 /**
  * Copyright (c) 2017 W6OP
  *
@@ -32,353 +31,329 @@
 //  RadioManager.swift
 //  SDRVoiceKeyer
 //
-//  Created by Peter Bourget on 2/12/17.
+//  Created by Peter Bourget on 7/11/17.
 //  Copyright © 2017 Peter Bourget. All rights reserved.
 //
 
-import Cocoa
 import Foundation
-
-// extension to use Scanner in Swift
-// https://www.raywenderlich.com/128792/nsscanner-tutorial-for-os-x
-extension Scanner {
-    
-    func scanUpToCharactersFrom(_ set: CharacterSet) -> String? {
-        var result: NSString?                                                           // 1.
-        return scanUpToCharacters(from: set, into: &result) ? (result as String?) : nil // 2.
-    }
-    
-    func scanUpTo(_ string: String) -> String? {
-        var result: NSString?
-        return self.scanUpTo(string, into: &result) ? (result as String?) : nil
-    }
-    
-    func scanDouble() -> Double? {
-        var double: Double = 0
-        return scanDouble(&double) ? double : nil
-    }
-}
-
-// structure to pass data back to view controller
-struct SliceInfo {
-    let handle: String
-    let slice: String
-    let mode: String
-    let tx: String
-    let complete: Bool
-}
-
-enum TransmitMode{
-    case Invalid
-    case USB
-    case LSB
-    case SSB
-    case AM
-}
+import xFlexAPI
 
 // event delegate
-// implemnt in your viewcontroller to receive messages from the radio manager
+// implement in your viewcontroller to receive messages from the radio manager
 protocol RadioManagerDelegate: class {
     func didUpdateRadio(serialNumber: String, activeSlice: String, transmitMode: TransmitMode)
+    func openRadioSelector(serialNumber: String)
 }
 
-// begin class
 internal class RadioManager: NSObject {
     
     var radioManagerDelegate:RadioManagerDelegate?
     
-    //var radioFactory: RadioFactory
-    //var radio: Radio
-    //var availableRadioInstances: [String : RadioInstance]
-    var availableSlices: [String: SliceInfo]
+    // ----------------------------------------------------------------------------
+    // MARK: - Internal properties
     
+    internal var activeRadio: RadioParameters?                      // Radio currently running
+    internal var radio: Radio?                                      // Radio class in use
     
-    // temporary
-    var serialNumber: String = "Disconnected"
+    // ----------------------------------------------------------------------------
+    // MARK: - Private properties
     
-    // TODO: Make sure exception handling works
+    fileprivate var selectedRadio: RadioParameters?                // Radio to start
+    //fileprivate var _toolbar: NSToolbar?
+    //fileprivate var _sideViewController: NSSplitViewController?
+    //fileprivate var _panafallsViewController: PanafallsViewController?
+    
+    fileprivate var notifications = [NSObjectProtocol]()           // Notification observers
+    //fileprivate var _radioPickerViewController: RadioPickerViewController?  // RadioPicker sheet controller
+    //fileprivate var _voltageTempMonitor: ParameterMonitor?          // the Voltage/Temp ParameterMonitor
+    //fileprivate let _opusManager = OpusManager()
+    
+    // constants
+    //    fileprivate let _log = Log.sharedInstance                       // Shared log
+    //    fileprivate let _log: XCGLogger!                                // Shared log
+    
+    fileprivate let log = (NSApp.delegate as! AppDelegate)
+    fileprivate let kModule = "RadioViewController"                 // Module Name reported in log messages
+    let kClientName = "SDRVoiceKeyer"
+    
+    fileprivate let kGuiFirmwareSupport = "1.10.16.x"               // Radio firmware supported by this App
+    fileprivate let kxFlexApiIdentifier = "net.k3tzr.xFlexAPI"      // Bundle identifier for xFlexApi
+    fileprivate let kVoltageMeter = "+13.8B"                        // Short name of voltage meter
+    fileprivate let kPaTempMeter = "PATEMP"                         // Short name of temperature meter
+    fileprivate let kVoltageTemperature = "VoltageTemp"             // Identifier of toolbar VoltageTemperature toolbarItem
+    
+    fileprivate let kSideStoryboard = "Side"                        // Storyboard names
+    
+    fileprivate let kRadioPickerIdentifier = "RadioPicker"          // Storyboard identifiers
+    fileprivate let kPcwIdentifier = "PCW"
+    fileprivate let kPhoneIdentifier = "Phone"
+    fileprivate let kRxIdentifier = "Rx"
+    fileprivate let kEqualizerIdentifier = "Equalizer"
+    
+    fileprivate let kConnectFailed = "Initial Connection failed"    // Error messages
+    fileprivate let kUdpBindFailed = "Initial UDP bind failed"
+    
+    fileprivate let kVersionKey = "CFBundleShortVersionString"      // CF constants
+    fileprivate let kBuildKey = "CFBundleVersion"
+    
+    fileprivate var _availableRadios = [RadioParameters]()          // Array of available Radios
+//    fileprivate enum ToolbarButton: String {                        // toolbar item identifiers
+//        case Pan, Tnf, Markers, Remote, Speaker, Headset, VoltTemp, Side
+//    }
+    
+    fileprivate var _shouldOpenPicker = false
+    fileprivate var _radioFactory = RadioFactory()
+    
     override init() {
-       
         
-//        radioFactory = RadioFactory.init()
-//        radio = Radio()
-//        availableRadioInstances = [String : RadioInstance]()
-        availableSlices = [String: SliceInfo]()
-//
-         super.init()
-//
-//        NotificationCenter.default.addObserver(self, selector: #selector(self.radioChanged), name: NSNotification.Name.init(rawValue: "K6TURadioFactory"), object: nil)
-//
-//        radioFactory.InitializeRadioFactory()
-    }
-    
-    // Create a RadioFactory which starts the discovery process
-    // Get the first radio's serial number to return to the view controller
-    // TODO: Account for being called multiple times
-    // TODO: Account for multiple radios
-    internal func InitializeRadioInstances ()  -> String { // throws
+        // give the API access to the logger
+        //Log.sharedInstance.delegate = (NSApp.delegate as! LogHandler)
         
-//        var serialNumber = "Radio Not Found"
-//        var numberOfRadios = 0
-//        var keys: [String]
+        super.init()
+        
+        // add notification subscriptions
+        addNotifications()
+        
+        
+        // see if there is a default Radio
+        //let params = Defaults[.defaultRadioParameters]
+        //let defaultRadio = RadioParameters.parametersFromArray(valuesArray: params)
+        
+//        if defaultRadio.ipAddress != "" && defaultRadio.port != 0 {
 //
-//        // this force casts an NSArray to Swift Array
-//        //radioInstances = radioFactory.availableRadioInstances() as! [RadioInstance]
+//            _log.msg("Attempting to open Default Radio, IP \(defaultRadio.ipAddress), Port \(defaultRadio.port)", level: .info, function: #function, file: #file, line: #line)
 //
-//        availableRadioInstances = radioFactory.discoveredRadios  //as! [RadioInstance]
+//            // there is a default, try to open it
+//            if !openRadio(defaultRadio) {
 //
-//        if availableRadioInstances.count > 0 {
-//
-//            keys = Array(availableRadioInstances.keys)
-//
-//            for key in keys {
-//                serialNumber = key
-//                break
+//                // open failed, open the picker
+//                _shouldOpenPicker = true
 //            }
-//
-//            switch availableRadioInstances.count {
-//            case 1:
-//                numberOfRadios = 1
-//            default:
-//                // do something else
-//                numberOfRadios = availableRadioInstances.count
-//            }
-//
-//            radio = Radio.init(radioInstanceAndDelegate: availableRadioInstances[serialNumber], delegate: radioManagerDelegate)
-//
-//            printDebugMessage ("The number of radios on the network is \(numberOfRadios) -- \(serialNumber)")
 //
 //        } else {
-//            printDebugMessage ("Their were no radios found on the network")
+//
+//            // no default, open the Radio Picker sheet (when the Window appears)
+//            _shouldOpenPicker = true
 //        }
-        
-        return serialNumber
     }
     
+    // ----------------------------------------------------------------------------
+    // MARK: - Notification Methods
     
-    // need to get all the slices
-    // find one that has tx=1
-    // check if the mode = USB or LSB or AM
-    internal func analyzePayload(payload: String) -> [String: SliceInfo] {
+    /// Add subscriptions to Notifications
+    ///
+    fileprivate func addNotifications() {
         
-        var sliceInfo: SliceInfo!
-        var sliceHandle = ""
-        var slice = ""
-        var mode = ""
-        var tx = ""
-        var complete = false
-        var count = 0
+        // Initial TCP Connection opened
+        NC.makeObserver(self, with: #selector(tcpDidConnect(_:)), of: .tcpDidConnect, object: nil)
         
-        // Create a CharacterSet of delimiters.
-        let separators = CharacterSet(charactersIn: "| =")
-        // Split based on separators
-        let parts = payload.components(separatedBy: separators)
-
+        // TCP Connection disconnect
+        NC.makeObserver(self, with: #selector(tcpDidDisconnect(_:)), of: .tcpDidDisconnect, object: nil)
         
-        let scanner = Scanner(string: payload)
-        //scanner.charactersToBeSkipped = nil //CharacterSet(charactersIn: "|")
+        // a Meter was Added
+        NC.makeObserver(self, with: #selector(meterHasBeenAdded(_:)), of: .meterHasBeenAdded, object: nil)
         
-        // debug.print
-        //print (payload)
+        // Radio Initialized
+        NC.makeObserver(self, with: #selector(radioInitialized(_:)), of: .radioInitialized, object: nil)
         
-        var temp = scanner.scanUpTo("|")! // gets the status handle
-        sliceHandle = temp
+        // Available Radios changed
+        NC.makeObserver(self, with: #selector(radiosAvailable(_:)), of: .radiosAvailable, object: nil)
         
-        temp = scanner.scanUpTo("slice ") ?? "" // this gets us the "|"
-        temp = scanner.scanUpTo(" ") ?? "" // gets us "slice"
-        
-        if temp == "slice" {
-            for (index, items) in parts.enumerated() {
-                if items == "slice" {
-                    slice = parts[index + 1]
-                    count += 1
-                }
-                
-                if items == "mode" {
-                    mode = parts[index + 1]
-                    count += 1
-                }
-                
-                if items == "tx" {
-                    tx  = parts[index + 1]
-                    count += 1
-                }
-                
-                if items == "active" {
-                    tx = parts[index + 1]
-                    count += 1
-                }
-            }
-            
-            if count >= 3 {
-                complete = true
-            }
-            
-            sliceInfo = SliceInfo(handle: sliceHandle, slice: slice, mode: mode, tx: tx, complete: complete)
-            
-            updateAvailableSlices(sliceInfo: sliceInfo)
-        }
-        
-        return availableSlices
-
+        // an Opus was Added
+        NC.makeObserver(self, with: #selector(opusHasBeenAdded(_:)), of: .opusHasBeenAdded, object: nil)
     }
-    
-    // payloads come in with few or many properties and I need to update
-    // the properties I need to use later. Sometimes the properties are
-    // empty so I need to preserve the previous values.
-    func updateAvailableSlices (sliceInfo: SliceInfo) {
-        let slice = sliceInfo.slice
-        var updated = false
-        var sliceInfoMode: SliceInfo!
-        var sliceInfoTx: SliceInfo!
+    /// Process .tcpDidConnect Notification
+    ///
+    /// - Parameter note: a Notification instance
+    ///
+    @objc fileprivate func tcpDidConnect(_ note: Notification) {
         
-        if let val = availableSlices["slice" + slice] {
-            if sliceInfo.mode.isEmpty {
-               sliceInfoMode = SliceInfo(handle: sliceInfo.handle, slice: sliceInfo.slice, mode: val.mode, tx: sliceInfo.tx, complete: sliceInfo.complete)
-               availableSlices["slice" + slice] = sliceInfoMode
-               updated = true
-            } else {
-                if sliceInfo.mode != val.mode {
-                    sliceInfoMode = SliceInfo(handle: sliceInfo.handle, slice: sliceInfo.slice, mode: sliceInfo.mode, tx: sliceInfo.tx, complete: sliceInfo.complete)
-                    availableSlices["slice" + slice] = sliceInfoMode
-                    updated = true
-                }
-            }
-           
-            if sliceInfo.tx.isEmpty {
-                if updated == true {
-                    sliceInfoTx = SliceInfo(handle: sliceInfoMode.handle, slice: sliceInfoMode.slice, mode: sliceInfoMode.mode, tx: val.tx, complete: sliceInfoMode.complete)
-                    
-                } else {
-                     sliceInfoTx = SliceInfo(handle: sliceInfo.handle, slice: sliceInfo.slice, mode: sliceInfo.mode, tx: val.tx, complete: sliceInfo.complete)
-                }
-                
-                availableSlices["slice" + slice] = sliceInfoTx
-            } else {
-                if sliceInfo.tx != val.tx {
-                    if updated == true {
-                        sliceInfoTx = SliceInfo(handle: sliceInfoMode.handle, slice: sliceInfoMode.slice, mode: sliceInfoMode.mode, tx: sliceInfo.tx, complete: sliceInfoMode.complete)
-                        
-                    } else {
-                        sliceInfoTx = SliceInfo(handle: sliceInfo.handle, slice: sliceInfo.slice, mode: sliceInfo.mode, tx: sliceInfo.tx, complete: sliceInfo.complete)
-                    }
-                    
-                    availableSlices["slice" + slice] = sliceInfoTx
-                }
-            }
-            
-        } else { // add the slice
-            availableSlices["slice" + slice] = sliceInfo
-        }
+        // a tcp connection has been established
         
+        // remember the active Radio
+        activeRadio = selectedRadio
+        
+        // get Radio model & firmware version
+        //Defaults[.radioFirmwareVersion] = activeRadio!.firmwareVersion!
+        //Defaults[.radioModel] = activeRadio!.model
+        
+        // get the version info for the underlying xFlexAPI
+//        let frameworkBundle = Bundle(identifier: kxFlexApiIdentifier)
+//        let apiVersion = frameworkBundle?.object(forInfoDictionaryKey: kVersionKey) ?? "0"
+//        let apiBuild = frameworkBundle?.object(forInfoDictionaryKey: kBuildKey) ?? "0"
+//
+        //Defaults[.apiVersion] = "v\(apiVersion) build \(apiBuild)"
+        //Defaults[.apiFirmwareSupport] = radio!.kApiFirmwareSupport
+        
+        // get the version info for this app
+//        let appVersion = Bundle.main.object(forInfoDictionaryKey: kVersionKey) ?? "0"
+//        let appBuild = Bundle.main.object(forInfoDictionaryKey: kBuildKey) ?? "0"
+        
+        //Defaults[.guiVersion] = "v\(appVersion) build \(appBuild)"
+        //Defaults[.guiFirmwareSupport] = kGuiFirmwareSupport
+        
+        // observe changes to Radio properties
+        //observations(radio!, paths: _radioKeyPaths)
     }
-    
-    // Notification handler - this will fire when the first radio is discovered and
-    // anytime a new radio is discovered, or an existing radio has a major change
-    // If an error occurs in the RadioFactory.m a dictionary will be posted
-    // TODO: Need to account for multiple entries into this function
-    func radioChanged(notification: NSNotification){
+    /// Process .tcpDidDisconnect Notification
+    ///
+    /// - Parameter note: a Notification instance
+    ///
+    @objc fileprivate func tcpDidDisconnect(_ note: Notification) {
         
-        var activeSlice = "No Active Slice"
-        var mode = TransmitMode.USB
-        //var serialNumber: String = "Disconnected"
-        
-        if var info = notification.userInfo as? Dictionary<String,String> {
-            // Check if value present before using it
-            if let error = info["Error"] {
-                serialNumber = error
-                return
-            }
-        }
-        
-        // this calls RadioManager.analyzePayload
-        if var info = notification.userInfo as? Dictionary<String,String> {
-            // Check if value present before using it
-            if let payload = info["RadioPayload"] {
-                // debug.print
-                //print ("Payload Data --> \(payload)")
-                
-                let availableSlices = self.analyzePayload(payload: payload) as [String: SliceInfo]
-                
-                //activeSlice = "No Active Slice"
-                for (slice, sliceInfo) in availableSlices {
-                    switch slice {
-                    case "slice0":
-                        if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
-                            activeSlice = "Slice A Active"
-                        }
-                    case "slice1":
-                        if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
-                            activeSlice = "Slice B Active"
-                        }
-                    case "slice2":
-                        if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
-                            activeSlice = "Slice C Active"
-                        }
-                    case "slice3":
-                        if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
-                            activeSlice = "Slice D Active"
-                        }
-                    case "slice4":
-                        if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
-                            activeSlice = "Slice E Active"
-                        }
-                    case "slice5":
-                        if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
-                            activeSlice = "Slice F Active"
-                        }
-                    case "slice6":
-                        if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
-                            activeSlice = "Slice G Active"
-                        }
-                    case "slice7":
-                        if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
-                            activeSlice = "Slice H Active"
-                        }
-                    default:
-                        activeSlice = "No Active Slice"
-                    }
-                    
-                }
-                
-                UpdateRadio(serialNumber: serialNumber, activeSlice: activeSlice, mode: mode)
-                return
-                
-            }
-        }
-        
-        do {
-            serialNumber = "S/N " + self.InitializeRadioInstances()
+        // the TCP connection has disconnected
+        if (note.object as! Radio.DisconnectReason) != .closed {
             
-            UpdateRadio(serialNumber: serialNumber, activeSlice: activeSlice, mode: mode)
-        }
-        catch let error as NSError {
-            // debug.print
-            print("Error: \(error.localizedDescription)")
+            // not a normal disconnect
+            //openRadioPicker(self)
         }
     }
-
+    /// Process a newly added Meter object
+    ///
+    /// - Parameter note: a Notification instance
+    ///
+    @objc fileprivate func meterHasBeenAdded(_ note: Notification) {
+        
+        if let meter = note.object as? Meter {
+            
+            // is it one we need to watch?
+            if meter.name == self.kVoltageMeter || meter.name == self.kPaTempMeter {
+                
+                // YES, process the initial meter reading
+                //processMeterUpdate(meter)
+                
+                // subscribe to its updates
+                //NC.makeObserver(self, with: #selector(meterUpdated(_:)), of: .meterUpdated, object: meter)
+            }
+        }
+    }
+    /// Process .radioInitialized Notification
+    ///
+    /// - Parameter note: a Notification instance
+    ///
+    @objc fileprivate func radioInitialized(_ note: Notification) {
+        
+        // the Radio class has been initialized
+        if let radio = note.object as? Radio {
+            
+            DispatchQueue.main.async { [unowned self] in
+                
+                // Get a reference to the Window Controller containing the toolbar items
+//                self._mainWindowController = self.view.window?.windowController as? MainWindowController
+//
+//                // Initialize the toolbar items
+//                self._mainWindowController?.lineoutGain.integerValue = radio.lineoutGain
+//                self._mainWindowController?.lineoutMute.state = radio.lineoutMute ? NSControl.StateValue.onState : NSControl.StateValue.offState
+//                self._mainWindowController?.headphoneGain.integerValue = radio.headphoneGain
+//                self._mainWindowController?.headphoneMute.state = radio.headphoneMute ? NSControl.StateValue.onState : NSControl.StateValue.offState
+//                self._mainWindowController?.window?.viewsNeedDisplay = true
+            }
+        }
+    }
     
+    @objc fileprivate func radiosAvailable(_ note: Notification) {
+        
+        DispatchQueue.main.async {
+            
+            // receive the updated list of Radios
+            self._availableRadios = (note.object as! [RadioParameters])
+            if self._availableRadios.count > 0 {
+                if self.openRadio(self._availableRadios[0]) == true {
+                    self.UpdateRadio()
+                }
+            }
+        }
+    }
     
     // raise event and send to view controller
     // not currently using
-    func UpdateRadio(serialNumber: String, activeSlice: String, mode: TransmitMode) {
+    func UpdateRadio() {
+        var serialNumber = self.selectedRadio?.serialNumber
+        var activeSlice = "1"
+        var mode = TransmitMode.USB
         
         // we have an update, let the GUI know
-        radioManagerDelegate?.didUpdateRadio(serialNumber: serialNumber, activeSlice: activeSlice, transmitMode: mode)
+        radioManagerDelegate?.didUpdateRadio(serialNumber: serialNumber!, activeSlice: activeSlice, transmitMode: mode)
         
     }
     
-    internal func CloseAll() {
-        //radio.close()
-        //radioFactory.close()
-    }
+    /// Process a newly added Opus
+    ///
+    /// - Parameter note: a Notification instance
+    ///
+    @objc fileprivate func opusHasBeenAdded(_ note: Notification) {
         
-    
-    func printDebugMessage (_ object: Any) {
-        #if DEBUG
-            print(object)
-        #endif
+        // the Opus class has been initialized
+//        if let opus = note.object as? Opus {
+//
+//            DispatchQueue.main.async { [unowned self] in
+//
+//                // add Opus property observations
+//                self.observations(opus, paths: self._opusKeyPaths)
+//            }
+//        }
     }
-
+    
+    // ----------------------------------------------------------------------------
+    // MARK: - RadioPickerDelegate methods
+    
+    /// Force the Radio Factory to resend availableRadios
+    ///
+    func updateAvailableRadios() {
+        
+        _radioFactory.updateAvailableRadios()
+    }
+    /// Stop the active Radio
+    ///
+    func closeRadio() {
+        
+        // remove observations of Radio properties
+        //observations(radio!, paths: _radioKeyPaths, remove: true)
+        
+        // perform an orderly close of the Radio resources
+        radio?.disconnect()
+        
+        // remove the active Radio
+        activeRadio = nil
+    }
+    /// Connect / Disconnect the selected Radio
+    ///
+    /// - Parameter selectedRadio: the RadioParameters
+    ///
+    func openRadio(_ selectedRadioParameters: RadioParameters?) -> Bool {
+        
+        // if open, close the Radio Picker
+        //if _radioPickerViewController != nil { _radioPickerViewController = nil }
+        
+        self.selectedRadio = selectedRadioParameters
+        
+//        if selectedRadio != nil && selectedRadio == activeRadio {
+//
+//            // Disconnect the active Radio
+//            closeRadio()
+//
+//        } else if selectedRadio != nil {
+//
+//            // Disconnect the active Radio & Connect a different Radio
+//            if activeRadio != nil {
+//
+//                // Disconnect the active Radio
+//                closeRadio()
+//            }
+            // Create a Radio class
+            radio = Radio(radioParameters: selectedRadio!, clientName: kClientName, isGui: true)
+            
+            // start a connection to the Radio
+            if !radio!.connect(selectedRadio: selectedRadio!) {
+                
+                // connect failed, log the error and return
+                //self._log.msg(kConnectFailed, level: .error, function: #function, file: #file, line: #line)
+                
+                return false        // Connect failed
+            }
+            return true             // Connect succeeded
+        //}
+       // return false                // no radio selected
+    }
+    
 } // end class

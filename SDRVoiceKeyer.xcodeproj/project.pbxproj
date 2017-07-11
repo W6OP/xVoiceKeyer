@@ -13,9 +13,10 @@
 		996AC07E1E4E3D4800C20AA8 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 996AC07D1E4E3D4800C20AA8 /* ViewController.swift */; };
 		996AC0801E4E3D4800C20AA8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 996AC07F1E4E3D4800C20AA8 /* Assets.xcassets */; };
 		996AC0831E4E3D4800C20AA8 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 996AC0811E4E3D4800C20AA8 /* Main.storyboard */; };
-		99B9C76F1E50EC7100772B91 /* RadioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B9C76E1E50EC7100772B91 /* RadioManager.swift */; };
+		99B9C76F1E50EC7100772B91 /* RadioManagerOld.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B9C76E1E50EC7100772B91 /* RadioManagerOld.swift */; };
+		99C0DAAC1F141B2900A42E93 /* xFlexAPI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 99C0DAAB1F141B2900A42E93 /* xFlexAPI.framework */; };
 		99D64A2F1E5B9BEB0053ED1F /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D64A2E1E5B9BEB0053ED1F /* AudioManager.swift */; };
-		99E84E6C1F1144B200C8660C /* xFlexAPI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 99E84E6B1F1144B200C8660C /* xFlexAPI.framework */; };
+		99EC95A21F1523B100E539E8 /* RadioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99EC95A11F1523B100E539E8 /* RadioManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,9 +28,10 @@
 		996AC07F1E4E3D4800C20AA8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		996AC0821E4E3D4800C20AA8 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		996AC0841E4E3D4800C20AA8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		99B9C76E1E50EC7100772B91 /* RadioManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadioManager.swift; sourceTree = "<group>"; };
+		99B9C76E1E50EC7100772B91 /* RadioManagerOld.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadioManagerOld.swift; sourceTree = "<group>"; };
+		99C0DAAB1F141B2900A42E93 /* xFlexAPI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = xFlexAPI.framework; path = ../../../Library/Frameworks/xFlexAPI.framework; sourceTree = "<group>"; };
 		99D64A2E1E5B9BEB0053ED1F /* AudioManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioManager.swift; sourceTree = "<group>"; };
-		99E84E6B1F1144B200C8660C /* xFlexAPI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = xFlexAPI.framework; path = ../frameworks/xFlexAPI.framework; sourceTree = "<group>"; };
+		99EC95A11F1523B100E539E8 /* RadioManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadioManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -37,7 +39,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				99E84E6C1F1144B200C8660C /* xFlexAPI.framework in Frameworks */,
+				99C0DAAC1F141B2900A42E93 /* xFlexAPI.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -70,9 +72,10 @@
 				996AC0811E4E3D4800C20AA8 /* Main.storyboard */,
 				996AC0841E4E3D4800C20AA8 /* Info.plist */,
 				99D64A2E1E5B9BEB0053ED1F /* AudioManager.swift */,
-				99B9C76E1E50EC7100772B91 /* RadioManager.swift */,
 				99217D511E5D02A50042C787 /* RadioPreferences.swift */,
 				993D1E681E5F811D00BB5236 /* PreferenceManager.swift */,
+				99EC95A11F1523B100E539E8 /* RadioManager.swift */,
+				99B9C76E1E50EC7100772B91 /* RadioManagerOld.swift */,
 			);
 			path = SDRVoiceKeyer;
 			sourceTree = "<group>";
@@ -80,7 +83,7 @@
 		99E84E6A1F1144A500C8660C /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				99E84E6B1F1144B200C8660C /* xFlexAPI.framework */,
+				99C0DAAB1F141B2900A42E93 /* xFlexAPI.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -157,10 +160,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				99EC95A21F1523B100E539E8 /* RadioManager.swift in Sources */,
 				996AC07E1E4E3D4800C20AA8 /* ViewController.swift in Sources */,
 				99217D521E5D02A50042C787 /* RadioPreferences.swift in Sources */,
 				99D64A2F1E5B9BEB0053ED1F /* AudioManager.swift in Sources */,
-				99B9C76F1E50EC7100772B91 /* RadioManager.swift in Sources */,
+				99B9C76F1E50EC7100772B91 /* RadioManagerOld.swift in Sources */,
 				996AC07C1E4E3D4800C20AA8 /* AppDelegate.swift in Sources */,
 				993D1E691E5F811D00BB5236 /* PreferenceManager.swift in Sources */,
 			);
@@ -278,7 +282,10 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = B87W7787L4;
-				"FRAMEWORK_SEARCH_PATHS[arch=*]" = /Users/pbourget/Documents/XcodeProjects/frameworks;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(USER_LIBRARY_DIR)/Frameworks",
+				);
 				HEADER_SEARCH_PATHS = "";
 				"HEADER_SEARCH_PATHS[arch=*]" = "";
 				INFOPLIST_FILE = SDRVoiceKeyer/Info.plist;
@@ -288,7 +295,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.w6op.SDRVoiceKeyer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/SDRVoiceKeyer/SDRVoiceKeyer-Bridging-Header.h";
-				SWIFT_VERSION = 3.0;
+				SWIFT_VERSION = 4.0;
 			};
 			name = Debug;
 		};
@@ -300,7 +307,10 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = B87W7787L4;
-				"FRAMEWORK_SEARCH_PATHS[arch=*]" = /Users/pbourget/Documents/XcodeProjects/frameworks;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(USER_LIBRARY_DIR)/Frameworks",
+				);
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = SDRVoiceKeyer/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
@@ -308,7 +318,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.w6op.SDRVoiceKeyer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/SDRVoiceKeyer/SDRVoiceKeyer-Bridging-Header.h";
-				SWIFT_VERSION = 3.0;
+				SWIFT_VERSION = 4.0;
 			};
 			name = Release;
 		};
