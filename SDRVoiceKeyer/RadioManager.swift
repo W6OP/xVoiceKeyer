@@ -34,6 +34,9 @@
 //  Created by Peter Bourget on 7/11/17.
 //  Copyright © 2017 Peter Bourget. All rights reserved.
 //
+// Description: This is a wrapper for the xFlexAPI framework written by Doug Adams K3TZR
+// The purpose is to simplify the interface into the API and allow the GUI to function
+// without a reference to the API or even knowledge of the API.
 
 import Foundation
 import xFlexAPI
@@ -41,13 +44,38 @@ import xFlexAPI
 // event delegate
 // implement in your viewcontroller to receive messages from the radio manager
 protocol RadioManagerDelegate: class {
+    func didDiscoverRadio(discoveredRadios: [String])
     func didUpdateRadio(serialNumber: String, activeSlice: String, transmitMode: TransmitMode)
     func openRadioSelector(serialNumber: String)
 }
 
+// structure to pass data back to view controller
+struct SliceInfo {
+    let handle: String
+    let slice: String // create enum?
+    let mode: String //TransmitMode
+    let tx: String // Bool ??
+    let complete: Bool
+}
+
+
+enum TransmitMode{
+    case Invalid
+    case USB
+    case LSB
+    case SSB
+    case AM
+}
+
+// wrapper class for the xFlexAPI written by Doug Adams K3TZR
 internal class RadioManager: NSObject {
     
     var radioManagerDelegate:RadioManagerDelegate?
+    var discoveredRadios: [String]
+    
+    var discoveryPort = 4992
+    var checkInterval: TimeInterval = 1.0
+    var notSeenInterval: TimeInterval = 3.0
     
     // ----------------------------------------------------------------------------
     // MARK: - Internal properties
@@ -59,36 +87,32 @@ internal class RadioManager: NSObject {
     // MARK: - Private properties
     
     fileprivate var selectedRadio: RadioParameters?                // Radio to start
-    //fileprivate var _toolbar: NSToolbar?
-    //fileprivate var _sideViewController: NSSplitViewController?
-    //fileprivate var _panafallsViewController: PanafallsViewController?
+    
     
     fileprivate var notifications = [NSObjectProtocol]()           // Notification observers
-    //fileprivate var _radioPickerViewController: RadioPickerViewController?  // RadioPicker sheet controller
-    //fileprivate var _voltageTempMonitor: ParameterMonitor?          // the Voltage/Temp ParameterMonitor
     //fileprivate let _opusManager = OpusManager()
     
     // constants
-    //    fileprivate let _log = Log.sharedInstance                       // Shared log
-    //    fileprivate let _log: XCGLogger!                                // Shared log
+    fileprivate let _log = Log.sharedInstance                       // Shared log
+    //fileprivate let _log: XCGLogger!                                // Shared log
     
     fileprivate let log = (NSApp.delegate as! AppDelegate)
     fileprivate let kModule = "RadioViewController"                 // Module Name reported in log messages
     let kClientName = "SDRVoiceKeyer"
     
-    fileprivate let kGuiFirmwareSupport = "1.10.16.x"               // Radio firmware supported by this App
+    ///fileprivate let kGuiFirmwareSupport = "1.10.16.x"               // Radio firmware supported by this App
     fileprivate let kxFlexApiIdentifier = "net.k3tzr.xFlexAPI"      // Bundle identifier for xFlexApi
-    fileprivate let kVoltageMeter = "+13.8B"                        // Short name of voltage meter
-    fileprivate let kPaTempMeter = "PATEMP"                         // Short name of temperature meter
-    fileprivate let kVoltageTemperature = "VoltageTemp"             // Identifier of toolbar VoltageTemperature toolbarItem
+    //fileprivate let kVoltageMeter = "+13.8B"                        // Short name of voltage meter
+    //fileprivate let kPaTempMeter = "PATEMP"                         // Short name of temperature meter
+    //fileprivate let kVoltageTemperature = "VoltageTemp"             // Identifier of toolbar VoltageTemperature toolbarItem
     
-    fileprivate let kSideStoryboard = "Side"                        // Storyboard names
+    //fileprivate let kSideStoryboard = "Side"                        // Storyboard names
     
-    fileprivate let kRadioPickerIdentifier = "RadioPicker"          // Storyboard identifiers
+    //fileprivate let kRadioPickerIdentifier = "RadioPicker"          // Storyboard identifiers
     fileprivate let kPcwIdentifier = "PCW"
     fileprivate let kPhoneIdentifier = "Phone"
     fileprivate let kRxIdentifier = "Rx"
-    fileprivate let kEqualizerIdentifier = "Equalizer"
+    //fileprivate let kEqualizerIdentifier = "Equalizer"
     
     fileprivate let kConnectFailed = "Initial Connection failed"    // Error messages
     fileprivate let kUdpBindFailed = "Initial UDP bind failed"
@@ -96,45 +120,27 @@ internal class RadioManager: NSObject {
     fileprivate let kVersionKey = "CFBundleShortVersionString"      // CF constants
     fileprivate let kBuildKey = "CFBundleVersion"
     
-    fileprivate var _availableRadios = [RadioParameters]()          // Array of available Radios
+    fileprivate var availableRadios = [RadioParameters]()          // Array of available Radios
 //    fileprivate enum ToolbarButton: String {                        // toolbar item identifiers
 //        case Pan, Tnf, Markers, Remote, Speaker, Headset, VoltTemp, Side
 //    }
     
-    fileprivate var _shouldOpenPicker = false
-    fileprivate var _radioFactory = RadioFactory()
+//    fileprivate var _shouldOpenPicker = false
+    fileprivate var radioFactory: RadioFactory
     
     override init() {
         
+        radioFactory = RadioFactory()
+        discoveredRadios = [String]()
+        
         // give the API access to the logger
-        //Log.sharedInstance.delegate = (NSApp.delegate as! LogHandler)
+        Log.sharedInstance.delegate = (NSApp.delegate as! LogHandler)
         
         super.init()
         
         // add notification subscriptions
         addNotifications()
         
-        
-        // see if there is a default Radio
-        //let params = Defaults[.defaultRadioParameters]
-        //let defaultRadio = RadioParameters.parametersFromArray(valuesArray: params)
-        
-//        if defaultRadio.ipAddress != "" && defaultRadio.port != 0 {
-//
-//            _log.msg("Attempting to open Default Radio, IP \(defaultRadio.ipAddress), Port \(defaultRadio.port)", level: .info, function: #function, file: #file, line: #line)
-//
-//            // there is a default, try to open it
-//            if !openRadio(defaultRadio) {
-//
-//                // open failed, open the picker
-//                _shouldOpenPicker = true
-//            }
-//
-//        } else {
-//
-//            // no default, open the Radio Picker sheet (when the Window appears)
-//            _shouldOpenPicker = true
-//        }
     }
     
     // ----------------------------------------------------------------------------
@@ -145,23 +151,37 @@ internal class RadioManager: NSObject {
     fileprivate func addNotifications() {
         
         // Initial TCP Connection opened
-        NC.makeObserver(self, with: #selector(tcpDidConnect(_:)), of: .tcpDidConnect, object: nil)
+        let nc = NotificationCenter.default
+        nc.addObserver(forName:Notification.Name(rawValue:"tcpDidConnect"),
+                       object:nil, queue:nil,
+                       using:tcpDidConnect)
         
         // TCP Connection disconnect
-        NC.makeObserver(self, with: #selector(tcpDidDisconnect(_:)), of: .tcpDidDisconnect, object: nil)
+        nc.addObserver(forName:Notification.Name(rawValue:"tcpDidDisconnect"),
+                       object:nil, queue:nil,
+                       using:tcpDidDisconnect)
         
         // a Meter was Added
-        NC.makeObserver(self, with: #selector(meterHasBeenAdded(_:)), of: .meterHasBeenAdded, object: nil)
+        nc.addObserver(forName:Notification.Name(rawValue:"meterHasBeenAdded"),
+                       object:nil, queue:nil,
+                       using:meterHasBeenAdded)
         
         // Radio Initialized
-        NC.makeObserver(self, with: #selector(radioInitialized(_:)), of: .radioInitialized, object: nil)
+        nc.addObserver(forName:Notification.Name(rawValue:"radioInitialized"),
+                       object:nil, queue:nil,
+                       using:radioInitialized)
         
         // Available Radios changed
-        NC.makeObserver(self, with: #selector(radiosAvailable(_:)), of: .radiosAvailable, object: nil)
+        nc.addObserver(forName:Notification.Name(rawValue:"radiosAvailable"),
+                       object:nil, queue:nil,
+                       using:radiosAvailable)
         
         // an Opus was Added
-        NC.makeObserver(self, with: #selector(opusHasBeenAdded(_:)), of: .opusHasBeenAdded, object: nil)
+        nc.addObserver(forName:Notification.Name(rawValue:"opusHasBeenAdded"),
+                       object:nil, queue:nil,
+                       using:opusHasBeenAdded)
     }
+    
     /// Process .tcpDidConnect Notification
     ///
     /// - Parameter note: a Notification instance
@@ -173,24 +193,14 @@ internal class RadioManager: NSObject {
         // remember the active Radio
         activeRadio = selectedRadio
         
-        // get Radio model & firmware version
-        //Defaults[.radioFirmwareVersion] = activeRadio!.firmwareVersion!
-        //Defaults[.radioModel] = activeRadio!.model
-        
         // get the version info for the underlying xFlexAPI
-//        let frameworkBundle = Bundle(identifier: kxFlexApiIdentifier)
-//        let apiVersion = frameworkBundle?.object(forInfoDictionaryKey: kVersionKey) ?? "0"
-//        let apiBuild = frameworkBundle?.object(forInfoDictionaryKey: kBuildKey) ?? "0"
-//
-        //Defaults[.apiVersion] = "v\(apiVersion) build \(apiBuild)"
-        //Defaults[.apiFirmwareSupport] = radio!.kApiFirmwareSupport
+        let frameworkBundle = Bundle(identifier: kxFlexApiIdentifier)
+        let apiVersion = frameworkBundle?.object(forInfoDictionaryKey: kVersionKey) ?? "0"
+        let apiBuild = frameworkBundle?.object(forInfoDictionaryKey: kBuildKey) ?? "0"
         
         // get the version info for this app
-//        let appVersion = Bundle.main.object(forInfoDictionaryKey: kVersionKey) ?? "0"
-//        let appBuild = Bundle.main.object(forInfoDictionaryKey: kBuildKey) ?? "0"
-        
-        //Defaults[.guiVersion] = "v\(appVersion) build \(appBuild)"
-        //Defaults[.guiFirmwareSupport] = kGuiFirmwareSupport
+        let appVersion = Bundle.main.object(forInfoDictionaryKey: kVersionKey) ?? "0"
+        let appBuild = Bundle.main.object(forInfoDictionaryKey: kBuildKey) ?? "0"
         
         // observe changes to Radio properties
         //observations(radio!, paths: _radioKeyPaths)
@@ -214,23 +224,19 @@ internal class RadioManager: NSObject {
     ///
     @objc fileprivate func meterHasBeenAdded(_ note: Notification) {
         
-        if let meter = note.object as? Meter {
-            
+        //if let meter = note.object as? Meter {
             // is it one we need to watch?
-            if meter.name == self.kVoltageMeter || meter.name == self.kPaTempMeter {
+            //if meter.name == self.kVoltageMeter || meter.name == self.kPaTempMeter {
                 
                 // YES, process the initial meter reading
                 //processMeterUpdate(meter)
                 
                 // subscribe to its updates
                 //NC.makeObserver(self, with: #selector(meterUpdated(_:)), of: .meterUpdated, object: meter)
-            }
-        }
+            //}
+        //}
     }
-    /// Process .radioInitialized Notification
-    ///
-    /// - Parameter note: a Notification instance
-    ///
+    
     @objc fileprivate func radioInitialized(_ note: Notification) {
         
         // the Radio class has been initialized
@@ -238,15 +244,8 @@ internal class RadioManager: NSObject {
             
             DispatchQueue.main.async { [unowned self] in
                 
-                // Get a reference to the Window Controller containing the toolbar items
-//                self._mainWindowController = self.view.window?.windowController as? MainWindowController
-//
-//                // Initialize the toolbar items
-//                self._mainWindowController?.lineoutGain.integerValue = radio.lineoutGain
-//                self._mainWindowController?.lineoutMute.state = radio.lineoutMute ? NSControl.StateValue.onState : NSControl.StateValue.offState
-//                self._mainWindowController?.headphoneGain.integerValue = radio.headphoneGain
-//                self._mainWindowController?.headphoneMute.state = radio.headphoneMute ? NSControl.StateValue.onState : NSControl.StateValue.offState
-//                self._mainWindowController?.window?.viewsNeedDisplay = true
+                // use delegate to pass message to view controller ??
+                // or use the radio available ??
             }
         }
     }
@@ -256,11 +255,14 @@ internal class RadioManager: NSObject {
         DispatchQueue.main.async {
             
             // receive the updated list of Radios
-            self._availableRadios = (note.object as! [RadioParameters])
-            if self._availableRadios.count > 0 {
-                if self.openRadio(self._availableRadios[0]) == true {
-                    self.UpdateRadio()
+            self.availableRadios = (note.object as! [RadioParameters])
+            if self.availableRadios.count > 0 {
+                
+                for item in self.availableRadios {
+                    self.discoveredRadios.append(item.serialNumber)
                 }
+                
+                self.radioManagerDelegate?.didDiscoverRadio(discoveredRadios: self.discoveredRadios)
             }
         }
     }
@@ -294,14 +296,16 @@ internal class RadioManager: NSObject {
 //        }
     }
     
+    
+    
     // ----------------------------------------------------------------------------
-    // MARK: - RadioPickerDelegate methods
+    // MARK: - RadioManagerDelegate methods
     
     /// Force the Radio Factory to resend availableRadios
     ///
     func updateAvailableRadios() {
         
-        _radioFactory.updateAvailableRadios()
+        radioFactory.updateAvailableRadios()
     }
     /// Stop the active Radio
     ///
@@ -316,11 +320,21 @@ internal class RadioManager: NSObject {
         // remove the active Radio
         activeRadio = nil
     }
+    
+    // exposed function for the GUI to indicate which radio to connect to
+    public func connectToRadio( serialNumber: String) {
+        
+        if self.openRadio(self.availableRadios[0]) == true {
+            self.UpdateRadio()
+        }
+        
+    }
+    
     /// Connect / Disconnect the selected Radio
     ///
     /// - Parameter selectedRadio: the RadioParameters
     ///
-    func openRadio(_ selectedRadioParameters: RadioParameters?) -> Bool {
+    fileprivate func openRadio(_ selectedRadioParameters: RadioParameters?) -> Bool {
         
         // if open, close the Radio Picker
         //if _radioPickerViewController != nil { _radioPickerViewController = nil }

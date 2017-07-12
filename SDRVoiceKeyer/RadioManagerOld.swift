@@ -59,22 +59,22 @@ extension Scanner {
     }
 }
 
-// structure to pass data back to view controller
-struct SliceInfo {
-    let handle: String
-    let slice: String
-    let mode: String
-    let tx: String
-    let complete: Bool
-}
-
-enum TransmitMode{
-    case Invalid
-    case USB
-    case LSB
-    case SSB
-    case AM
-}
+//// structure to pass data back to view controller
+//struct SliceInfo {
+//    let handle: String
+//    let slice: String
+//    let mode: String
+//    let tx: String
+//    let complete: Bool
+//}
+//
+//enum TransmitMode{
+//    case Invalid
+//    case USB
+//    case LSB
+//    case SSB
+//    case AM
+//}
 
 // event delegate
 // implemnt in your viewcontroller to receive messages from the radio manager
@@ -91,7 +91,7 @@ internal class RadioManagerOld: NSObject {
     //var radio: Radio
     //var availableRadioInstances: [String : RadioInstance]
     var availableSlices: [String: SliceInfo]
-    
+    //
     
     // temporary
     var serialNumber: String = "Disconnected"
