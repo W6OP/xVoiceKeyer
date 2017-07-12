@@ -40,6 +40,7 @@
 
 import Foundation
 import xFlexAPI
+import os
 
 // event delegate
 // implement in your viewcontroller to receive messages from the radio manager
@@ -59,16 +60,18 @@ struct SliceInfo {
 }
 
 
-enum TransmitMode{
-    case Invalid
-    case USB
-    case LSB
-    case SSB
-    case AM
+enum  TransmitMode: String{
+    case Invalid = "one"
+    case USB = "two"
+    case LSB = "three"
+    case SSB = "four   "
+    case AM = "five"
 }
 
 // wrapper class for the xFlexAPI written by Doug Adams K3TZR
 internal class RadioManager: NSObject {
+    
+    static let model_log = OSLog(subsystem: "com.w6op.Radio-Swift", category: "Model")
     
     var radioManagerDelegate:RadioManagerDelegate?
     var discoveredRadios: [String]
@@ -97,14 +100,10 @@ internal class RadioManager: NSObject {
     //fileprivate let _log: XCGLogger!                                // Shared log
     
     fileprivate let log = (NSApp.delegate as! AppDelegate)
-    fileprivate let kModule = "RadioViewController"                 // Module Name reported in log messages
+    fileprivate let kModule = "RadioManager"                 // Module Name reported in log messages
     let kClientName = "SDRVoiceKeyer"
     
-    ///fileprivate let kGuiFirmwareSupport = "1.10.16.x"               // Radio firmware supported by this App
     fileprivate let kxFlexApiIdentifier = "net.k3tzr.xFlexAPI"      // Bundle identifier for xFlexApi
-    //fileprivate let kVoltageMeter = "+13.8B"                        // Short name of voltage meter
-    //fileprivate let kPaTempMeter = "PATEMP"                         // Short name of temperature meter
-    //fileprivate let kVoltageTemperature = "VoltageTemp"             // Identifier of toolbar VoltageTemperature toolbarItem
     
     //fileprivate let kSideStoryboard = "Side"                        // Storyboard names
     
@@ -121,34 +120,62 @@ internal class RadioManager: NSObject {
     fileprivate let kBuildKey = "CFBundleVersion"
     
     fileprivate var availableRadios = [RadioParameters]()          // Array of available Radios
-//    fileprivate enum ToolbarButton: String {                        // toolbar item identifiers
-//        case Pan, Tnf, Markers, Remote, Speaker, Headset, VoltTemp, Side
-//    }
-    
-//    fileprivate var _shouldOpenPicker = false
     fileprivate var radioFactory: RadioFactory
     
+    
+    
+    // KVO
+    fileprivate let _radioKeyPaths =                                // Radio keypaths to observe
+        [
+            #keyPath(Radio.lineoutGain),
+            #keyPath(Radio.lineoutMute),
+            #keyPath(Radio.headphoneGain),
+            #keyPath(Radio.headphoneMute),
+            #keyPath(Radio.tnfEnabled),
+            #keyPath(Radio.fullDuplexEnabled)
+    ]
+    
+//    private let _opusKeyPaths =
+//        [
+//            #keyPath(Opus.remoteRxOn),
+//            #keyPath(Opus.remoteTxOn),
+//            #keyPath(Opus.rxStreamStopped)
+//    ]
+    
+    
+    // initialize the class
+    // create the RadioFactory
+    // add notification listeners
     override init() {
         
-        radioFactory = RadioFactory()
+        print (TransmitMode.USB)
+        print (TransmitMode.USB.rawValue)
+        
+        var str = String(describing: TransmitMode.USB)
+        print ("ABC \(str)"   )
+        var a = TransmitMode.USB
+        let rightMovement = TransmitMode(rawValue: "USB")
+        print (rightMovement)
+        
         discoveredRadios = [String]()
         
-        // give the API access to the logger
-        Log.sharedInstance.delegate = (NSApp.delegate as! LogHandler)
+        os_log("Initializing the RadioFactory.", log: RadioManager.model_log, type: .info)
+        radioFactory = RadioFactory()
         
         super.init()
         
         // add notification subscriptions
-        addNotifications()
+        os_log("Adding the notification subscriptions.", log: RadioManager.model_log, type: .info)
+        addNotificationListeners()
         
     }
     
     // ----------------------------------------------------------------------------
     // MARK: - Notification Methods
     
-    /// Add subscriptions to Notifications
+    /// Add subscriptions to Notifications from the xFlexAPI
     ///
-    fileprivate func addNotifications() {
+    fileprivate func addNotificationListeners() {
         
         // Initial TCP Connection opened
         let nc = NotificationCenter.default
@@ -180,6 +207,7 @@ internal class RadioManager: NSObject {
         nc.addObserver(forName:Notification.Name(rawValue:"opusHasBeenAdded"),
                        object:nil, queue:nil,
                        using:opusHasBeenAdded)
+        
     }
     
     /// Process .tcpDidConnect Notification
@@ -189,8 +217,8 @@ internal class RadioManager: NSObject {
     @objc fileprivate func tcpDidConnect(_ note: Notification) {
         
         // a tcp connection has been established
-        
-        // remember the active Radio
+        os_log("A TCP connection has been established.", log: RadioManager.model_log, type: .info)
+        // save the active Radio
         activeRadio = selectedRadio
         
         // get the version info for the underlying xFlexAPI
@@ -212,6 +240,7 @@ internal class RadioManager: NSObject {
     @objc fileprivate func tcpDidDisconnect(_ note: Notification) {
         
         // the TCP connection has disconnected
+        os_log("The TCP connection is being terminated.", log: RadioManager.model_log, type: .info)
         if (note.object as! Radio.DisconnectReason) != .closed {
             
             // not a normal disconnect
@@ -241,7 +270,7 @@ internal class RadioManager: NSObject {
         
         // the Radio class has been initialized
         if let radio = note.object as? Radio {
-            
+            os_log("The Radio has been initialized.", log: RadioManager.model_log, type: .info)
             DispatchQueue.main.async { [unowned self] in
                 
                 // use delegate to pass message to view controller ??
@@ -257,7 +286,7 @@ internal class RadioManager: NSObject {
             // receive the updated list of Radios
             self.availableRadios = (note.object as! [RadioParameters])
             if self.availableRadios.count > 0 {
-                
+                os_log("Discovery process has completed.", log: RadioManager.model_log, type: .info)
                 for item in self.availableRadios {
                     self.discoveredRadios.append(item.serialNumber)
                 }
@@ -273,6 +302,8 @@ internal class RadioManager: NSObject {
         var serialNumber = self.selectedRadio?.serialNumber
         var activeSlice = "1"
         var mode = TransmitMode.USB
+        
+        os_log("An update to the Radio has been received.", log: RadioManager.model_log, type: .info)
         
         // we have an update, let the GUI know
         radioManagerDelegate?.didUpdateRadio(serialNumber: serialNumber!, activeSlice: activeSlice, transmitMode: mode)
@@ -324,6 +355,7 @@ internal class RadioManager: NSObject {
     // exposed function for the GUI to indicate which radio to connect to
     public func connectToRadio( serialNumber: String) {
         
+        os_log("Connect to the Radio.", log: RadioManager.model_log, type: .info)
         if self.openRadio(self.availableRadios[0]) == true {
             self.UpdateRadio()
         }
@@ -335,9 +367,6 @@ internal class RadioManager: NSObject {
     /// - Parameter selectedRadio: the RadioParameters
     ///
     fileprivate func openRadio(_ selectedRadioParameters: RadioParameters?) -> Bool {
-        
-        // if open, close the Radio Picker
-        //if _radioPickerViewController != nil { _radioPickerViewController = nil }
         
         self.selectedRadio = selectedRadioParameters
         
@@ -355,11 +384,11 @@ internal class RadioManager: NSObject {
 //                closeRadio()
 //            }
             // Create a Radio class
-            radio = Radio(radioParameters: selectedRadio!, clientName: kClientName, isGui: true)
+            radio = Radio(radioParameters: selectedRadio!, clientName: kClientName, isGui: false)
             
             // start a connection to the Radio
             if !radio!.connect(selectedRadio: selectedRadio!) {
-                
+                os_log("Connection to the Radio failed.", log: RadioManager.model_log, type: .error)
                 // connect failed, log the error and return
                 //self._log.msg(kConnectFailed, level: .error, function: #function, file: #file, line: #line)
                 
@@ -369,5 +398,31 @@ internal class RadioManager: NSObject {
         //}
        // return false                // no radio selected
     }
+    
+    // ----------------------------------------------------------------------------
+    // MARK: - Observation methods
+    
+    
+    
+    /// Add / Remove property observations
+    ///
+    /// - Parameters:
+    ///   - object: the object of the observations
+    ///   - paths: an array of KeyPaths
+    ///   - add: add / remove (defaults to add)
+    ///
+    fileprivate func observations<T: NSObject>(_ object: T, paths: [String], remove: Bool = false) {
+        
+        // for each KeyPath Add / Remove observations
+        for keyPath in paths {
+            
+            //            print("\(remove ? "Remove" : "Add   ") \(object.className):\(keyPath) in " + kModule)
+            
+            if remove { object.removeObserver(self, forKeyPath: keyPath, context: nil) }
+            else { object.addObserver(self, forKeyPath: keyPath, options: [.initial, .new], context: nil) }
+        }
+    }
+    
+    
     
 } // end class
