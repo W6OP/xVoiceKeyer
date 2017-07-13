@@ -45,7 +45,7 @@ import os
 // event delegate
 // implement in your viewcontroller to receive messages from the radio manager
 protocol RadioManagerDelegate: class {
-    func didDiscoverRadio(discoveredRadios: [String])
+    func didDiscoverRadio(discoveredRadios: [(model: String, nickname: String, ipAddress: String)])
     func didUpdateRadio(serialNumber: String, activeSlice: String, transmitMode: TransmitMode)
     func openRadioSelector(serialNumber: String)
 }
@@ -61,11 +61,11 @@ struct SliceInfo {
 
 
 enum  TransmitMode: String{
-    case Invalid = "one"
-    case USB = "two"
-    case LSB = "three"
-    case SSB = "four   "
-    case AM = "five"
+    case Invalid
+    case USB
+    case LSB
+    case SSB
+    case AM
 }
 
 // wrapper class for the xFlexAPI written by Doug Adams K3TZR
@@ -73,8 +73,8 @@ internal class RadioManager: NSObject {
     
     static let model_log = OSLog(subsystem: "com.w6op.Radio-Swift", category: "Model")
     
-    var radioManagerDelegate:RadioManagerDelegate?
-    var discoveredRadios: [String]
+    var radioManagerDelegate:RadioManagerDelegate?    // delegate to pass messages back to viewcontroller
+    var discoveredRadios: [(model: String, nickname: String, ipAddress: String)]                  // list of serial numbers of discovered radios
     
     var discoveryPort = 4992
     var checkInterval: TimeInterval = 1.0
@@ -84,13 +84,12 @@ internal class RadioManager: NSObject {
     // MARK: - Internal properties
     
     internal var activeRadio: RadioParameters?                      // Radio currently running
-    internal var radio: Radio?                                      // Radio class in use
+    internal var radio: Radio?                                     // Radio class in use
     
     // ----------------------------------------------------------------------------
     // MARK: - Private properties
     
     fileprivate var selectedRadio: RadioParameters?                // Radio to start
-    
     
     fileprivate var notifications = [NSObjectProtocol]()           // Notification observers
     //fileprivate let _opusManager = OpusManager()
@@ -122,7 +121,8 @@ internal class RadioManager: NSObject {
     fileprivate var availableRadios = [RadioParameters]()          // Array of available Radios
     fileprivate var radioFactory: RadioFactory
     
-    
+    // ----------------------------------------------------------------------------
+    // MARK: - Observation methods
     
     // KVO
     fileprivate let _radioKeyPaths =                                // Radio keypaths to observe
@@ -142,22 +142,15 @@ internal class RadioManager: NSObject {
 //            #keyPath(Opus.rxStreamStopped)
 //    ]
     
+    // ----------------------------------------------------------------------------
+    // MARK: - Initialization
     
     // initialize the class
     // create the RadioFactory
     // add notification listeners
     override init() {
         
-        print (TransmitMode.USB)
-        print (TransmitMode.USB.rawValue)
-        
-        var str = String(describing: TransmitMode.USB)
-        print ("ABC \(str)"   )
-        var a = TransmitMode.USB
-        let rightMovement = TransmitMode(rawValue: "USB")
-        print (rightMovement)
-        
-        discoveredRadios = [String]()
+        discoveredRadios = [(model: String, nickname: String, ipAddress: String)]()
         
         os_log("Initializing the RadioFactory.", log: RadioManager.model_log, type: .info)
         radioFactory = RadioFactory()
@@ -231,7 +224,7 @@ internal class RadioManager: NSObject {
         let appBuild = Bundle.main.object(forInfoDictionaryKey: kBuildKey) ?? "0"
         
         // observe changes to Radio properties
-        //observations(radio!, paths: _radioKeyPaths)
+        observations(radio!, paths: _radioKeyPaths)
     }
     /// Process .tcpDidDisconnect Notification
     ///
@@ -244,7 +237,7 @@ internal class RadioManager: NSObject {
         if (note.object as! Radio.DisconnectReason) != .closed {
             
             // not a normal disconnect
-            //openRadioPicker(self)
+           // notify GUI
         }
     }
     /// Process a newly added Meter object
@@ -279,6 +272,7 @@ internal class RadioManager: NSObject {
         }
     }
     
+    // model: String, nickname: String, ipAddress: String
     @objc fileprivate func radiosAvailable(_ note: Notification) {
         
         DispatchQueue.main.async {
@@ -288,7 +282,7 @@ internal class RadioManager: NSObject {
             if self.availableRadios.count > 0 {
                 os_log("Discovery process has completed.", log: RadioManager.model_log, type: .info)
                 for item in self.availableRadios {
-                    self.discoveredRadios.append(item.serialNumber)
+                    self.discoveredRadios.append((item.model, item.nickname!, item.ipAddress))
                 }
                 
                 self.radioManagerDelegate?.didDiscoverRadio(discoveredRadios: self.discoveredRadios)
@@ -343,7 +337,7 @@ internal class RadioManager: NSObject {
     func closeRadio() {
         
         // remove observations of Radio properties
-        //observations(radio!, paths: _radioKeyPaths, remove: true)
+        observations(radio!, paths: _radioKeyPaths, remove: true)
         
         // perform an orderly close of the Radio resources
         radio?.disconnect()
@@ -423,6 +417,81 @@ internal class RadioManager: NSObject {
         }
     }
     
-    
+    /// Process changes to observed keyPaths (may arrive on any thread)
+    ///
+    /// - Parameters:
+    ///   - keyPath: the KeyPath that changed
+    ///   - object: the Object of the KeyPath
+    ///   - change: a change dictionary
+    ///   - context: a pointer to a context (if any)
+    ///
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+        
+        if let kp = keyPath, let ch = change {
+            
+            if kp != "springLoaded" {
+                
+                // interact with the UI
+                DispatchQueue.main.async { [unowned self] in
+                    
+                    switch kp {
+                        
+                    case #keyPath(Radio.lineoutGain):
+                        //self._mainWindowController?.lineoutGain.integerValue = ch[.newKey] as! Int
+                        break
+                    case #keyPath(Radio.lineoutMute):
+//                        self._mainWindowController?.lineoutMute.state = (ch[.newKey] as! Bool) ? NSControl.StateValue.onState : NSControl.StateValue.offState
+                        break
+                    case #keyPath(Radio.headphoneGain):
+//                        self._mainWindowController?.headphoneGain.integerValue = ch[.newKey] as! Int
+                        break
+                    case #keyPath(Radio.headphoneMute):
+//                        self._mainWindowController?.headphoneMute.state = (ch[.newKey] as! Bool) ? NSControl.StateValue.onState : NSControl.StateValue.offState
+                        break
+                    case #keyPath(Radio.tnfEnabled):
+//                        self._mainWindowController?.tnfEnabled.state = (ch[.newKey] as! Bool) ? NSControl.StateValue.onState : NSControl.StateValue.offState
+                        break
+                    case #keyPath(Radio.fullDuplexEnabled):
+//                        self._mainWindowController?.fdxEnabled.state = (ch[.newKey] as! Bool) ? NSControl.StateValue.onState : NSControl.StateValue.offState
+                        break
+                    case #keyPath(Opus.remoteRxOn):
+                        
+                        if let opus = object as? Opus, let start = ch[.newKey] as? Bool{
+                            
+                            if start == true && opus.delegate == nil {
+                                
+                                // Opus starting, supply a decoder
+//                                self._opusManager.rxAudio(true)
+//                                opus.delegate = self._opusManager
+                                
+                            } else if start == false && opus.delegate != nil {
+                                
+                                // opus stopping, remove the decoder
+//                                self._opusManager.rxAudio(false)
+//                                opus.delegate = nil
+                            }
+                        }
+                        
+                    case #keyPath(Opus.remoteTxOn):
+                        
+                        if let opus = object as? Opus, let start = ch[.newKey] as? Bool{
+                            
+                            // Tx Opus starting / stopping
+                            //self._opusManager.txAudio( start, opus: opus )
+                        }
+                        
+                    case #keyPath(Opus.rxStreamStopped):
+                        
+                        // FIXME: Implement this
+                        break
+                        
+                    default:
+                        // log and ignore any other keyPaths
+                        self._log.msg("Unknown observation - \(String(describing: keyPath))", level: .error, function: #function, file: #file, line: #line)
+                    }
+                }
+            }
+        }
+    }
     
 } // end class

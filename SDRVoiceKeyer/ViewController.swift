@@ -100,19 +100,19 @@ class ViewController: NSViewController, RadioManagerDelegate {
     // TODO: if there are multiple entries caheck if a default has been set
     // and open a selector or just connect
     // need to send info to the radio manager to let it know if a default is set
-    func didDiscoverRadio(discoveredRadios: [String]) {
-        serialNumberLabel.stringValue = discoveredRadios[0]
+    func didDiscoverRadio(discoveredRadios: [(model: String, nickname: String, ipAddress: String)]) {
+        serialNumberLabel.stringValue = discoveredRadios[0].nickname
         
         // .... check for default or new list
         
-        radioManager.connectToRadio(serialNumber: discoveredRadios[0])
+        radioManager.connectToRadio(serialNumber: discoveredRadios[0].nickname)
     }
      // event handler from Radiomanager - do stuff like updating the UI
     // if we have a serial number, an active slice and the slice is set to a voice mode we can enable the buttons
     func didUpdateRadio(serialNumber: String, activeSlice: String, transmitMode: TransmitMode) {
         
         serialNumberLabel.stringValue = serialNumber
-        activeSliceLabel.stringValue = activeSlice
+        activeSliceLabel.stringValue = "Connected"
         self.transmitMode = transmitMode
     }
     
