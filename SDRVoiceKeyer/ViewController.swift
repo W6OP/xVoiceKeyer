@@ -67,8 +67,6 @@ class ViewController: NSViewController, RadioManagerDelegate {
     // generated code
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        //radio = Radio()
         
         // create an instance of my radio manager and assign a delegate from it so I can handle events it raises
         //do {

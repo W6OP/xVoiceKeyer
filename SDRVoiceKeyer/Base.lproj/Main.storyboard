@@ -26,7 +26,7 @@
                                         <menuItem isSeparatorItem="YES" id="VOq-y0-SEH"/>
                                         <menuItem title="Preferences…" keyEquivalent="," id="BOF-NM-1cW">
                                             <connections>
-                                                <action selector="showPreferences:" target="Ady-hI-5gd" id="rym-Ih-uER"/>
+                                                <action selector="buttonShowPreferences:" target="Ady-hI-5gd" id="Is5-Ia-nY9"/>
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="wFC-TO-SCJ"/>

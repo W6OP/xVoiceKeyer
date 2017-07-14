@@ -204,6 +204,17 @@ internal class RadioManager: NSObject {
         nc.addObserver(forName:Notification.Name(rawValue:"opusHasBeenAdded"),
                        object:nil, queue:nil,
                        using:opusHasBeenAdded)
+        
+        nc.addObserver(forName:Notification.Name(rawValue:"sliceHasBeenAdded"),
+                       object:nil, queue:nil,
+                       using:sliceHasBeenAdded)
+        
+        nc.addObserver(forName:Notification.Name(rawValue:"sliceWillBeRemoved"),
+                       object:nil, queue:nil,
+                       using:sliceWillBeRemoved)
+        
+        
+        
     }
     
     // model: String, nickname: String, ipAddress: String
@@ -290,7 +301,8 @@ internal class RadioManager: NSObject {
         if let radio = note.object as? Radio {
             os_log("The Radio has been initialized.", log: RadioManager.model_log, type: .info)
             DispatchQueue.main.async { [unowned self] in
-                
+                 print (radio.slices.count)
+                self.UpdateRadio()
                 // use delegate to pass message to view controller ??
                 // or use the radio available ??
             }
@@ -303,14 +315,15 @@ internal class RadioManager: NSObject {
     // not currently using
     // will send a collection of some type instead of strings
     func UpdateRadio() {
-        var serialNumber = self.selectedRadio?.serialNumber
-        var activeSlice = "1"
-        var mode = TransmitMode.USB
+        let serialNumber = self.selectedRadio?.serialNumber
+        let activeSlice = "1"
+        let mode = TransmitMode.USB
         
         os_log("An update to the Radio has been received.", log: RadioManager.model_log, type: .info)
         
         // we have an update, let the GUI know
         radioManagerDelegate?.didUpdateRadio(serialNumber: serialNumber!, activeSlice: activeSlice, transmitMode: mode)
+        
         
     }
     
@@ -331,7 +344,39 @@ internal class RadioManager: NSObject {
 //        }
     }
     
+    /// Process a newly added Slice - when the radio first starts up you will get a
+    /// notification for each slice that exists
+    ///
+    /// - Parameter note: a Notification instance
+    ///
+    @objc fileprivate func sliceHasBeenAdded(_ note: Notification) {
+        
+        // the Opus class has been initialized
+                if let slice = note.object as? xFlexAPI.Slice {
+                    print (slice.id)
+                    //
+        //            DispatchQueue.main.async { [unowned self] in
+        //
+        //                // add Opus property observations
+        //                self.observations(opus, paths: self._opusKeyPaths)
+        //            }
+                }
+    }
     
+    
+    @objc fileprivate func sliceWillBeRemoved(_ note: Notification) {
+        
+        // the Opus class has been initialized
+        if let slice = note.object as? xFlexAPI.Slice {
+            print (slice.id)
+            //
+            //            DispatchQueue.main.async { [unowned self] in
+            //
+            //                // add Opus property observations
+            //                self.observations(opus, paths: self._opusKeyPaths)
+            //            }
+        }
+    }
     
     // ----------------------------------------------------------------------------
     // MARK: - RadioManagerDelegate methods
@@ -362,7 +407,7 @@ internal class RadioManager: NSObject {
         
         os_log("Connect to the Radio.", log: RadioManager.model_log, type: .info)
         if self.openRadio(self.availableRadios[0]) == true {
-            self.UpdateRadio()
+//            self.UpdateRadio()
         }
     }
     
