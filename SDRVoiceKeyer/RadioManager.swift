@@ -55,11 +55,15 @@ protocol RadioManagerDelegate: class {
 
 // structure to pass data back to view controller
 struct SliceInfo {
-    let handle: String
     let slice: String // create enum?
     let mode: String //TransmitMode
-    let tx: String // Bool ??
-    let complete: Bool
+    let txEnabled: Bool // Bool ??
+    //let complete: Bool
+    
+//    func convertSliceStringToEnum(slice: String) -> {
+//
+//        return
+//    }
 }
 
 
@@ -106,8 +110,8 @@ internal class RadioManager: NSObject {
     //fileprivate let _opusManager = OpusManager()
     
     // constants
-    fileprivate let _log = Log.sharedInstance   // Shared log
-    //fileprivate let _log: XCGLogger!          // Shared log
+    // fileprivate let _log = Log.sharedInstance   // Shared log
+    // fileprivate let _log: XCGLogger!          // Shared log
     
     fileprivate let log = (NSApp.delegate as! AppDelegate)
     fileprivate let kModule = "RadioManager"                 // Module Name reported in log messages
@@ -153,6 +157,7 @@ internal class RadioManager: NSObject {
     // add notification listeners
     override init() {
         
+        availableRadios = [RadioParameters]()
         discoveredRadios = [(model: String, nickname: String, ipAddress: String)]()
         
         os_log("Initializing the RadioFactory.", log: RadioManager.model_log, type: .info)
@@ -354,6 +359,10 @@ internal class RadioManager: NSObject {
         // the Opus class has been initialized
                 if let slice = note.object as? xFlexAPI.Slice {
                     print (slice.id)
+                    
+                    var sliceInfo = SliceInfo(slice: slice.id, mode: slice.mode, txEnabled: slice.txEnabled)
+                    
+                    //sliceInfo.mode = slice.mode
                     //
         //            DispatchQueue.main.async { [unowned self] in
         //
@@ -484,7 +493,7 @@ internal class RadioManager: NSObject {
             if kp != "springLoaded" {
                 
                 // interact with the UI
-                DispatchQueue.main.async { [unowned self] in
+                //DispatchQueue.main.async { [unowned self] in
                     
                     switch kp {
                         
@@ -525,12 +534,12 @@ internal class RadioManager: NSObject {
                         }
                         
                     case #keyPath(Opus.remoteTxOn):
-                        
-                        if let opus = object as? Opus, let start = ch[.newKey] as? Bool{
+                        break
+                        //if let opus = object as? Opus, let start = ch[.newKey] as? Bool{
                             
                             // Tx Opus starting / stopping
                             //self._opusManager.txAudio( start, opus: opus )
-                        }
+                        //}
                         
                     case #keyPath(Opus.rxStreamStopped):
                         
@@ -539,9 +548,10 @@ internal class RadioManager: NSObject {
                         
                     default:
                         // log and ignore any other keyPaths
-                        self._log.msg("Unknown observation - \(String(describing: keyPath))", level: .error, function: #function, file: #file, line: #line)
+                        break
+                        //self.log.msg("Unknown observation - \(String(describing: keyPath))", level: .error, function: #function, file: #file, line: #line)
                     }
-                }
+                //}
             }
         }
     }

@@ -112,6 +112,16 @@ class ViewController: NSViewController, RadioManagerDelegate {
         serialNumberLabel.stringValue = serialNumber
         activeSliceLabel.stringValue = "Connected"
         self.transmitMode = transmitMode
+        
+        
+    }
+    
+    func enableVoiceButtons(activeSlice: SliceInfo, isTxEnabled: Bool){
+        
+        for case let button as NSButton in self.view.subviews {
+            button.isEnabled = true
+            
+        }
     }
     
     func openRadioSelector(serialNumber: String) {

@@ -214,7 +214,7 @@ internal class RadioManagerOld: NSObject {
                 complete = true
             }
             
-            sliceInfo = SliceInfo(handle: sliceHandle, slice: slice, mode: mode, tx: tx, complete: complete)
+            //sliceInfo = SliceInfo(handle: sliceHandle, slice: slice, mode: mode, tx: tx, complete: complete)
             
             updateAvailableSlices(sliceInfo: sliceInfo)
         }
@@ -234,38 +234,38 @@ internal class RadioManagerOld: NSObject {
         
         if let val = availableSlices["slice" + slice] {
             if sliceInfo.mode.isEmpty {
-               sliceInfoMode = SliceInfo(handle: sliceInfo.handle, slice: sliceInfo.slice, mode: val.mode, tx: sliceInfo.tx, complete: sliceInfo.complete)
+//               sliceInfoMode = SliceInfo(handle: sliceInfo.handle, slice: sliceInfo.slice, mode: val.mode, tx: sliceInfo.tx, complete: sliceInfo.complete)
                availableSlices["slice" + slice] = sliceInfoMode
                updated = true
             } else {
                 if sliceInfo.mode != val.mode {
-                    sliceInfoMode = SliceInfo(handle: sliceInfo.handle, slice: sliceInfo.slice, mode: sliceInfo.mode, tx: sliceInfo.tx, complete: sliceInfo.complete)
+//                    sliceInfoMode = SliceInfo(handle: sliceInfo.handle, slice: sliceInfo.slice, mode: sliceInfo.mode, tx: sliceInfo.tx, complete: sliceInfo.complete)
                     availableSlices["slice" + slice] = sliceInfoMode
                     updated = true
                 }
             }
            
-            if sliceInfo.tx.isEmpty {
-                if updated == true {
-                    sliceInfoTx = SliceInfo(handle: sliceInfoMode.handle, slice: sliceInfoMode.slice, mode: sliceInfoMode.mode, tx: val.tx, complete: sliceInfoMode.complete)
-                    
-                } else {
-                     sliceInfoTx = SliceInfo(handle: sliceInfo.handle, slice: sliceInfo.slice, mode: sliceInfo.mode, tx: val.tx, complete: sliceInfo.complete)
-                }
-                
-                availableSlices["slice" + slice] = sliceInfoTx
-            } else {
-                if sliceInfo.tx != val.tx {
-                    if updated == true {
-                        sliceInfoTx = SliceInfo(handle: sliceInfoMode.handle, slice: sliceInfoMode.slice, mode: sliceInfoMode.mode, tx: sliceInfo.tx, complete: sliceInfoMode.complete)
-                        
-                    } else {
-                        sliceInfoTx = SliceInfo(handle: sliceInfo.handle, slice: sliceInfo.slice, mode: sliceInfo.mode, tx: sliceInfo.tx, complete: sliceInfo.complete)
-                    }
-                    
-                    availableSlices["slice" + slice] = sliceInfoTx
-                }
-            }
+//            if sliceInfo.tx.isEmpty {
+//                if updated == true {
+//                    sliceInfoTx = SliceInfo(handle: sliceInfoMode.handle, slice: sliceInfoMode.slice, mode: sliceInfoMode.mode, tx: val.tx, complete: sliceInfoMode.complete)
+//                    
+//                } else {
+//                     sliceInfoTx = SliceInfo(handle: sliceInfo.handle, slice: sliceInfo.slice, mode: sliceInfo.mode, tx: val.tx, complete: sliceInfo.complete)
+//                }
+//                
+//                availableSlices["slice" + slice] = sliceInfoTx
+//            } else {
+//                if sliceInfo.tx != val.tx {
+//                    if updated == true {
+//                        sliceInfoTx = SliceInfo(handle: sliceInfoMode.handle, slice: sliceInfoMode.slice, mode: sliceInfoMode.mode, tx: sliceInfo.tx, complete: sliceInfoMode.complete)
+//                        
+//                    } else {
+//                        sliceInfoTx = SliceInfo(handle: sliceInfo.handle, slice: sliceInfo.slice, mode: sliceInfo.mode, tx: sliceInfo.tx, complete: sliceInfo.complete)
+//                    }
+//                    
+//                    availableSlices["slice" + slice] = sliceInfoTx
+//                }
+//            }
             
         } else { // add the slice
             availableSlices["slice" + slice] = sliceInfo
@@ -280,7 +280,7 @@ internal class RadioManagerOld: NSObject {
     func radioChanged(notification: NSNotification){
         
         var activeSlice = "No Active Slice"
-        var mode = TransmitMode.USB
+        let mode = TransmitMode.USB
         //var serialNumber: String = "Disconnected"
         
         if var info = notification.userInfo as? Dictionary<String,String> {
@@ -301,45 +301,45 @@ internal class RadioManagerOld: NSObject {
                 let availableSlices = self.analyzePayload(payload: payload) as [String: SliceInfo]
                 
                 //activeSlice = "No Active Slice"
-                for (slice, sliceInfo) in availableSlices {
-                    switch slice {
-                    case "slice0":
-                        if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
-                            activeSlice = "Slice A Active"
-                        }
-                    case "slice1":
-                        if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
-                            activeSlice = "Slice B Active"
-                        }
-                    case "slice2":
-                        if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
-                            activeSlice = "Slice C Active"
-                        }
-                    case "slice3":
-                        if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
-                            activeSlice = "Slice D Active"
-                        }
-                    case "slice4":
-                        if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
-                            activeSlice = "Slice E Active"
-                        }
-                    case "slice5":
-                        if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
-                            activeSlice = "Slice F Active"
-                        }
-                    case "slice6":
-                        if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
-                            activeSlice = "Slice G Active"
-                        }
-                    case "slice7":
-                        if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
-                            activeSlice = "Slice H Active"
-                        }
-                    default:
-                        activeSlice = "No Active Slice"
-                    }
-                    
-                }
+//                for (slice, sliceInfo) in availableSlices {
+//                    switch slice {
+//                    case "slice0":
+//                        if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
+//                            activeSlice = "Slice A Active"
+//                        }
+//                    case "slice1":
+//                        if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
+//                            activeSlice = "Slice B Active"
+//                        }
+//                    case "slice2":
+//                        if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
+//                            activeSlice = "Slice C Active"
+//                        }
+//                    case "slice3":
+//                        if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
+//                            activeSlice = "Slice D Active"
+//                        }
+//                    case "slice4":
+//                        if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
+//                            activeSlice = "Slice E Active"
+//                        }
+//                    case "slice5":
+//                        if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
+//                            activeSlice = "Slice F Active"
+//                        }
+//                    case "slice6":
+//                        if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
+//                            activeSlice = "Slice G Active"
+//                        }
+//                    case "slice7":
+//                        if sliceInfo.tx == "1" && (sliceInfo.mode == "USB" || sliceInfo.mode == "LSB" || sliceInfo.mode == "AM") {
+//                            activeSlice = "Slice H Active"
+//                        }
+//                    default:
+//                        activeSlice = "No Active Slice"
+//                    }
+//                    
+//                }
                 
                 UpdateRadio(serialNumber: serialNumber, activeSlice: activeSlice, mode: mode)
                 return
@@ -347,15 +347,15 @@ internal class RadioManagerOld: NSObject {
             }
         }
         
-        do {
+        //do {
             serialNumber = "S/N " + self.InitializeRadioInstances()
             
             UpdateRadio(serialNumber: serialNumber, activeSlice: activeSlice, mode: mode)
-        }
-        catch let error as NSError {
-            // debug.print
-            print("Error: \(error.localizedDescription)")
-        }
+//        }
+//        catch let error as NSError {
+//            // debug.print
+//            print("Error: \(error.localizedDescription)")
+//        }
     }
 
     
