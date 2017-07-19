@@ -46,7 +46,9 @@ extension NSOpenPanel {
         canChooseFiles = true
         canCreateDirectories = false
         allowedFileTypes = ["wav"]  // to allow only images, just comment out this line to allow any file type to be selected
-        return runModal() == NSApplication.ModalResponse.OK ? urls.first : nil
+        return runModal() == NSFileHandlingPanelOKButton ? urls.first : nil
+        // This works with Swift 4
+        //return runModal() == NSApplication.ModalResponse.OK ? urls.first : nil
     }
 }
 

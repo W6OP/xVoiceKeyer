@@ -130,10 +130,11 @@ class ViewController: NSViewController, RadioManagerDelegate {
     
     // show the preferences panel and populate it
     func showPreferences(_ sender: AnyObject) {
-        // let SB = NSStoryboard(name: NSStoryboard.Name(rawValue: "Main"), bundle: nil)
-        // let PVC: RadioPreferences = SB.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(rawValue: "radioPreferences")) as! RadioPreferences
-        let SB = NSStoryboard(name: NSStoryboard.Name(rawValue: "Main"), bundle: nil)
-        let PVC: RadioPreferences = SB.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(rawValue: "radioPreferences")) as! RadioPreferences
+        let SB = NSStoryboard(name: "Main", bundle: nil)
+        let PVC: RadioPreferences = SB.instantiateController(withIdentifier: "radioPreferences") as! RadioPreferences
+        // This works with Swift 4
+        //let SB = NSStoryboard(name: NSStoryboard.Name(rawValue: "Main"), bundle: nil)
+        //let PVC: RadioPreferences = SB.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(rawValue: "radioPreferences")) as! RadioPreferences
         
         presentViewControllerAsSheet(PVC)
     }
