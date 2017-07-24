@@ -47,15 +47,21 @@ import os
 protocol RadioManagerDelegate: class {
     // radio was discovered
     func didDiscoverRadio(discoveredRadios: [(model: String, nickname: String, ipAddress: String)])
+    // notify the GUI the tcp connection to the radio was successful
+    func didConnectToRadio()
+    // notify the GUI the tcp connection to the radio was closed
+    func didDisconnectFromRadio()
     // an update to the radio was received
     func didUpdateRadio(serialNumber: String, activeSlice: String, transmitMode: TransmitMode)
+    // a slice update was received - let the GUI know
+    func didUpdateSlice(availableSlices : [Int : SliceInfo])
     // probably not needed
     func openRadioSelector(serialNumber: String)
 }
 
 // structure to pass data back to view controller
 struct SliceInfo {
-    let slice: String // create enum?
+    let sliceId: Int // create enum?
     let mode: String //TransmitMode
     let txEnabled: Bool // Bool ??
     //let complete: Bool
@@ -89,6 +95,8 @@ internal class RadioManager: NSObject {
     
     // list of serial numbers of discovered radios
     var discoveredRadios: [(model: String, nickname: String, ipAddress: String)]
+    
+    var availableSlices: [Int : SliceInfo]
     
     // ----------------------------------------------------------------------------
     // MARK: - Internal Radio properties
@@ -157,6 +165,7 @@ internal class RadioManager: NSObject {
     // add notification listeners
     override init() {
         
+        availableSlices = [Int : SliceInfo]()
         availableRadios = [RadioParameters]()
         discoveredRadios = [(model: String, nickname: String, ipAddress: String)]()
         
@@ -237,6 +246,7 @@ internal class RadioManager: NSObject {
                     self.discoveredRadios.append((item.model, item.nickname!, item.ipAddress))
                 }
                 
+                // let the view controller know a radio was discovered
                 self.radioManagerDelegate?.didDiscoverRadio(discoveredRadios: self.discoveredRadios)
             }
         }
@@ -265,6 +275,9 @@ internal class RadioManager: NSObject {
         
         // observe changes to Radio properties
         observations(radio!, paths: _radioKeyPaths)
+        
+        // let the view controller know a radio was connected to
+        self.radioManagerDelegate?.didConnectToRadio()
     }
     
     /// Process .tcpDidDisconnect Notification
@@ -279,6 +292,10 @@ internal class RadioManager: NSObject {
             
             // not a normal disconnect
            // notify GUI
+            
+            // let the view controller know a radio was disconnected to
+            self.radioManagerDelegate?.didDisconnectFromRadio()
+
         }
     }
     /// Process a newly added Meter object
@@ -300,13 +317,16 @@ internal class RadioManager: NSObject {
         //}
     }
     
+    // let the view controller or other object know the radio was initialized
+    // at this point I have the radio but may not have slice and other information
+    // i.e. SmartSDR may not be running
     @objc fileprivate func radioInitialized(_ note: Notification) {
         
         // the Radio class has been initialized
         if let radio = note.object as? Radio {
             os_log("The Radio has been initialized.", log: RadioManager.model_log, type: .info)
             DispatchQueue.main.async { [unowned self] in
-                 print (radio.slices.count)
+                print (radio.slices.count)
                 self.UpdateRadio()
                 // use delegate to pass message to view controller ??
                 // or use the radio available ??
@@ -315,19 +335,18 @@ internal class RadioManager: NSObject {
     }
     
     
-    
     // raise event and send to view controller
     // not currently using
     // will send a collection of some type instead of strings
     func UpdateRadio() {
-        let serialNumber = self.selectedRadio?.serialNumber
-        let activeSlice = "1"
-        let mode = TransmitMode.USB
+        //let serialNumber = self.selectedRadio?.serialNumber
+        //let activeSlice = "1"
+        //let mode = TransmitMode.USB
         
         os_log("An update to the Radio has been received.", log: RadioManager.model_log, type: .info)
         
         // we have an update, let the GUI know
-        radioManagerDelegate?.didUpdateRadio(serialNumber: serialNumber!, activeSlice: activeSlice, transmitMode: mode)
+        //radioManagerDelegate?.didUpdateRadio(serialNumber: serialNumber!, activeSlice: activeSlice, transmitMode: mode)
         
         
     }
@@ -356,19 +375,12 @@ internal class RadioManager: NSObject {
     ///
     @objc fileprivate func sliceHasBeenAdded(_ note: Notification) {
         
-        // the Opus class has been initialized
                 if let slice = note.object as? xFlexAPI.Slice {
                     print (slice.id)
                     
-                    var sliceInfo = SliceInfo(slice: slice.id, mode: slice.mode, txEnabled: slice.txEnabled)
+                    let sliceInfo = SliceInfo(sliceId: Int(slice.id)!, mode: slice.mode, txEnabled: slice.txEnabled)
+                    availableSlices[sliceInfo.sliceId] = sliceInfo
                     
-                    //sliceInfo.mode = slice.mode
-                    //
-        //            DispatchQueue.main.async { [unowned self] in
-        //
-        //                // add Opus property observations
-        //                self.observations(opus, paths: self._opusKeyPaths)
-        //            }
                 }
     }
     

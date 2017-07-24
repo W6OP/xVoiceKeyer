@@ -46,6 +46,9 @@ class ViewController: NSViewController, RadioManagerDelegate {
     var audiomanager: AudioManager!
     //var radio: Radio!
     var transmitMode: TransmitMode = TransmitMode.Invalid
+    var availableSlices: [Int : SliceInfo] = [:]
+    
+    var isRadioConnected = false
     
     // outlets
     @IBOutlet weak var voiceButton1: NSButton!
@@ -103,16 +106,31 @@ class ViewController: NSViewController, RadioManagerDelegate {
         
         // .... check for default or new list
         
+        
+        // select the desired radio and instruct the RadioManager to start the connect process
         radioManager.connectToRadio(serialNumber: discoveredRadios[0].nickname)
     }
-     // event handler from Radiomanager - do stuff like updating the UI
-    // if we have a serial number, an active slice and the slice is set to a voice mode we can enable the buttons
-    func didUpdateRadio(serialNumber: String, activeSlice: String, transmitMode: TransmitMode) {
-        
-        serialNumberLabel.stringValue = serialNumber
+   
+    // we connected to the selected radio
+    func didConnectToRadio() {
+        isRadioConnected = true
         activeSliceLabel.stringValue = "Connected"
-        self.transmitMode = transmitMode
+    }
+    
+    // we disconnected from the selected radio
+    func didDisconnectFromRadio() {
+        isRadioConnected = false
+        activeSliceLabel.stringValue = "Disconnected"
+    }
+    
+    func didUpdateSlice(availableSlices : [Int : SliceInfo]) {
         
+        self.availableSlices = availableSlices
+        
+    }
+    
+    // event handler from Radiomanager - do stuff like updating the UI
+    func didUpdateRadio(serialNumber: String, activeSlice: String, transmitMode: TransmitMode) {
         
     }
     
@@ -126,6 +144,17 @@ class ViewController: NSViewController, RadioManagerDelegate {
     
     func openRadioSelector(serialNumber: String) {
         
+    }
+    
+    // check the list of avaiable slices and return sliceId or 0 if none
+    func isActiveSlice(availableSlices : [Int : SliceInfo]) -> Int {
+        var activeSlice = 0
+        
+        for (key, element) in availableSlices {
+            //if element.mode
+        }
+        
+        return activeSlice
     }
     
     // show the preferences panel and populate it
