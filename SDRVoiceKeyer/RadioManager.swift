@@ -61,17 +61,95 @@ protocol RadioManagerDelegate: class {
 
 // structure to pass data back to view controller
 struct SliceInfo {
-    let sliceId: Int // create enum?
-    let mode: String //TransmitMode
-    let txEnabled: Bool // Bool ??
-    //let complete: Bool
+    var sliceId: Int = 8
+    var sliceName: SliceName = SliceName.Slice_X
+    var transmitMode: TransmitMode = TransmitMode.Invalid
+    var txEnabled: Bool = false
+    var isActiveSlice: Bool = false
+    var isValidForTransmit: Bool = false
     
-//    func convertSliceStringToEnum(slice: String) -> {
-//
-//        return
-//    }
+    
+    init() {
+    }
+    
+    mutating func populateSliceInfo(sliceId: Int, mode: String, isActiveSlice: Bool, txEnabled: Bool) {
+        
+        self.isActiveSlice = isActiveSlice
+        self.txEnabled = txEnabled
+        self.sliceId = sliceId
+        convertSliceIdToSliceName(sliceId: sliceId)
+        convertModeToTransmitMode(mode: mode)
+    }
+    
+    mutating func convertSliceIdToSliceName(sliceId: Int) {
+        
+        switch sliceId {
+            case 0:
+                sliceName = SliceName.Slice_A
+            case 1:
+                sliceName = SliceName.Slice_B
+            case 2:
+                sliceName = SliceName.Slice_C
+            case 3:
+                sliceName = SliceName.Slice_D
+            case 4:
+                sliceName = SliceName.Slice_E
+            case 5:
+                sliceName = SliceName.Slice_F
+            case 6:
+                sliceName = SliceName.Slice_G
+            case 7:
+                sliceName = SliceName.Slice_H
+            default:
+                sliceName = SliceName.Slice_X
+        }
+    }
+    
+    mutating func convertModeToTransmitMode(mode: String)  {
+        
+        var validMode = false
+        
+        switch mode {
+        case "USB":
+            transmitMode = TransmitMode.USB
+            validMode = true
+        case "LSB":
+            transmitMode = TransmitMode.LSB
+            validMode = true
+        case "SSB":
+            transmitMode = TransmitMode.SSB
+            validMode = true
+        case "AM":
+            transmitMode = TransmitMode.AM
+            validMode = true
+        default:
+            validMode = false
+        }
+        
+        isValid(validMode: validMode)
+        
+    }
+    
+    mutating func isValid(validMode: Bool) {
+        
+        if validMode && isActiveSlice && txEnabled {
+            isValidForTransmit = true
+        }
+    }
 }
 
+//
+enum SliceName: String {
+    case Slice_A = "Slice A"
+    case Slice_B = "Slice B"
+    case Slice_C = "Slice C"
+    case Slice_D = "Slice D"
+    case Slice_E = "Slice E"
+    case Slice_F = "Slice F"
+    case Slice_G = "Slice G"
+    case Slice_H = "Slice H"
+    case Slice_X = "Invalid" // indicates invalid slice
+}
 
 enum  TransmitMode: String{
     case Invalid
@@ -375,13 +453,21 @@ internal class RadioManager: NSObject {
     ///
     @objc fileprivate func sliceHasBeenAdded(_ note: Notification) {
         
-                if let slice = note.object as? xFlexAPI.Slice {
-                    print (slice.id)
-                    
-                    let sliceInfo = SliceInfo(sliceId: Int(slice.id)!, mode: slice.mode, txEnabled: slice.txEnabled)
-                    availableSlices[sliceInfo.sliceId] = sliceInfo
-                    
-                }
+        if let slice = note.object as? xFlexAPI.Slice {
+            
+//            print ("slice: \(slice.id)")
+//            print ("sliceActive: \(slice.active)")
+//            print ("sliceTxEnabled: \(slice.txEnabled)")
+
+             var sliceInfo = SliceInfo()
+             sliceInfo.populateSliceInfo(sliceId: Int(slice.id)!, mode: slice.mode, isActiveSlice: slice.active, txEnabled: slice.txEnabled)
+//            //let sliceInfo = SliceInfo(sliceId: Int(slice.id)!, mode: slice.mode, isActiveSlice: slice.active, txEnabled: slice.txEnabled)
+//            
+//            print ("sliceInfo: \(sliceInfo.sliceId)")
+            
+            availableSlices[sliceInfo.sliceId] = sliceInfo
+            
+        }
     }
     
     
