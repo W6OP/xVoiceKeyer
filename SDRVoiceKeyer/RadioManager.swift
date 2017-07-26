@@ -184,6 +184,8 @@ internal class RadioManager: NSObject {
     // Radio class in use
     internal var radio: Radio?
     
+    var audiomanager: AudioManager!
+    
     // ----------------------------------------------------------------------------
     // MARK: - Private properties
     
@@ -242,6 +244,8 @@ internal class RadioManager: NSObject {
     // create the RadioFactory
     // add notification listeners
     override init() {
+        
+        audiomanager = AudioManager()
         
         availableSlices = [Int : SliceInfo]()
         availableRadios = [RadioParameters]()
@@ -467,6 +471,8 @@ internal class RadioManager: NSObject {
             
             availableSlices[sliceInfo.sliceId] = sliceInfo
             
+            radioManagerDelegate?.didUpdateSlice(availableSlices: availableSlices)
+            
         }
     }
     
@@ -553,6 +559,17 @@ internal class RadioManager: NSObject {
         
         return true
     }
+    
+    // ----------------------------------------------------------------------------
+    // MARK: - Audio methods
+    
+    func selectAudioFile(tag: Int) {
+        audiomanager.selectAudioFile(tag: tag)
+    }
+    
+    
+    
+    
     
     // ----------------------------------------------------------------------------
     // MARK: - Observation methods

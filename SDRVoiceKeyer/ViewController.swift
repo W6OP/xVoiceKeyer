@@ -43,7 +43,7 @@ import Cocoa
 class ViewController: NSViewController, RadioManagerDelegate {
     
     var radioManager: RadioManager!
-    var audiomanager: AudioManager!
+    //var audiomanager: AudioManager!
     //var radio: Radio!
     var transmitMode: TransmitMode = TransmitMode.Invalid
     var availableSlices: [Int : SliceInfo] = [:]
@@ -59,7 +59,7 @@ class ViewController: NSViewController, RadioManagerDelegate {
     // actions
     // this handles all of the voice buttons - use the tag value to determine which audio file to load
     @IBAction func voiceButtonClicked(_ sender: NSButton) {
-        audiomanager.selectAudioFile(tag: sender.tag)
+        radioManager.selectAudioFile(tag: sender.tag)
     }
     
     // show the preference pane
@@ -76,7 +76,7 @@ class ViewController: NSViewController, RadioManagerDelegate {
             radioManager = RadioManager()
             radioManager.radioManagerDelegate = self
             
-            audiomanager = AudioManager()
+            //audiomanager = AudioManager()
 //        }
 //        catch let error as NSError {
 //            // debug.print
@@ -127,6 +127,10 @@ class ViewController: NSViewController, RadioManagerDelegate {
         
         self.availableSlices = availableSlices
         
+        if isActiveSlice(availableSlices: availableSlices) < 8 {
+            enableVoiceButtons()
+        }
+        
     }
     
     // event handler from Radiomanager - do stuff like updating the UI
@@ -134,11 +138,10 @@ class ViewController: NSViewController, RadioManagerDelegate {
         
     }
     
-    func enableVoiceButtons(activeSlice: SliceInfo, isTxEnabled: Bool){
+    func enableVoiceButtons(){
         
-        for case let button as NSButton in self.view.subviews {
+        for case let button as NSButton in self.buttonStackView.subviews {
             button.isEnabled = true
-            
         }
     }
     
@@ -148,10 +151,12 @@ class ViewController: NSViewController, RadioManagerDelegate {
     
     // check the list of avaiable slices and return sliceId or 0 if none
     func isActiveSlice(availableSlices : [Int : SliceInfo]) -> Int {
-        var activeSlice = 0
+        var activeSlice = 99
         
         for (key, element) in availableSlices {
-            //if element.mode
+            if element.isValidForTransmit == true {
+                activeSlice = key
+            }
         }
         
         return activeSlice
