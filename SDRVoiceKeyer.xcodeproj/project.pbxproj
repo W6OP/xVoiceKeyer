@@ -15,6 +15,7 @@
 		996AC0831E4E3D4800C20AA8 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 996AC0811E4E3D4800C20AA8 /* Main.storyboard */; };
 		99B9C76F1E50EC7100772B91 /* RadioManagerOld.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B9C76E1E50EC7100772B91 /* RadioManagerOld.swift */; };
 		99C0DAAC1F141B2900A42E93 /* xFlexAPI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 99C0DAAB1F141B2900A42E93 /* xFlexAPI.framework */; };
+		99C211031F297279003B47F1 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 99C211021F297279003B47F1 /* LICENSE */; };
 		99D64A2F1E5B9BEB0053ED1F /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D64A2E1E5B9BEB0053ED1F /* AudioManager.swift */; };
 		99EC95A21F1523B100E539E8 /* RadioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99EC95A11F1523B100E539E8 /* RadioManager.swift */; };
 /* End PBXBuildFile section */
@@ -30,6 +31,7 @@
 		996AC0841E4E3D4800C20AA8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		99B9C76E1E50EC7100772B91 /* RadioManagerOld.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadioManagerOld.swift; sourceTree = "<group>"; };
 		99C0DAAB1F141B2900A42E93 /* xFlexAPI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = xFlexAPI.framework; path = ../../../Library/Frameworks/xFlexAPI.framework; sourceTree = "<group>"; };
+		99C211021F297279003B47F1 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		99D64A2E1E5B9BEB0053ED1F /* AudioManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioManager.swift; sourceTree = "<group>"; };
 		99EC95A11F1523B100E539E8 /* RadioManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadioManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -76,6 +78,7 @@
 				993D1E681E5F811D00BB5236 /* PreferenceManager.swift */,
 				99EC95A11F1523B100E539E8 /* RadioManager.swift */,
 				99B9C76E1E50EC7100772B91 /* RadioManagerOld.swift */,
+				99C211021F297279003B47F1 /* LICENSE */,
 			);
 			path = SDRVoiceKeyer;
 			sourceTree = "<group>";
@@ -148,6 +151,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				99C211031F297279003B47F1 /* LICENSE in Resources */,
 				996AC0801E4E3D4800C20AA8 /* Assets.xcassets in Resources */,
 				996AC0831E4E3D4800C20AA8 /* Main.storyboard in Resources */,
 			);
