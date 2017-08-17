@@ -39,7 +39,7 @@
 // without a reference to the API or even knowledge of the API.
 
 import Foundation
-import xFlexAPI
+import xLib6000
 import os
 
 // event delegate
@@ -263,6 +263,7 @@ internal class RadioManager: NSObject {
         os_log("Added the notification subscriptions.", log: RadioManager.model_log, type: .info)
     }
     
+    
     // ----------------------------------------------------------------------------
     // MARK: - Notification Methods
     
@@ -282,9 +283,9 @@ internal class RadioManager: NSObject {
                        using:tcpDidDisconnect)
         
         // a Meter was Added
-        nc.addObserver(forName:Notification.Name(rawValue:"meterHasBeenAdded"),
-                       object:nil, queue:nil,
-                       using:meterHasBeenAdded)
+//        nc.addObserver(forName:Notification.Name(rawValue:"meterHasBeenAdded"),
+//                       object:nil, queue:nil,
+//                       using:meterHasBeenAdded)
         
         // Radio Initialized
         nc.addObserver(forName:Notification.Name(rawValue:"radioInitialized"),
@@ -308,12 +309,9 @@ internal class RadioManager: NSObject {
         nc.addObserver(forName:Notification.Name(rawValue:"sliceWillBeRemoved"),
                        object:nil, queue:nil,
                        using:sliceWillBeRemoved)
-        
-        
-        
     }
     
-    // model: String, nickname: String, ipAddress: String
+    // discovered at least one radio
     @objc fileprivate func radiosAvailable(_ note: Notification) {
         
         DispatchQueue.main.async {
@@ -325,7 +323,9 @@ internal class RadioManager: NSObject {
                 os_log("Discovery process has completed.", log: RadioManager.model_log, type: .info)
                 
                 for item in self.availableRadios {
-                    self.discoveredRadios.append((item.model, item.nickname!, item.ipAddress))
+                    if !self.discoveredRadios.contains(where: { $0.nickname == item.nickname! }) {
+                        self.discoveredRadios.append((item.model, item.nickname!, item.ipAddress))
+                    }
                 }
                 
                 // let the view controller know a radio was discovered
@@ -346,19 +346,10 @@ internal class RadioManager: NSObject {
         // save the active Radio as the selected Radio
         activeRadio = selectedRadio
         
-        // get the version info for the underlying xFlexAPI
-//        let frameworkBundle = Bundle(identifier: kxFlexApiIdentifier)
-//        let apiVersion = frameworkBundle?.object(forInfoDictionaryKey: versionKey) ?? "0"
-//        let apiBuild = frameworkBundle?.object(forInfoDictionaryKey: buildKey) ?? "0"
-        
-        // get the version info for this app
-//        let appVersion = Bundle.main.object(forInfoDictionaryKey: versionKey) ?? "0"
-//        let appBuild = Bundle.main.object(forInfoDictionaryKey: buildKey) ?? "0"
-        
         // observe changes to Radio properties
         observations(radio!, paths: _radioKeyPaths)
         
-        // let the view controller know a radio was connected to
+        // let the view controller know a radio was connected
         self.radioManagerDelegate?.didConnectToRadio()
     }
     
@@ -380,24 +371,6 @@ internal class RadioManager: NSObject {
 
         }
     }
-    /// Process a newly added Meter object
-    ///
-    /// - Parameter note: a Notification instance
-    ///
-    @objc fileprivate func meterHasBeenAdded(_ note: Notification) {
-        
-        //if let meter = note.object as? Meter {
-            // is it one we need to watch?
-            //if meter.name == self.kVoltageMeter || meter.name == self.kPaTempMeter {
-                
-                // YES, process the initial meter reading
-                //processMeterUpdate(meter)
-                
-                // subscribe to its updates
-                //NC.makeObserver(self, with: #selector(meterUpdated(_:)), of: .meterUpdated, object: meter)
-            //}
-        //}
-    }
     
     // let the view controller or other object know the radio was initialized
     // at this point I have the radio but may not have slice and other information
@@ -409,7 +382,7 @@ internal class RadioManager: NSObject {
             os_log("The Radio has been initialized.", log: RadioManager.model_log, type: .info)
             DispatchQueue.main.async { [unowned self] in
                 print (radio.slices.count)
-                self.UpdateRadio()
+                self.updateRadio()
                 // use delegate to pass message to view controller ??
                 // or use the radio available ??
             }
@@ -420,7 +393,7 @@ internal class RadioManager: NSObject {
     // raise event and send to view controller
     // not currently using
     // will send a collection of some type instead of strings
-    func UpdateRadio() {
+    func updateRadio() {
         //let serialNumber = self.selectedRadio?.serialNumber
         //let activeSlice = "1"
         //let mode = TransmitMode.USB
@@ -457,7 +430,7 @@ internal class RadioManager: NSObject {
     ///
     @objc fileprivate func sliceHasBeenAdded(_ note: Notification) {
         
-        if let slice = note.object as? xFlexAPI.Slice {
+        if let slice = note.object as? xLib6000.Slice {
             
 //            print ("slice: \(slice.id)")
 //            print ("sliceActive: \(slice.active)")
@@ -480,7 +453,7 @@ internal class RadioManager: NSObject {
     @objc fileprivate func sliceWillBeRemoved(_ note: Notification) {
         
         // the Opus class has been initialized
-        if let slice = note.object as? xFlexAPI.Slice {
+        if let slice = note.object as? xLib6000.Slice {
             print (slice.id)
             //
             //            DispatchQueue.main.async { [unowned self] in
@@ -567,8 +540,25 @@ internal class RadioManager: NSObject {
         audiomanager.selectAudioFile(tag: tag)
     }
     
+    // ----------------------------------------------------------------------------
+    // MARK: Transmit methods
     
+    func keyRadio() {
+//        let radioIsKeyed: ReplyHandler = radio?.transmitSet(true, callback: ReplyHandler) {
+//            
+//        }
+        
+        radio?.transmitSet(true) { (result) -> () in
+            // do stuff with the result
+            print(result)
+        }
+        
+        radio?.transmitSet(false) { (result) -> () in
+            // do stuff with the result
+            print(result)
+        }
     
+    }
     
     
     // ----------------------------------------------------------------------------
@@ -612,12 +602,12 @@ internal class RadioManager: NSObject {
                     
                     switch kp {
                         
-                    case #keyPath(Radio.lineoutGain):
-                        //self._mainWindowController?.lineoutGain.integerValue = ch[.newKey] as! Int
-                        break
-                    case #keyPath(Radio.lineoutMute):
-//                        self._mainWindowController?.lineoutMute.state = (ch[.newKey] as! Bool) ? NSControl.StateValue.onState : NSControl.StateValue.offState
-                        break
+//                    case #keyPath(Radio.lineoutGain):
+//                        //self._mainWindowController?.lineoutGain.integerValue = ch[.newKey] as! Int
+//                        break
+//                    case #keyPath(Radio.lineoutMute):
+////                        self._mainWindowController?.lineoutMute.state = (ch[.newKey] as! Bool) ? NSControl.StateValue.onState : NSControl.StateValue.offState
+//                        break
                     case #keyPath(Radio.headphoneGain):
 //                        self._mainWindowController?.headphoneGain.integerValue = ch[.newKey] as! Int
                         break

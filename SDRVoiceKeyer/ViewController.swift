@@ -59,7 +59,8 @@ class ViewController: NSViewController, RadioManagerDelegate {
     // actions
     // this handles all of the voice buttons - use the tag value to determine which audio file to load
     @IBAction func voiceButtonClicked(_ sender: NSButton) {
-        radioManager.selectAudioFile(tag: sender.tag)
+        //radioManager.selectAudioFile(tag: sender.tag)
+        radioManager.keyRadio()
     }
     
     // show the preference pane
@@ -97,18 +98,22 @@ class ViewController: NSViewController, RadioManagerDelegate {
     }
     
     // my code
-    
+    var a = 0
     // TODO: if there are multiple entries caheck if a default has been set
     // and open a selector or just connect
     // need to send info to the radio manager to let it know if a default is set
     func didDiscoverRadio(discoveredRadios: [(model: String, nickname: String, ipAddress: String)]) {
+        
         serialNumberLabel.stringValue = discoveredRadios[0].nickname
         
         // .... check for default or new list
         
         
         // select the desired radio and instruct the RadioManager to start the connect process
-        radioManager.connectToRadio(serialNumber: discoveredRadios[0].nickname)
+        if !isRadioConnected {
+            radioManager.connectToRadio(serialNumber: discoveredRadios[0].nickname)
+            isRadioConnected = true // temporary so I can see if radio xmits - remove this and build default panel
+        }
     }
    
     // we connected to the selected radio
