@@ -119,6 +119,12 @@ struct SliceInfo {
         case "SSB":
             transmitMode = TransmitMode.SSB
             validMode = true
+        case "DIGU":
+            transmitMode = TransmitMode.DIGI
+            validMode = true
+        case "DIGL":
+            transmitMode = TransmitMode.DIGI
+            validMode = true
         case "AM":
             transmitMode = TransmitMode.AM
             validMode = true
@@ -156,6 +162,7 @@ enum  TransmitMode: String{
     case USB
     case LSB
     case SSB
+    case DIGI
     case AM
 }
 
@@ -323,13 +330,14 @@ internal class RadioManager: NSObject {
                 os_log("Discovery process has completed.", log: RadioManager.model_log, type: .info)
                 
                 for item in self.availableRadios {
+                    // only add new radios
                     if !self.discoveredRadios.contains(where: { $0.nickname == item.nickname! }) {
                         self.discoveredRadios.append((item.model, item.nickname!, item.ipAddress))
+                        
+                        // let the view controller know a radio was discovered
+                        self.radioManagerDelegate?.didDiscoverRadio(discoveredRadios: self.discoveredRadios)
                     }
                 }
-                
-                // let the view controller know a radio was discovered
-                self.radioManagerDelegate?.didDiscoverRadio(discoveredRadios: self.discoveredRadios)
             }
         }
     }
@@ -536,27 +544,27 @@ internal class RadioManager: NSObject {
     // ----------------------------------------------------------------------------
     // MARK: - Audio methods
     
-    func selectAudioFile(tag: Int) {
-        audiomanager.selectAudioFile(tag: tag)
-    }
+//    func selectAudioFile(tag: Int) {
+//        audiomanager.selectAudioFile(buttonNumber: tag)
+//    }
     
     // ----------------------------------------------------------------------------
     // MARK: Transmit methods
     
-    func keyRadio() {
+    func keyRadio(doTransmit: Bool) {
 //        let radioIsKeyed: ReplyHandler = radio?.transmitSet(true, callback: ReplyHandler) {
 //            
 //        }
         
-        radio?.transmitSet(true) { (result) -> () in
+        radio?.transmitSet(doTransmit) { (result) -> () in
             // do stuff with the result
             print(result)
         }
         
-        radio?.transmitSet(false) { (result) -> () in
-            // do stuff with the result
-            print(result)
-        }
+//        radio?.transmitSet(false) { (result) -> () in
+//            // do stuff with the result
+//            print(result)
+//        }
     
     }
     

@@ -43,8 +43,7 @@ import Cocoa
 class ViewController: NSViewController, RadioManagerDelegate {
     
     var radioManager: RadioManager!
-    //var audiomanager: AudioManager!
-    //var radio: Radio!
+    var audiomanager: AudioManager!
     var transmitMode: TransmitMode = TransmitMode.Invalid
     var availableSlices: [Int : SliceInfo] = [:]
     
@@ -59,8 +58,7 @@ class ViewController: NSViewController, RadioManagerDelegate {
     // actions
     // this handles all of the voice buttons - use the tag value to determine which audio file to load
     @IBAction func voiceButtonClicked(_ sender: NSButton) {
-        //radioManager.selectAudioFile(tag: sender.tag)
-        radioManager.keyRadio()
+        voiceButtonSelected(buttonNumber: sender.tag)
     }
     
     // show the preference pane
@@ -77,7 +75,7 @@ class ViewController: NSViewController, RadioManagerDelegate {
             radioManager = RadioManager()
             radioManager.radioManagerDelegate = self
             
-            //audiomanager = AudioManager()
+            audiomanager = AudioManager()
 //        }
 //        catch let error as NSError {
 //            // debug.print
@@ -97,50 +95,84 @@ class ViewController: NSViewController, RadioManagerDelegate {
         //radioManager.CloseAll()
     }
     
+    
+    // MARK: Handle button clicks etc.
+    internal func voiceButtonSelected(buttonNumber: Int) {
+        
+        var floatArray = [Float]()
+        
+        floatArray = audiomanager.selectAudioFile(buttonNumber: buttonNumber)
+        
+        
+        print("floatArray \(floatArray)\n")
+        
+        //if floatArray.co==
+        
+        //        let tag: Int = sender.tag
+        //
+        //        if tag == 1 {
+        //            radioManager.keyRadio(doTransmit: true)
+        //        } else {
+        //            radioManager.keyRadio(doTransmit: false)
+        //        }
+
+    }
+    
+    
     // my code
-    var a = 0
+    //var a = 0
     // TODO: if there are multiple entries caheck if a default has been set
     // and open a selector or just connect
     // need to send info to the radio manager to let it know if a default is set
     func didDiscoverRadio(discoveredRadios: [(model: String, nickname: String, ipAddress: String)]) {
         
-        serialNumberLabel.stringValue = discoveredRadios[0].nickname
-        
-        // .... check for default or new list
-        
-        
-        // select the desired radio and instruct the RadioManager to start the connect process
-        if !isRadioConnected {
-            radioManager.connectToRadio(serialNumber: discoveredRadios[0].nickname)
-            isRadioConnected = true // temporary so I can see if radio xmits - remove this and build default panel
+        DispatchQueue.main.async { [unowned self] in
+            self.serialNumberLabel.stringValue = discoveredRadios[0].nickname
+            
+            // .... check for default or new list
+            
+            
+            // select the desired radio and instruct the RadioManager to start the connect process
+            if !self.isRadioConnected {
+                self.radioManager.connectToRadio(serialNumber: discoveredRadios[0].nickname)
+            }
         }
     }
    
     // we connected to the selected radio
     func didConnectToRadio() {
-        isRadioConnected = true
-        activeSliceLabel.stringValue = "Connected"
+        DispatchQueue.main.async { [unowned self] in
+            self.isRadioConnected = true
+            self.activeSliceLabel.stringValue = "Connected"
+        }
+        
     }
     
     // we disconnected from the selected radio
     func didDisconnectFromRadio() {
-        isRadioConnected = false
-        activeSliceLabel.stringValue = "Disconnected"
+        DispatchQueue.main.async { [unowned self] in
+            self.isRadioConnected = false
+            self.activeSliceLabel.stringValue = "Disconnected"
+        }
     }
     
     func didUpdateSlice(availableSlices : [Int : SliceInfo]) {
         
-        self.availableSlices = availableSlices
-        
-        if isActiveSlice(availableSlices: availableSlices) < 8 {
-            enableVoiceButtons()
+        DispatchQueue.main.async { [unowned self] in
+            self.availableSlices = availableSlices
+            
+            if self.isActiveSlice(availableSlices: availableSlices) < 8 {
+                self.enableVoiceButtons()
+            }
         }
         
     }
     
     // event handler from Radiomanager - do stuff like updating the UI
     func didUpdateRadio(serialNumber: String, activeSlice: String, transmitMode: TransmitMode) {
-        
+//        DispatchQueue.main.async { [unowned self] in
+//            
+//        }
     }
     
     func enableVoiceButtons(){

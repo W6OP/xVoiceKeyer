@@ -24,45 +24,56 @@ internal class AudioManager: NSObject {
     // Retrieve the file from the user preferences that matches this tag and
     // pass it on the the method that will load the file and send it to the radio
     // TODO: add code for multiple profiles
-    internal func selectAudioFile(tag: Int) {
-        
-        if let filePath = UserDefaults.standard.string(forKey: String(tag)) {
-            playAudioFile(filePath: filePath)
-        }
-        
-    }
-    
-    // play the audio file when a button is clicked
-    func playAudioFile(filePath: String) {
-        
-        audioPlayer = AVAudioPlayer()
-        
+    internal func selectAudioFile(buttonNumber: Int) -> [Float] {
+        var floatArray = [Float]()
         let fileManager = FileManager.default
         
-        if(fileManager.fileExists(atPath: filePath))
-        {
-            let soundUrl = URL(fileURLWithPath: filePath)
-            
-            convertToPCM(filePath: filePath)
-            return
-            
-            // Create audio player object and initialize with URL to sound
-            do {
-                self.audioPlayer = try AVAudioPlayer(contentsOf: soundUrl)
-                audioPlayer.play()
+        if let filePath = UserDefaults.standard.string(forKey: String(buttonNumber)) {
+            //playAudioFile(filePath: filePath)
+            if(fileManager.fileExists(atPath: filePath))
+            {
+                floatArray = convertToPCM(filePath: filePath)
             }
-            catch {
-                // debug.print
-                print (" failed ")
-            }
-        } else {
-            // TODO: will want to notify user
         }
-
+        
+        return floatArray
     }
     
+    
+    // play the audio file when a button is clicked
+//    func playAudioFile(filePath: String) {
+//        
+//        audioPlayer = AVAudioPlayer()
+//        
+//        let fileManager = FileManager.default
+//        
+//        if(fileManager.fileExists(atPath: filePath))
+//        {
+//            let soundUrl = URL(fileURLWithPath: filePath)
+//            
+//            convertToPCM(filePath: filePath)
+//            return
+//            
+//            // Create audio player object and initialize with URL to sound
+//            do {
+//                self.audioPlayer = try AVAudioPlayer(contentsOf: soundUrl)
+//                audioPlayer.play()
+//            }
+//            catch {
+//                // debug.print
+//                print (" failed ")
+//            }
+//        } else {
+//            // TODO: will want to notify user
+//        }
+//
+//    }
+    
+    // read an audio file and convert it to PCM
     // https://stackoverflow.com/questions/34751294/how-can-i-generate-an-array-of-floats-from-an-audio-file-in-swift
-    func convertToPCM(filePath: String) {
+    func convertToPCM(filePath: String) -> [Float] {
+        var floatArray = [Float]()
+        
         let url = URL(fileURLWithPath: filePath) //Bundle.main.url(forResource: filePath, withExtension: "wav")
         let file = try! AVAudioFile(forReading: url)
         let format = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: file.fileFormat.sampleRate, channels: 1, interleaved: false)
@@ -71,9 +82,12 @@ internal class AudioManager: NSObject {
         try! file.read(into: buf)
         
         // this makes a copy, you might not want that
-        let floatArray = Array(UnsafeBufferPointer(start: buf.floatChannelData?[0], count:Int(buf.frameLength)))
+        floatArray = Array(UnsafeBufferPointer(start: buf.floatChannelData?[0], count:Int(buf.frameLength)))
+        //floatArray = UnsafeBufferPointer(start: buf.floatChannelData, count:Int(buf.frameLength))
         
-        print("floatArray \(floatArray)\n")
+        //print("floatArray \(floatArray)\n")
+        
+        return floatArray
     }
     
     // https://stackoverflow.com/questions/41132418/load-a-pcm-into-a-avaudiopcmbuffer
