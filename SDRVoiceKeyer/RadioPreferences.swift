@@ -10,7 +10,7 @@ import Cocoa
 
 // This class shows a preference panel and allows users to select or input
 // the audio files they want to use for the voice keyer.
-class RadioPreferences: NSViewController {
+class RadioPreferences: NSViewController, RadioManagerDelegate {
 
     // class variables
     var preferenceManager: PreferenceManager!
@@ -88,4 +88,40 @@ class RadioPreferences: NSViewController {
         }
     }
     
+    // MARK: RadioManager implementation
+    
+    func didDiscoverRadio(discoveredRadios: [(model: String, nickname: String, ipAddress: String)]) {
+        
+        DispatchQueue.main.async { [unowned self] in
+//            self.serialNumberLabel.stringValue = discoveredRadios[0].nickname
+//            
+//            // .... check for default or new list
+//            
+//            
+//            // select the desired radio and instruct the RadioManager to start the connect process
+//            if !self.isRadioConnected {
+//                self.radioManager.connectToRadio(serialNumber: discoveredRadios[0].nickname)
+//            }
+        }
+    }
+
+    func didConnectToRadio() {
+        // implementation not required
+    }
+    
+    func didDisconnectFromRadio() {
+        // implementation not required
+    }
+    
+    func didUpdateSlice(availableSlices : [Int : SliceInfo]) {
+        // implementation not required
+    }
+    
+    func didUpdateRadio(serialNumber: String, activeSlice: String, transmitMode: TransmitMode) {
+        // implementation not required
+    }
+
+    func openRadioSelector(serialNumber: String) {
+        // implementation not required
+    }
 } // end class
