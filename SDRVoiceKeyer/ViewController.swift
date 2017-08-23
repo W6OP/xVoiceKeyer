@@ -37,16 +37,30 @@
 
 import Cocoa
 
+// event delegate
+// implement in your viewcontroller to receive messages from the radio manager
+protocol MainViewControllerDelegate: class {
+    // radio was discovered
+    func didDiscoverRadio(discoveredRadios: [(model: String, nickname: String, ipAddress: String, default: String)])
+}
+
+protocol PreferenceMangerDelegate: class {
+    // radio was discovered
+    func doConnectRadio(nickname: String)
+}
 
 // http://stackoverflow.com/questions/29418310/set-color-of-nsbutton-programmatically-swift
 
-class ViewController: NSViewController, RadioManagerDelegate {
+class ViewController: NSViewController, RadioManagerDelegate, PreferenceMangerDelegate {
     
     var radioManager: RadioManager!
     var audiomanager: AudioManager!
+    
+    // delegate to pass messages back to viewcontroller
+    var mainViewControllerDelegate:MainViewControllerDelegate?
+    
     var transmitMode: TransmitMode = TransmitMode.Invalid
     var availableSlices: [Int : SliceInfo] = [:]
-    
     var isRadioConnected = false
     
     // outlets
@@ -120,27 +134,88 @@ class ViewController: NSViewController, RadioManagerDelegate {
     
     
     // my code
-    //var a = 0
-    // TODO: if there are multiple entries caheck if a default has been set
-    // and open a selector or just connect
-    // need to send info to the radio manager to let it know if a default is set
-    func didDiscoverRadio(discoveredRadios: [(model: String, nickname: String, ipAddress: String)]) {
+    // See if there is a default radio set, if there is and one of the discovered radio match - just connect
+    // If there is no default set but there is only one radio - connect
+    // if there are multiple radios, see if one is the default, if so - connect
+    // otherwise pop the preferences pane
+    func didDiscoverRadio(discoveredRadios: [(model: String, nickname: String, ipAddress: String, default: String)]) {
         
         DispatchQueue.main.async { [unowned self] in
-            self.serialNumberLabel.stringValue = discoveredRadios[0].nickname
             
-            // .... check for default or new list
+            let defaultRadio: String = UserDefaults.standard.string(forKey: "defaultRadio") ?? ""
+            var found: Bool = false
             
-            
-            // select the desired radio and instruct the RadioManager to start the connect process
-            if !self.isRadioConnected {
-                self.radioManager.connectToRadio(serialNumber: discoveredRadios[0].nickname)
+            switch discoveredRadios.count {
+                case 1:
+                    if defaultRadio == discoveredRadios[0].nickname {
+                        self.doConnectRadio(nickname: defaultRadio)
+                    }
+                    else{
+                        //self.pref
+                        self.mainViewControllerDelegate?.didDiscoverRadio(discoveredRadios: discoveredRadios)
+                        self.showPreferences("" as AnyObject)
+                    }
+                    break
+                default:
+                    if defaultRadio != "" {
+                        for radio in discoveredRadios {
+                            if defaultRadio == radio.nickname {
+                                found = true
+                                self.serialNumberLabel.stringValue = discoveredRadios[0].nickname
+                                self.doConnectRadio(nickname: defaultRadio)
+                                break
+                            }
+                        }
+                        
+                        if !found {
+                            self.mainViewControllerDelegate?.didDiscoverRadio(discoveredRadios: discoveredRadios)
+                            self.showPreferences("" as AnyObject)
+                        }
+                    }
+                    else {
+                        // show preferences
+                        self.mainViewControllerDelegate?.didDiscoverRadio(discoveredRadios: discoveredRadios)
+                        self.showPreferences("" as AnyObject)
+                    }
+
+                    break
             }
+            
+            
+            
+            
+//            if defaultRadio != "" {
+//                for radio in discoveredRadios {
+//                    if defaultRadio == radio.nickname {
+//                        self.serialNumberLabel.stringValue = discoveredRadios[0].nickname
+//                        break
+//                    }
+//                }
+//            } else {
+//                defaultRadio = discoveredRadios[0].nickname
+//            }
+            
+            
+            //UserDefaults.standard.set(defaultRadio, forKey: "defaultRadio")
+            
+//            // select the desired radio and instruct the RadioManager to start the connect process
+//            if !self.isRadioConnected {
+//                self.radioManager.connectToRadio(serialNumber: defaultRadio)
+//            }
+            
+        }
+    }
+    
+    func doConnectRadio(nickname: String) {
+        // select the desired radio and instruct the RadioManager to start the connect process
+        if !self.isRadioConnected {
+            self.radioManager.connectToRadio(serialNumber: nickname)
         }
     }
    
     // we connected to the selected radio
     func didConnectToRadio() {
+        
         DispatchQueue.main.async { [unowned self] in
             self.isRadioConnected = true
             self.activeSliceLabel.stringValue = "Connected"
@@ -150,6 +225,7 @@ class ViewController: NSViewController, RadioManagerDelegate {
     
     // we disconnected from the selected radio
     func didDisconnectFromRadio() {
+        
         DispatchQueue.main.async { [unowned self] in
             self.isRadioConnected = false
             self.activeSliceLabel.stringValue = "Disconnected"

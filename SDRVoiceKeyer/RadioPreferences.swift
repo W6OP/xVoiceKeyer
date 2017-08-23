@@ -10,30 +10,52 @@ import Cocoa
 
 // This class shows a preference panel and allows users to select or input
 // the audio files they want to use for the voice keyer.
-class RadioPreferences: NSViewController, RadioManagerDelegate {
+class RadioPreferences: NSViewController, MainViewControllerDelegate, NSTableViewDataSource, NSTableViewDelegate {
 
     // class variables
     var preferenceManager: PreferenceManager!
     
-    // outlets
+    // delegate to pass messages back to viewcontroller
+    var preferenceManagerDelegate:PreferenceMangerDelegate?
     
+    // Array of available Radios
+    private var availableRadios = [(model: String, nickname: String, ipAddress: String, default: String)]()
+    private var defaultRadio = ""
+    private let defaultColumnValue = "" // default column identifier
+    
+    // outlets
+    @IBOutlet weak var tableViewRadioPicker: NSTableView!
     
     // actions
     @IBAction func buttonOk(_ sender: Any) {
         self.dismiss(self)
     }
-
+    
+    @IBAction func buttonDefault(_ sender: Any) {
+    }
+    
+    // send a message back to the main view controller to connect the radio
+    @IBAction func buttonConnect(_ sender: NSButton) {
+        if defaultRadio != "" {
+            self.preferenceManagerDelegate?.doConnectRadio(nickname: defaultRadio)
+        }
+    }
+    
     // generated code
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do view setup here.
         
         preferenceManager = PreferenceManager()
+        
+        tableViewRadioPicker.dataSource = self
+        tableViewRadioPicker.delegate = self
+        
         
         retrieveUserDefaults()
     }
     
     override func viewWillDisappear() {
+        
         let allTextField = findTextfield(view: self.view)
         
         // save all on exit
@@ -41,6 +63,18 @@ class RadioPreferences: NSViewController, RadioManagerDelegate {
         {
             UserDefaults.standard.set(txtField.stringValue, forKey: String(txtField.tag))
         }
+        
+       
+            
+//            for row in 0..<tableViewRadioPicker.numberOfRows {
+//                
+//                _ = NSIndexPath(forItem: row, inSection: 0)
+//                
+//                
+//                // do what you want with the cell
+//                
+//            }
+        
     }
     
     // actions
@@ -60,19 +94,6 @@ class RadioPreferences: NSViewController, RadioManagerDelegate {
         }
     }
     
-    // collect all the textfields from view and subview
-    func findTextfield(view: NSView) -> [NSTextField] {
-        var results = [NSTextField]()
-        for subview in view.subviews as [NSView] {
-            if let textField = subview as? NSTextField {
-                results += [textField]
-            } else {
-                results += findTextfield(view: subview)
-            }
-        }
-        return results
-    }
-    
     // retrieve the user defaults and populate the correct fields
     // TODO: account for multiple profiles
     func retrieveUserDefaults() {
@@ -86,42 +107,74 @@ class RadioPreferences: NSViewController, RadioManagerDelegate {
                 txtField.stringValue = filePath
             }
         }
+        
+        defaultRadio = UserDefaults.standard.string(forKey: "defaultRadio") ?? ""
     }
     
+    // collect all the textfields from view and subview
+    func findTextfield(view: NSView) -> [NSTextField] {
+        
+        var results = [NSTextField]()
+        
+        for subview in view.subviews as [NSView] {
+            if let textField = subview as? NSTextField {
+                results += [textField]
+            } else {
+                results += findTextfield(view: subview)
+            }
+        }
+        return results
+    }
+    
+    // ----------------------------------------------------------------------------
+    // MARK: - NSTableView DataSource methods
+    
+    /// Tableview numberOfRows delegate method
+    ///
+    /// - Parameter aTableView: the Tableview
+    /// - Returns: number of rows
+    ///
+    func numberOfRows(in aTableView: NSTableView) -> Int {
+        
+        // get the number of rows
+        print ("rows: ")
+        return 3 //availableRadios.count
+    }
+    
+    // ----------------------------------------------------------------------------
+    // MARK: - NSTableView Delegate methods
+    
+    /// Tableview view delegate method
+    ///
+    /// - Parameters:
+    ///   - tableView: the Tableview
+    ///   - tableColumn: a Tablecolumn
+    ///   - row: the row number
+    /// - Returns: an NSView
+    ///
+    
+    func tableView(_ tableView: NSTableView, objectValueFor tableColumn: NSTableColumn?, row: Int) -> Any? {
+        
+        
+        
+        
+        return "data in " + (tableColumn?.identifier)!
+    }
+    
+    // ----------------------------------------------------------------------------
     // MARK: RadioManager implementation
     
-    func didDiscoverRadio(discoveredRadios: [(model: String, nickname: String, ipAddress: String)]) {
+    func didDiscoverRadio(discoveredRadios: [(model: String, nickname: String, ipAddress: String, default: String)]) {
         
         DispatchQueue.main.async { [unowned self] in
-//            self.serialNumberLabel.stringValue = discoveredRadios[0].nickname
-//            
-//            // .... check for default or new list
-//            
-//            
-//            // select the desired radio and instruct the RadioManager to start the connect process
-//            if !self.isRadioConnected {
-//                self.radioManager.connectToRadio(serialNumber: discoveredRadios[0].nickname)
-//            }
+            self.availableRadios = discoveredRadios
+            
+            
+            
         }
     }
 
-    func didConnectToRadio() {
-        // implementation not required
-    }
     
-    func didDisconnectFromRadio() {
-        // implementation not required
-    }
-    
-    func didUpdateSlice(availableSlices : [Int : SliceInfo]) {
-        // implementation not required
-    }
-    
-    func didUpdateRadio(serialNumber: String, activeSlice: String, transmitMode: TransmitMode) {
-        // implementation not required
-    }
-
-    func openRadioSelector(serialNumber: String) {
-        // implementation not required
-    }
 } // end class
+
+

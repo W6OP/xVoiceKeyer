@@ -46,7 +46,7 @@ import os
 // implement in your viewcontroller to receive messages from the radio manager
 protocol RadioManagerDelegate: class {
     // radio was discovered
-    func didDiscoverRadio(discoveredRadios: [(model: String, nickname: String, ipAddress: String)])
+    func didDiscoverRadio(discoveredRadios: [(model: String, nickname: String, ipAddress: String, default: String)])
     // notify the GUI the tcp connection to the radio was successful
     func didConnectToRadio()
     // notify the GUI the tcp connection to the radio was closed
@@ -179,7 +179,7 @@ internal class RadioManager: NSObject {
     // MARK: - Internal properties
     
     // list of serial numbers of discovered radios
-    var discoveredRadios: [(model: String, nickname: String, ipAddress: String)]
+    var discoveredRadios: [(model: String, nickname: String, ipAddress: String, default: String)]
     
     var availableSlices: [Int : SliceInfo]
     
@@ -256,7 +256,7 @@ internal class RadioManager: NSObject {
         
         availableSlices = [Int : SliceInfo]()
         availableRadios = [RadioParameters]()
-        discoveredRadios = [(model: String, nickname: String, ipAddress: String)]()
+        discoveredRadios = [(model: String, nickname: String, ipAddress: String, default: String)]()
         
         os_log("Initializing the RadioFactory.", log: RadioManager.model_log, type: .info)
         
@@ -329,15 +329,20 @@ internal class RadioManager: NSObject {
                 
                 os_log("Discovery process has completed.", log: RadioManager.model_log, type: .info)
                 
+                self.discoveredRadios.append(("6500", "New Radio", "129.34.3.4", "No"))
+                
                 for item in self.availableRadios {
                     // only add new radios
                     if !self.discoveredRadios.contains(where: { $0.nickname == item.nickname! }) {
-                        self.discoveredRadios.append((item.model, item.nickname!, item.ipAddress))
+                        self.discoveredRadios.append((item.model, item.nickname!, item.ipAddress, "No"))
                         
-                        // let the view controller know a radio was discovered
-                        self.radioManagerDelegate?.didDiscoverRadio(discoveredRadios: self.discoveredRadios)
+//                        // let the view controller know a radio was discovered
+//                        self.radioManagerDelegate?.didDiscoverRadio(discoveredRadios: self.discoveredRadios)
                     }
                 }
+                
+                // let the view controller know one or more radios were discovered
+                self.radioManagerDelegate?.didDiscoverRadio(discoveredRadios: self.discoveredRadios)
             }
         }
     }
