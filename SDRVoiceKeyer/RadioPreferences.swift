@@ -14,17 +14,17 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
 
     // class variables
     var preferenceManager: PreferenceManager!
-    //var mainViewController: ViewController!
-    
-    
+   
     
     // Array of available Radios
     var availableRadios = [(model: String, nickname: String, ipAddress: String, default: String)]()
-    private var defaultRadio = ""
-    private let defaultColumnValue = "" // default column identifier
+    private var defaultRadio = (model: "", nickname: "", ipAddress: "", default: "")
+    private var defaultSet = false
     
     // outlets
     @IBOutlet weak var tableViewRadioPicker: NSTableView!
+    @IBOutlet weak var buttonDefaultControl: NSButton!
+    @IBOutlet weak var buttonConnectControl: NSButton!
     
     // actions
     @IBAction func buttonOk(_ sender: Any) {
@@ -32,14 +32,15 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
     }
     
     @IBAction func buttonDefault(_ sender: Any) {
+        
+        defaultSet = true
     }
     
     // send a message back to the main view controller to connect the radio
     @IBAction func buttonConnect(_ sender: NSButton) {
-        if defaultRadio != "" {
-            preferenceManager.connectToRadio(serialNumber: defaultRadio)
+        if defaultRadio.default == "Yes" {
+            preferenceManager.connectToRadio(serialNumber: defaultRadio.nickname)
         }
-        //self.preferenceManagerDelegate?.doConnectRadio(nickname: defaultRadio)
     }
     
     // generated code
@@ -47,38 +48,16 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
         super.viewDidLoad()
         
         preferenceManager = PreferenceManager()
-        //mainViewController = ViewController()
-        
-        //mainViewController.mainViewControllerDelegate = self
         
         tableViewRadioPicker.dataSource = self
         tableViewRadioPicker.delegate = self
-        
         
         retrieveUserDefaults()
     }
     
     override func viewWillDisappear() {
         
-        let allTextField = findTextfield(view: self.view)
-        
-        // save all on exit
-        for txtField in allTextField
-        {
-            UserDefaults.standard.set(txtField.stringValue, forKey: String(txtField.tag))
-        }
-        
-       
-            
-//            for row in 0..<tableViewRadioPicker.numberOfRows {
-//                
-//                _ = NSIndexPath(forItem: row, inSection: 0)
-//                
-//                
-//                // do what you want with the cell
-//                
-//            }
-        
+        saveUserDefaults()
     }
     
     // actions
@@ -112,8 +91,29 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
             }
         }
         
-        defaultRadio = UserDefaults.standard.string(forKey: "defaultRadio") ?? ""
+        if let data = UserDefaults.standard.object(forKey: "defaultRadio") as? NSData {
+            defaultRadio = NSKeyedUnarchiver.unarchiveObject(with: data as Data) as! (model: String, nickname: String, ipAddress: String, default: String)
+            
+            buttonConnectControl.isEnabled = true
+        }
+        
     }
+    
+    func saveUserDefaults() {
+        
+        //var dictionary = [String : (model: String, nickname: String, ipAddress: String, default: String)]()
+        let allTextField = findTextfield(view: self.view)
+        
+        // save all on exit
+        for txtField in allTextField
+        {
+            UserDefaults.standard.set(txtField.stringValue, forKey: String(txtField.tag))
+        }
+        
+        UserDefaults.standard.set(NSKeyedArchiver.archivedData(withRootObject: defaultRadio), forKey: "defaultRadio")
+    
+    }
+    
     
     // collect all the textfields from view and subview
     func findTextfield(view: NSView) -> [NSTextField] {
@@ -130,6 +130,7 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
         return results
     }
     
+   
     // ----------------------------------------------------------------------------
     // MARK: - NSTableView DataSource methods
     
@@ -180,6 +181,69 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
     }
     
     
+    func tableViewSelectionDidChange(_ notification: Notification) {
+        
+        if let tableView = notification.object as? NSTableView {
+            defaultRadio = availableRadios[tableView.selectedRow]
+            
+            
+            //let selected: Int = tableView.selectedRow
+//            let selectedRow: NSTableCellView? = tableView.view(atColumn: 0, row: selected, makeIfNecessary: true) as! NSTableCellView
+//            let selectedRowTextField: NSTextField? = selectedRow?.textField
+            //selectedRowTextField?.textColor =
+            
+            
+        //let cell = tableView.view(atColumn: 3, row:selected, makeIfNecessary:true)
+        
+            
+            //tableView.editColumn(3, row: selected, with: nil, select: true)
+            
+//            var cellView: NSTableCellView? = (tableView.view(atColumn: 3, row: selected, makeIfNecessary: true) as? NSTableCellView)
+//            if (cellView?.textField?.acceptsFirstResponder)! {
+//                cellView?.window?.makeFirstResponder(cellView?.textField)
+//                //cellView?.textField?.stringValue = "Yes"
+//            }
+            
+            
+            
+          
+            // now set default to Yes"
+            defaultRadio.default = "Yes"
+            
+            for i in 0..<availableRadios.count {
+                if availableRadios[i].nickname == defaultRadio.nickname {
+                    availableRadios[i].default = "Yes"
+                } else {
+                    availableRadios[i].default = "No"
+                }
+                
+            }
+            
+//            for var radio in availableRadios {
+//                if radio.nickname == defaultRadio.nickname {
+//                    radio.default = "Yes"
+//                }
+//            }
+            
+            tableView.reloadData()
+            
+            buttonDefaultControl.isEnabled = true
+            buttonConnectControl.isEnabled = true
+        }
+    }
+    
+//    func getSelectedTextField(tableView: NSTableRowView) {
+//        let selected: Int = tableView.selectedRow
+//        // Get row at specified index
+//        let selectedRow: NSTableCellView? = tableView.view(atColumn: 0, row: selected, makeIfNecessary: true)
+//        // Get row's text field
+//        let selectedRowTextField: NSTextField? = selectedRow?.textField
+//        // Focus on text field to make it auto-editable
+//        //window().makeFirstResponder(selectedRowTextField)
+//        // Set the keyboard carat to the beginning of the text field
+//        selectedRowTextField?.currentEditor()?.selectedRange = NSRange(location: 0, length: 0)
+//    }
+
     
     // to set values use this
 //    private func tableView(tableView: NSTableView!, setObjectValue object: AnyObject!, forTableColumn tableColumn: NSTableColumn!, row: Int){

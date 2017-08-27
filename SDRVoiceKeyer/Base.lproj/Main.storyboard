@@ -1168,8 +1168,8 @@
                                     <rect key="frame" x="1" y="0.0" width="454" height="134"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <tableView verticalHuggingPriority="750" tag="1" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" multipleSelection="NO" autosaveColumns="NO" headerView="bF2-aI-j3K" id="J1R-Gw-uyD">
-                                            <rect key="frame" x="0.0" y="0.0" width="465" height="111"/>
+                                        <tableView verticalHuggingPriority="750" tag="1" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnReordering="NO" columnSelection="YES" columnResizing="NO" multipleSelection="NO" emptySelection="NO" autosaveColumns="NO" typeSelect="NO" headerView="bF2-aI-j3K" id="J1R-Gw-uyD">
+                                            <rect key="frame" x="0.0" y="0.0" width="454" height="111"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <size key="intercellSpacing" width="3" height="2"/>
                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -1201,7 +1201,7 @@
                                                     </textFieldCell>
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                 </tableColumn>
-                                                <tableColumn identifier="ipAddress" width="106" minWidth="10" maxWidth="3.4028234663852886e+38" id="Psj-A1-taV">
+                                                <tableColumn identifier="ipAddress" width="93" minWidth="10" maxWidth="3.4028234663852886e+38" id="Psj-A1-taV">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="IP Address">
                                                         <font key="font" metaFont="smallSystem"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -1214,7 +1214,7 @@
                                                     </textFieldCell>
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                 </tableColumn>
-                                                <tableColumn identifier="default" width="128.5" minWidth="10" maxWidth="3.4028234663852886e+38" id="RG3-ls-6VL">
+                                                <tableColumn identifier="default" width="125.5" minWidth="10" maxWidth="3.4028234663852886e+38" id="RG3-ls-6VL">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Default">
                                                         <font key="font" metaFont="smallSystem"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -1231,7 +1231,7 @@
                                         </tableView>
                                     </subviews>
                                 </clipView>
-                                <scroller key="horizontalScroller" verticalHuggingPriority="750" horizontal="YES" id="b9P-HF-QKN">
+                                <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="b9P-HF-QKN">
                                     <rect key="frame" x="1" y="118" width="454" height="16"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
@@ -1240,7 +1240,7 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                                 <tableHeaderView key="headerView" id="bF2-aI-j3K">
-                                    <rect key="frame" x="0.0" y="0.0" width="465" height="23"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="454" height="23"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </tableHeaderView>
                             </scrollView>
@@ -1249,7 +1249,7 @@
                                 <constraints>
                                     <constraint firstAttribute="width" constant="106" id="GRP-ar-gbU"/>
                                 </constraints>
-                                <buttonCell key="cell" type="push" title="Set as Default" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="80h-NW-TKs">
+                                <buttonCell key="cell" type="push" title="Set as Default" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="80h-NW-TKs">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
                                 </buttonCell>
@@ -1262,7 +1262,7 @@
                                 <constraints>
                                     <constraint firstAttribute="width" constant="69" id="8w3-jj-lY2"/>
                                 </constraints>
-                                <buttonCell key="cell" type="push" title="Connect" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="fHW-wa-k1Z">
+                                <buttonCell key="cell" type="push" title="Connect" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="fHW-wa-k1Z">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
                                 </buttonCell>
@@ -1290,6 +1290,8 @@
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="buttonConnectControl" destination="czF-qH-MSC" id="Ia7-5Q-zSK"/>
+                        <outlet property="buttonDefaultControl" destination="ruq-x0-7zt" id="2E0-E5-Een"/>
                         <outlet property="tableViewRadioPicker" destination="J1R-Gw-uyD" id="pLS-6j-cj1"/>
                     </connections>
                 </viewController>
