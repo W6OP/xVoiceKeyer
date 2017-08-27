@@ -10,16 +10,16 @@ import Cocoa
 
 // This class shows a preference panel and allows users to select or input
 // the audio files they want to use for the voice keyer.
-class RadioPreferences: NSViewController, MainViewControllerDelegate, NSTableViewDataSource, NSTableViewDelegate {
+class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDelegate {
 
     // class variables
     var preferenceManager: PreferenceManager!
+    //var mainViewController: ViewController!
     
-    // delegate to pass messages back to viewcontroller
-    var preferenceManagerDelegate:PreferenceMangerDelegate?
+    
     
     // Array of available Radios
-    private var availableRadios = [(model: String, nickname: String, ipAddress: String, default: String)]()
+    var availableRadios = [(model: String, nickname: String, ipAddress: String, default: String)]()
     private var defaultRadio = ""
     private let defaultColumnValue = "" // default column identifier
     
@@ -37,8 +37,9 @@ class RadioPreferences: NSViewController, MainViewControllerDelegate, NSTableVie
     // send a message back to the main view controller to connect the radio
     @IBAction func buttonConnect(_ sender: NSButton) {
         if defaultRadio != "" {
-            self.preferenceManagerDelegate?.doConnectRadio(nickname: defaultRadio)
+            preferenceManager.connectToRadio(serialNumber: defaultRadio)
         }
+        //self.preferenceManagerDelegate?.doConnectRadio(nickname: defaultRadio)
     }
     
     // generated code
@@ -46,6 +47,9 @@ class RadioPreferences: NSViewController, MainViewControllerDelegate, NSTableVie
         super.viewDidLoad()
         
         preferenceManager = PreferenceManager()
+        //mainViewController = ViewController()
+        
+        //mainViewController.mainViewControllerDelegate = self
         
         tableViewRadioPicker.dataSource = self
         tableViewRadioPicker.delegate = self
@@ -138,7 +142,7 @@ class RadioPreferences: NSViewController, MainViewControllerDelegate, NSTableVie
         
         // get the number of rows
         print ("rows: ")
-        return 3 //availableRadios.count
+        return availableRadios.count
     }
     
     // ----------------------------------------------------------------------------
@@ -155,24 +159,63 @@ class RadioPreferences: NSViewController, MainViewControllerDelegate, NSTableVie
     
     func tableView(_ tableView: NSTableView, objectValueFor tableColumn: NSTableColumn?, row: Int) -> Any? {
         
+        var result = ""
         
+        let columnIdentifier = tableColumn?.identifier
         
+        if columnIdentifier == "model" {
+            result = availableRadios[row].model
+        }
+        if columnIdentifier == "nickname" {
+            result = availableRadios[row].nickname
+        }
+        if columnIdentifier == "ipAddress" {
+            result = availableRadios[row].ipAddress
+        }
+        if columnIdentifier == "default" {
+            result = availableRadios[row].default
+        }
         
-        return "data in " + (tableColumn?.identifier)!
+        return result
     }
+    
+    
+    
+    // to set values use this
+//    private func tableView(tableView: NSTableView!, setObjectValue object: AnyObject!, forTableColumn tableColumn: NSTableColumn!, row: Int){
+//        
+//        var result = ""
+//        
+//        let columnIdentifier = tableColumn.identifier
+//        
+//        if columnIdentifier == "model" {
+//            result = availableRadios[row].model
+//        }
+//        if columnIdentifier == "nickname" {
+//            result = availableRadios[row].nickname
+//        }
+//        if columnIdentifier == "ipAddress" {
+//            result = availableRadios[row].ipAddress
+//        }
+//        if columnIdentifier == "default" {
+//            result = availableRadios[row].default
+//        }
+//        //return result
+//        
+//    }
     
     // ----------------------------------------------------------------------------
     // MARK: RadioManager implementation
     
-    func didDiscoverRadio(discoveredRadios: [(model: String, nickname: String, ipAddress: String, default: String)]) {
-        
-        DispatchQueue.main.async { [unowned self] in
-            self.availableRadios = discoveredRadios
-            
-            
-            
-        }
-    }
+//    func didDiscoverRadio(discoveredRadios: [(model: String, nickname: String, ipAddress: String, default: String)]) {
+//        
+//        //DispatchQueue.main.async { [unowned self] in
+//            self.availableRadios = discoveredRadios
+//            
+//            
+//            
+//        //}
+//    }
 
     
 } // end class

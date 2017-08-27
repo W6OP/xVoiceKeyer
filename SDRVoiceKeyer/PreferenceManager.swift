@@ -52,11 +52,19 @@ extension NSOpenPanel {
     }
 }
 
+protocol PreferenceManagerDelegate: class {
+    // radio was discovered
+    func doConnectRadio(nickname: String)
+}
+
 class PreferenceManager: NSObject {
+    
+    // delegate to pass messages back to viewcontroller
+    var preferenceManagerDelegate:PreferenceManagerDelegate?
     
     // TODO: Make sure exception handling works
     override init() {
-        
+        super.init()
     }
     
     internal func getFilePath() -> String {
@@ -67,6 +75,13 @@ class PreferenceManager: NSObject {
         }
         
         return filePath
+    }
+    
+    
+    internal func connectToRadio(serialNumber: String){
+        
+        self.preferenceManagerDelegate?.doConnectRadio(nickname: serialNumber)
+        
     }
     
 //    internal func getFilePath() -> String {

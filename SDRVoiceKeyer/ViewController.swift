@@ -39,25 +39,25 @@ import Cocoa
 
 // event delegate
 // implement in your viewcontroller to receive messages from the radio manager
-protocol MainViewControllerDelegate: class {
-    // radio was discovered
-    func didDiscoverRadio(discoveredRadios: [(model: String, nickname: String, ipAddress: String, default: String)])
-}
+//protocol MainViewControllerDelegate: class {
+//    // radio was discovered
+//    func didDiscoverRadio(discoveredRadios: [(model: String, nickname: String, ipAddress: String, default: String)])
+//}
 
-protocol PreferenceMangerDelegate: class {
-    // radio was discovered
-    func doConnectRadio(nickname: String)
-}
+//
+
 
 // http://stackoverflow.com/questions/29418310/set-color-of-nsbutton-programmatically-swift
 
-class ViewController: NSViewController, RadioManagerDelegate, PreferenceMangerDelegate {
+class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerDelegate {
     
     var radioManager: RadioManager!
     var audiomanager: AudioManager!
+    var radioPreferences: PreferenceManager!
     
     // delegate to pass messages back to viewcontroller
-    var mainViewControllerDelegate:MainViewControllerDelegate?
+    //var mainViewControllerDelegate:MainViewControllerDelegate?
+    var availableRadios = [(model: String, nickname: String, ipAddress: String, default: String)]()
     
     var transmitMode: TransmitMode = TransmitMode.Invalid
     var availableSlices: [Int : SliceInfo] = [:]
@@ -90,6 +90,9 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceMangerDe
             radioManager.radioManagerDelegate = self
             
             audiomanager = AudioManager()
+        
+            radioPreferences = PreferenceManager()
+            radioPreferences.preferenceManagerDelegate = self
 //        }
 //        catch let error as NSError {
 //            // debug.print
@@ -145,6 +148,8 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceMangerDe
             let defaultRadio: String = UserDefaults.standard.string(forKey: "defaultRadio") ?? ""
             var found: Bool = false
             
+            self.availableRadios = discoveredRadios
+            
             switch discoveredRadios.count {
                 case 1:
                     if defaultRadio == discoveredRadios[0].nickname {
@@ -152,8 +157,8 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceMangerDe
                     }
                     else{
                         //self.pref
-                        self.mainViewControllerDelegate?.didDiscoverRadio(discoveredRadios: discoveredRadios)
                         self.showPreferences("" as AnyObject)
+                        //self.mainViewControllerDelegate?.didDiscoverRadio(discoveredRadios: discoveredRadios)
                     }
                     break
                 default:
@@ -168,14 +173,14 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceMangerDe
                         }
                         
                         if !found {
-                            self.mainViewControllerDelegate?.didDiscoverRadio(discoveredRadios: discoveredRadios)
                             self.showPreferences("" as AnyObject)
+                            //self.mainViewControllerDelegate?.didDiscoverRadio(discoveredRadios: discoveredRadios)
                         }
                     }
                     else {
                         // show preferences
-                        self.mainViewControllerDelegate?.didDiscoverRadio(discoveredRadios: discoveredRadios)
                         self.showPreferences("" as AnyObject)
+                        //self.mainViewControllerDelegate?.didDiscoverRadio(discoveredRadios: discoveredRadios)
                     }
 
                     break
@@ -279,6 +284,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceMangerDe
     func showPreferences(_ sender: AnyObject) {
         let SB = NSStoryboard(name: "Main", bundle: nil)
         let PVC: RadioPreferences = SB.instantiateController(withIdentifier: "radioPreferences") as! RadioPreferences
+        PVC.availableRadios = self.availableRadios
         // This works with Swift 4
         //let SB = NSStoryboard(name: NSStoryboard.Name(rawValue: "Main"), bundle: nil)
         //let PVC: RadioPreferences = SB.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(rawValue: "radioPreferences")) as! RadioPreferences
