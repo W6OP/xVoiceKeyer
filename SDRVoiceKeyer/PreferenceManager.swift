@@ -67,6 +67,7 @@ class PreferenceManager: NSObject {
         super.init()
     }
     
+    // get the file path from the selected item
     internal func getFilePath() -> String {
         var filePath = ""
         
@@ -78,29 +79,10 @@ class PreferenceManager: NSObject {
     }
     
     
-    internal func connectToRadio(serialNumber: String){
+    @objc func connectToRadio(serialNumber: String){
         
         self.preferenceManagerDelegate?.doConnectRadio(nickname: serialNumber)
         
     }
-    
-//    internal func getFilePath() -> String {
-//        var filePath = ""
-//        
-//        let panel = NSOpenPanel()
-//        // This method displays the panel and returns immediately.
-//        // The completion handler is called when the user selects an
-//        // item or cancels the panel.
-//        panel.begin(completionHandler: {(_ result: Int) -> Void in
-//            if result == NSFileHandlingPanelOKButton {
-//                let theDoc: URL? = panel.urls[0]
-//                print(theDoc?.absoluteURL) // this gives the file path
-//                filePath = String(describing: theDoc?.absoluteURL)
-//            }
-//        })
-//        
-//            return filePath
-//       
-//    }
 
 } // end class

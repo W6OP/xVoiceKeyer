@@ -337,13 +337,17 @@ internal class RadioManager: NSObject {
                 
                 os_log("Discovery process has completed.", log: RadioManager.model_log, type: .info)
                 
-                //self.discoveredRadios.append(DiscoveredRadios(model: "6500", nickname: "NewRadio",ipAddress: "129.34.3.4", isDefaultRadio: "No"))
-                self.discoveredRadios.append(("6500", "New Radio", "129.34.3.4", "No"))
+                //self.discoveredRadios.append(("6500", "New Radio", "129.34.3.4", "No"))
                 
                 for item in self.availableRadios {
                     // only add new radios
                     if !self.discoveredRadios.contains(where: { $0.nickname == item.nickname! }) {
                         self.discoveredRadios.append((item.model, item.nickname!, item.ipAddress, "No"))
+                        
+                        
+                        // TODO: DELETE
+                        // for debugging to test disconnect/reconnect
+                        self.discoveredRadios.append(("FLEX-6700", item.nickname!, item.ipAddress, "No"))
                         
 //                        // let the view controller know a radio was discovered
                         self.radioManagerDelegate?.didDiscoverRadio(discoveredRadios: self.discoveredRadios)
@@ -514,8 +518,13 @@ internal class RadioManager: NSObject {
     public func connectToRadio( serialNumber: String) {
         
         os_log("Connect to the Radio.", log: RadioManager.model_log, type: .info)
-        if self.openRadio(self.availableRadios[0]) == true {
-//            self.UpdateRadio()
+        
+        for i in 0..<self.availableRadios.count {
+            if self.availableRadios[i].nickname == serialNumber {
+                if self.openRadio(self.availableRadios[i]) == true {
+                    //            self.UpdateRadio()
+                }
+            }
         }
     }
     
