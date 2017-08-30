@@ -20,7 +20,7 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
     var availableRadios = [(model: String, nickname: String, ipAddress: String, default: String)]()
     private var defaultRadio = (model: "", nickname: "", ipAddress: "", default: "")
     private var radioKey = [String : String]()
-    private var defaultSet = false
+    private var isDefaultSet = false
     
     // MARK: outlets
     @IBOutlet weak var tableViewRadioPicker: NSTableView!
@@ -34,8 +34,12 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
     
     @IBAction func buttonDefault(_ sender: Any) {
         
-        defaultSet = true
+        isDefaultSet = true
         defaultRadio.default = "Yes"
+        
+        saveUserDefaults()
+        
+        tableViewRadioPicker.reloadData()
     }
     
     // connect the radio in the main view controller by caling delegate in preference manager
@@ -98,12 +102,12 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
             }
         }
         
-        UserDefaults.standard.set(nil, forKey: "defaultRadio")
+        // UserDefaults.standard.set(nil, forKey: "defaultRadio")
+        
         if let nickname = UserDefaults.standard.string(forKey: "defaultRadio") {
             defaultRadio.nickname = nickname
         }
 
-        
         for i in 0..<availableRadios.count {
             if availableRadios[i].nickname == defaultRadio.nickname && availableRadios[i].model == defaultRadio.model {
                 availableRadios[i].default = "Yes"
@@ -115,6 +119,7 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
 
     }
     
+    // persist the user defaults
     func saveUserDefaults() {
         
         let allTextField = findTextfield(view: self.view)
@@ -125,23 +130,24 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
             UserDefaults.standard.set(txtField.stringValue, forKey: String(txtField.tag))
         }
         
-        if defaultSet == true {
+        defaultRadio = availableRadios[tableViewRadioPicker.selectedRow]
+        
+        if isDefaultSet == true {
             var def = [String : String]()
             def["madel"] = defaultRadio.model
             def["nickname"] = defaultRadio.nickname
             def["ipAddress"] = defaultRadio.ipAddress
             def["default"] = defaultRadio.default
             
-//            UserDefaults.standard.set(NSKeyedArchiver.archivedData(withRootObject: def), forKey: "defaualtRadio")
-            
-//            let encodedData = NSKeyedArchiver.archivedData(withRootObject: def)
-//            let userDefaults = UserDefaults.standard
-//            userDefaults.set(encodedData, forKey: "defaultRadio")
-            
-            
-            
             UserDefaults.standard.set(def, forKey: "defaultRadio")
-            //UserDefaults.standard.set(defaultRadio.nickname, forKey: "defaultRadio")
+        }
+        
+        for i in 0..<availableRadios.count {
+            if availableRadios[i].nickname == defaultRadio.nickname && availableRadios[i].model == defaultRadio.model {
+                availableRadios[i].default = "Yes"
+            } else {
+                availableRadios[i].default = "No"
+            }
             
         }
     }
@@ -216,21 +222,24 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
     func tableViewSelectionDidChange(_ notification: Notification) {
         
         if let tableView = notification.object as? NSTableView {
-            defaultRadio = availableRadios[tableView.selectedRow]
+//            defaultRadio = availableRadios[tableView.selectedRow]
+//            
+//            // now set default to Yes"
+//            defaultRadio.default = "Yes"
+//            
+//            if isDefaultSet == true {
+//                for i in 0..<availableRadios.count {
+//                    if availableRadios[i].nickname == defaultRadio.nickname && availableRadios[i].model == defaultRadio.model {
+//                        availableRadios[i].default = "Yes"
+//                    } else {
+//                        availableRadios[i].default = "No"
+//                    }
+//                    
+//                }
+//            }
             
-            // now set default to Yes"
-            defaultRadio.default = "Yes"
             
-            for i in 0..<availableRadios.count {
-                if availableRadios[i].nickname == defaultRadio.nickname && availableRadios[i].model == defaultRadio.model {
-                    availableRadios[i].default = "Yes"
-                } else {
-                    availableRadios[i].default = "No"
-                }
-                
-            }
-            
-            tableView.reloadData()
+            //tableView.reloadData()
             
             buttonDefaultControl.isEnabled = true
             buttonConnectControl.isEnabled = true

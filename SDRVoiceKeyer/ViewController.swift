@@ -134,8 +134,9 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     
     
     // my code
-    // See if there is a default radio set, if there is and one of the discovered radio match - just connect
-    // If there is no default set but there is only one radio - connect
+    // Load the information for the default radio if there is any
+    // Check how many radios were discovered. If there is a default and it matches the discovered radio - connect
+    // otherwise show the preference pane. Also if there is a default, update its information
     // if there are multiple radios, see if one is the default, if so - connect
     // otherwise pop the preferences pane
     func didDiscoverRadio(discoveredRadios: [(model: String, nickname: String, ipAddress: String, default: String)]) {
@@ -146,6 +147,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
             
             self.availableRadios = discoveredRadios
             
+            // FOR DEBUG: delete user defaults
             UserDefaults.standard.set(nil, forKey: "defaultRadio")
             
             if let def = UserDefaults.standard.dictionary(forKey: "defaultRadio") {
@@ -158,9 +160,11 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
             switch discoveredRadios.count {
                 case 1:
                     if self.defaultRadio.nickname == discoveredRadios[0].nickname {
-                        // could have the same nickname but model or ipaddress may have change
+                        
+                        // could have the same nickname but model or ipaddress may have changed
                         self.defaultRadio.model = discoveredRadios[0].model
                         self.defaultRadio.ipAddress = discoveredRadios[0].ipAddress
+                        
                         self.saveUserDefaults()
                         
                         self.doConnectRadio(nickname: self.defaultRadio.nickname)
@@ -174,9 +178,11 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
                         for radio in discoveredRadios {
                             if self.defaultRadio.nickname == radio.nickname && self.defaultRadio.default == "Yes" {
                                 found = true
+                                
                                 // could have the same nickname but model or ipaddress may have change
                                 self.defaultRadio.model = radio.model
                                 self.defaultRadio.ipAddress = radio.ipAddress
+                                
                                 self.saveUserDefaults()
 
                                 self.serialNumberLabel.stringValue = self.defaultRadio.nickname
