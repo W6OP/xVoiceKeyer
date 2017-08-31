@@ -144,18 +144,28 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         DispatchQueue.main.async { [unowned self] in
             
             var found: Bool = false
-            
             self.availableRadios = discoveredRadios
             
             // FOR DEBUG: delete user defaults
-            UserDefaults.standard.set(nil, forKey: "defaultRadio")
+            //UserDefaults.standard.set(nil, forKey: "defaultRadio")
             
             if let def = UserDefaults.standard.dictionary(forKey: "defaultRadio") {
                 self.defaultRadio.model = def["model"] as! String
                 self.defaultRadio.nickname = def["nickname"] as! String
                 self.defaultRadio.ipAddress = def["ipAddress"] as! String
-                self.defaultRadio.default = "Yes"
+                self.defaultRadio.default = def["default"] as! String
             }
+            
+            
+//            let radioDefault = UserDefaults.standard.object(forKey: "defaultRadio") as? [String: String] ?? [String: String]()
+//            
+//            //if let result = UserDefaults.standard.value(forKey: "defaultRadio") {
+//            if radioDefault.count > 0 {
+//                self.defaultRadio.model = radioDefault["model"]!
+//                self.defaultRadio.nickname = radioDefault["nickname"]!
+//                self.defaultRadio.ipAddress = radioDefault["ipAddress"]!
+//                self.defaultRadio.default = "Yes"
+//            }
             
             switch discoveredRadios.count {
                 case 1:
@@ -209,7 +219,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     func saveUserDefaults() {
         
             var def = [String : String]()
-            def["madel"] = defaultRadio.model
+            def["model"] = defaultRadio.model
             def["nickname"] = defaultRadio.nickname
             def["ipAddress"] = defaultRadio.ipAddress
             def["default"] = defaultRadio.default

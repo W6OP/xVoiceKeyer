@@ -337,8 +337,6 @@ internal class RadioManager: NSObject {
                 
                 os_log("Discovery process has completed.", log: RadioManager.model_log, type: .info)
                 
-                //self.discoveredRadios.append(("6500", "New Radio", "129.34.3.4", "No"))
-                
                 for item in self.availableRadios {
                     // only add new radios
                     if !self.discoveredRadios.contains(where: { $0.nickname == item.nickname! }) {
@@ -353,9 +351,6 @@ internal class RadioManager: NSObject {
                         self.radioManagerDelegate?.didDiscoverRadio(discoveredRadios: self.discoveredRadios)
                     }
                 }
-                
-                // let the view controller know one or more radios were discovered
-                //self.radioManagerDelegate?.didDiscoverRadio(discoveredRadios: self.discoveredRadios)
             }
         }
     }
