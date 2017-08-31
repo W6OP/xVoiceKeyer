@@ -219,11 +219,11 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
         return result
     }
     
-    func tableView(_ tableView: NSTableView, rowViewForRow row: Int) -> NSTableRowView? {
-        
-        //tableView.deselectAll(<#T##sender: Any?##Any?#>)
-        
-    }
+//    func tableView(_ tableView: NSTableView, rowViewForRow row: Int) -> NSTableRowView? {
+//        
+//        //tableView.deselectAll(<#T##sender: Any?##Any?#>)
+//        
+//    }
     
     func tableViewSelectionDidChange(_ notification: Notification) {
         
