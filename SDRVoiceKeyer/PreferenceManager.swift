@@ -27,6 +27,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 //
 //  PreferenceManager.swift
 //  SDRVoiceKeyer
@@ -38,6 +39,9 @@
 import Cocoa
 
 // http://stackoverflow.com/questions/28008262/detailed-instruction-on-use-of-nsopenpanel
+/**
+    Extension to open a preference panel.
+ */
 extension NSOpenPanel {
     var selectUrl: URL? {
         title = "Select File"
@@ -52,6 +56,9 @@ extension NSOpenPanel {
     }
 }
 
+/**
+    Protocol to pass messages back to viewcontroller.
+ */
 protocol PreferenceManagerDelegate: class {
     // radio was discovered
     func doConnectRadio(nickname: String)
@@ -61,7 +68,6 @@ enum YesNo: String {
     case No = "No"
     case Yes = "Yes"
 }
-
 
 class PreferenceManager: NSObject {
     
@@ -90,9 +96,9 @@ class PreferenceManager: NSObject {
     }
     
     /**
-     Send a message to delegate subscriber to call doConnectRadio() method
-     using the radio's serial number.
-     - parameter serialNumber: String
+        Send a message to delegate subscriber to call doConnectRadio() method
+        using the radio's serial number.
+        - parameter serialNumber: String
      */
     @objc func connectToRadio(serialNumber: String){
         
