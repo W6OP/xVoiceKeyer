@@ -20,10 +20,12 @@ internal class AudioManager: NSObject {
         //txAudioStream = TxAudioStream()
     }
     
-    // When one of the buttons on the main form is clicked its tag will be sent.
-    // Retrieve the file from the user preferences that matches this tag and
-    // pass it on the the method that will load the file and send it to the radio
-    // TODO: add code for multiple profiles
+    /**
+        Retrieve the file from the user preferences that matches this buttonNumber (tag).
+        Pass it on the the method that will load the file and send it to the radio
+        - parameter buttonNumber: the tag associated with the button
+        - returns: PCM encoded audio as an array of floats
+     */
     internal func selectAudioFile(buttonNumber: Int) -> [Float] {
         var floatArray = [Float]()
         let fileManager = FileManager.default
@@ -71,7 +73,14 @@ internal class AudioManager: NSObject {
     
     // read an audio file and convert it to PCM
     // https://stackoverflow.com/questions/34751294/how-can-i-generate-an-array-of-floats-from-an-audio-file-in-swift
+    
+    /**
+     Read an audio file from disk and convert it to PCM.
+     - parameter filePath: path to the file to be converted
+     - returns: array of floats
+     */
     func convertToPCM(filePath: String) -> [Float] {
+        
         var floatArray = [Float]()
         
         let url = URL(fileURLWithPath: filePath) //Bundle.main.url(forResource: filePath, withExtension: "wav")

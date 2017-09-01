@@ -570,9 +570,12 @@ internal class RadioManager: NSObject {
     // MARK: Transmit methods
     
     func keyRadio(doTransmit: Bool) {
-//        let radioIsKeyed: ReplyHandler = radio?.transmitSet(true, callback: ReplyHandler) {
-//            
-//        }
+        
+        var txAudioStream = radio?.txAudioStreamCreate(callback: replyHandler)
+        
+        
+        radio?.transmitSet(true, callback: transmitSetHandler)
+        
         
         radio?.transmitSet(doTransmit) { (result) -> () in
             // do stuff with the result
@@ -586,6 +589,13 @@ internal class RadioManager: NSObject {
     
     }
     
+    func replyHandler(_ command: String, seqNum: String, responseValue: String, reply: String) {
+        
+    }
+    
+    func transmitSetHandler(_ command: String, seqNum: String, responseValue: String, reply: String) {
+        
+    }
     
     // ----------------------------------------------------------------------------
     // MARK: - Observation methods

@@ -107,17 +107,19 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         floatArray = audiomanager.selectAudioFile(buttonNumber: buttonNumber)
         
         
-        print("floatArray \(floatArray)\n")
+        //print("floatArray \(floatArray)\n")
         
-        //if floatArray.co==
+        if floatArray.count > 0 {
+            
+        }
         
-        //        let tag: Int = sender.tag
-        //
-        //        if tag == 1 {
-        //            radioManager.keyRadio(doTransmit: true)
-        //        } else {
-        //            radioManager.keyRadio(doTransmit: false)
-        //        }
+        let tag: Int = buttonNumber
+
+        if tag == 1 {
+           radioManager.keyRadio(doTransmit: true)
+        } else {
+            radioManager.keyRadio(doTransmit: false)
+        }
 
     }
     
