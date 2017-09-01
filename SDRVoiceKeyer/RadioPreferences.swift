@@ -1,3 +1,33 @@
+/**
+ * Copyright (c) 2017 W6OP
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * Notwithstanding the foregoing, you may not use, copy, modify, merge, publish,
+ * distribute, sublicense, create a derivative work, and/or sell copies of the
+ * Software in any work that is designed, intended, or marketed for pedagogical or
+ * instructional purposes related to programming, coding, application development,
+ * or information technology.  Permission for such use, copying, modification,
+ * merger, publication, distribution, sublicensing, creation of derivative works,
+ * or sale is expressly withheld.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 //
 //  RadioPreferences.swift
 //  SDRVoiceKeyer
@@ -12,14 +42,14 @@ import Cocoa
 // the audio files they want to use for the voice keyer.
 class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDelegate {
 
+    
     // class variables
     var preferenceManager: PreferenceManager!
    
-    
     // Array of available Radios
     var availableRadios = [(model: String, nickname: String, ipAddress: String, default: String)]()
     private var defaultRadio = (model: "", nickname: "", ipAddress: "", default: "")
-    private var radioKey = [String : String]()
+    private let radioKey = "defaultRadio"
     private var isDefaultSet = false
     
     // MARK: outlets
@@ -27,11 +57,18 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
     @IBOutlet weak var buttonDefaultControl: NSButton!
     @IBOutlet weak var buttonConnectControl: NSButton!
     
-     // MARK: actions
+    // MARK: actions
+    
+    /**
+        Close this view.
+     */
     @IBAction func buttonOk(_ sender: Any) {
         self.dismiss(self)
     }
     
+    /**
+        Save the default radio and reload the tableview.
+     */
     @IBAction func buttonDefault(_ sender: Any) {
         
         isDefaultSet = true
@@ -41,16 +78,19 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
         tableViewRadioPicker.reloadData()
     }
     
-    // connect the radio in the main view controller by caling delegate in preference manager
-    // should be able to connect to any radio
+    /**
+        Connect the radio in the main view controller by calling delegate in preference manager.
+     */
     @IBAction func buttonConnect(_ sender: NSButton) {
-        if defaultRadio.default == "Yes" {
+        if defaultRadio.default == YesNo.Yes.rawValue {
             self.dismiss(self)
             preferenceManager.connectToRadio(serialNumber: defaultRadio.nickname)
         }
     }
     
-    // find the correct field using the tag value and populate it
+    /**
+        Find the correct field using the tag value and populate it.
+     */
     @IBAction func loadFileNameClicked(_ sender: NSButton) {
         
         let filePath = preferenceManager.getFilePath()
@@ -67,7 +107,10 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
     
     // MARK: generated code
     
-    // retrive the user defaults when the view is loaded
+    /**
+        Retrieve the user settings when the view loads.
+        Set the datasource and delegate for the tableview.
+     */
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -81,15 +124,19 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
   
     }
     
-    // save the user defaults when the view is closed
+    /**
+        Save the user defaults when the view is closed.
+     */
     override func viewWillDisappear() {
         
         isDefaultSet = false // don't save radio on exit
         saveUserDefaults()
     }
     
-    // retrieve the user defaults and populate the correct fields
-    // TODO: account for multiple profiles
+    /**
+        Retrieve the user settings. File paths and the default radio.
+        Populate the fields and the tableview
+     */
     func retrieveUserDefaults() {
         
         let allTextField = findTextfield(view: self.view)
@@ -102,7 +149,7 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
             }
         }
         
-        if let def = UserDefaults.standard.dictionary(forKey: "defaultRadio") {
+        if let def = UserDefaults.standard.dictionary(forKey: radioKey) {
             self.defaultRadio.model = def["model"] as! String
             self.defaultRadio.nickname = def["nickname"] as! String
             self.defaultRadio.ipAddress = def["ipAddress"] as! String
@@ -111,9 +158,9 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
         
         for i in 0..<availableRadios.count {
             if availableRadios[i].nickname == defaultRadio.nickname && availableRadios[i].model == defaultRadio.model {
-                availableRadios[i].default = "Yes"
+                availableRadios[i].default = YesNo.Yes.rawValue
             } else {
-                availableRadios[i].default = "No"
+                availableRadios[i].default = YesNo.No.rawValue
             }
         }
         
@@ -121,7 +168,9 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
         
     }
     
-    // persist the user defaults
+    /**
+        Persist the user settings. File paths and the default radio.
+     */
     func saveUserDefaults() {
         
         let allTextField = findTextfield(view: self.view)
@@ -139,22 +188,25 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
             def["model"] = defaultRadio.model
             def["nickname"] = defaultRadio.nickname
             def["ipAddress"] = defaultRadio.ipAddress
-            def["default"] = "Yes"
+            def["default"] = YesNo.Yes.rawValue
             
-            UserDefaults.standard.set(def, forKey: "defaultRadio")
+            UserDefaults.standard.set(def, forKey: radioKey)
             
             for i in 0..<availableRadios.count {
                 if availableRadios[i].nickname == defaultRadio.nickname && availableRadios[i].model == defaultRadio.model {
-                    availableRadios[i].default = "Yes"
+                    availableRadios[i].default = YesNo.Yes.rawValue
                 } else {
-                    availableRadios[i].default = "No"
+                    availableRadios[i].default = YesNo.No.rawValue
                 }
             }
         }
     }
     
     
-    // collect all the textfields from view and subview
+    /**
+        Collect all the textfields from view and subviews
+        - parameter view: - the view to search
+     */
     func findTextfield(view: NSView) -> [NSTextField] {
         
         var results = [NSTextField]()
@@ -173,11 +225,11 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
     // ----------------------------------------------------------------------------
     // MARK: - NSTableView DataSource methods
     
-    /// Tableview numberOfRows delegate method
-    ///
-    /// - Parameter aTableView: the Tableview
-    /// - Returns: number of rows
-    ///
+    /**
+        Tableview numberOfRows delegate method.
+        - parameter aTableView: the Tableview
+        - returns: number of rows
+     */
     func numberOfRows(in aTableView: NSTableView) -> Int {
         
         // get the number of rows
@@ -188,7 +240,7 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
     // ----------------------------------------------------------------------------
     // MARK: - NSTableView Delegate methods
     
-    /// Tableview view delegate method
+    ///
     ///
     /// - Parameters:
     ///   - tableView: the Tableview
@@ -197,6 +249,12 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
     /// - Returns: an NSView
     ///
     
+    /**
+     Tableview view delegate method.
+     - parameter tableView: a Tableview
+     - parameter tableColumn: a tableColumn
+     - returns: an NSView
+     */
     func tableView(_ tableView: NSTableView, objectValueFor tableColumn: NSTableColumn?, row: Int) -> Any? {
         
         var result = ""
@@ -225,6 +283,10 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
 //        
 //    }
     
+    /**
+        Tableview view selection change method. Enable the buttons on the view.
+        - parameter notification: a notification
+     */
     func tableViewSelectionDidChange(_ notification: Notification) {
         
         if (notification.object as? NSTableView) != nil {

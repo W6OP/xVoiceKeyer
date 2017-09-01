@@ -57,9 +57,17 @@ protocol PreferenceManagerDelegate: class {
     func doConnectRadio(nickname: String)
 }
 
+enum YesNo: String {
+    case No = "No"
+    case Yes = "Yes"
+}
+
+
 class PreferenceManager: NSObject {
     
-    // delegate to pass messages back to viewcontroller
+    /**
+        Delegate to pass messages back to viewcontroller.
+     */
     var preferenceManagerDelegate:PreferenceManagerDelegate?
     
     // TODO: Make sure exception handling works
@@ -67,7 +75,10 @@ class PreferenceManager: NSObject {
         super.init()
     }
     
-    // get the file path from the selected item
+    /**
+        Get the file path from the selected item.
+        - returns: String
+     */
     internal func getFilePath() -> String {
         var filePath = ""
         
@@ -78,7 +89,11 @@ class PreferenceManager: NSObject {
         return filePath
     }
     
-    
+    /**
+     Send a message to delegate subscriber to call doConnectRadio() method
+     using the radio's serial number.
+     - parameter serialNumber: String
+     */
     @objc func connectToRadio(serialNumber: String){
         
         self.preferenceManagerDelegate?.doConnectRadio(nickname: serialNumber)

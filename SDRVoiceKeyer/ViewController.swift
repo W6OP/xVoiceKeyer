@@ -27,6 +27,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 //
 //  MainViewController.swift
 //  SDRVoiceKeyer
@@ -149,23 +150,12 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
             // FOR DEBUG: delete user defaults
             //UserDefaults.standard.set(nil, forKey: "defaultRadio")
             
-            if let def = UserDefaults.standard.dictionary(forKey: "defaultRadio") {
+        if let def = UserDefaults.standard.dictionary(forKey: "defaultRadio") {
                 self.defaultRadio.model = def["model"] as! String
                 self.defaultRadio.nickname = def["nickname"] as! String
                 self.defaultRadio.ipAddress = def["ipAddress"] as! String
                 self.defaultRadio.default = def["default"] as! String
             }
-            
-            
-//            let radioDefault = UserDefaults.standard.object(forKey: "defaultRadio") as? [String: String] ?? [String: String]()
-//            
-//            //if let result = UserDefaults.standard.value(forKey: "defaultRadio") {
-//            if radioDefault.count > 0 {
-//                self.defaultRadio.model = radioDefault["model"]!
-//                self.defaultRadio.nickname = radioDefault["nickname"]!
-//                self.defaultRadio.ipAddress = radioDefault["ipAddress"]!
-//                self.defaultRadio.default = "Yes"
-//            }
             
             switch discoveredRadios.count {
                 case 1:
@@ -186,7 +176,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
                 default:
                     if self.defaultRadio.nickname != "" {
                         for radio in discoveredRadios {
-                            if self.defaultRadio.nickname == radio.nickname && self.defaultRadio.default == "Yes" {
+                            if self.defaultRadio.nickname == radio.nickname && self.defaultRadio.default == YesNo.Yes.rawValue {
                                 found = true
                                 
                                 // could have the same nickname but model or ipaddress may have change
