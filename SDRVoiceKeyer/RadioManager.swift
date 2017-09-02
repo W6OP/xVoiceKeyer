@@ -588,7 +588,7 @@ internal class RadioManager: NSObject {
     
     func keyRadio(doTransmit: Bool) {
         
-        var txAudioStream = radio?.txAudioStreamCreate(callback: replyHandler)
+        //var txAudioStream = radio?.txAudioStreamCreate(callback: replyHandler)
         
         
         radio?.transmitSet(true, callback: transmitSetHandler)
@@ -652,6 +652,7 @@ internal class RadioManager: NSObject {
         guard responseValue == "0" else {
             // Anything other than 0 is an error, log it and ignore the Reply
 //            _log.message(#function + " - \(responseValue)", level: .error, source: kModule)
+            print("StreamId response: \(responseValue)")
             os_log("Error requesting tx audio stream ID.", log: RadioManager.model_log, type: .error)
             return
         }
@@ -733,7 +734,7 @@ internal class RadioManager: NSObject {
                 //DispatchQueue.main.async { [unowned self] in
                     
                     switch kp {
-                    case #keyPath(Radio.headphoneGain):
+                    case #keyPath(Radio.txAudioStreams):
 //                        self._mainWindowController?.headphoneGain.integerValue = ch[.newKey] as! Int
                         break
                     case #keyPath(Radio.headphoneMute):
