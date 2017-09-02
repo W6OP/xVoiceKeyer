@@ -154,13 +154,13 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
                         
                         // could have the same nickname but model or ipaddress may have changed
                         self.defaultRadio.model = discoveredRadios[0].model
-                        self.defaultRadio.serialNumber = discoveredRadios[0].serialNumber
+                        self.defaultRadio.nickname = discoveredRadios[0].nickname
                         self.defaultRadio.ipAddress = discoveredRadios[0].ipAddress
                         
                         self.updateUserDefaults()
-                        
+                        //print("nickname \(self.defaultRadio.nickname)")
                         self.serialNumberLabel.stringValue = self.defaultRadio.nickname
-                        self.doConnectRadio(serialNumber: self.defaultRadio.nickname)
+                        self.doConnectRadio(serialNumber: self.defaultRadio.serialNumber)
                     }
                     else{
                         self.showPreferences("" as AnyObject)
@@ -174,11 +174,11 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
                                 
                                 // could have the same nickname but model or ipaddress may have change
                                 self.defaultRadio.model = radio.model
-                                self.defaultRadio.serialNumber = radio.serialNumber
+                                self.defaultRadio.nickname = radio.nickname
                                 self.defaultRadio.ipAddress = radio.ipAddress
                                 
                                 self.updateUserDefaults()
-
+                                //print("nickname \(self.defaultRadio.nickname)")
                                 self.serialNumberLabel.stringValue = self.defaultRadio.nickname
                                 self.doConnectRadio(serialNumber: self.defaultRadio.serialNumber)
                                 
