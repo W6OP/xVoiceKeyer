@@ -14,7 +14,6 @@
 		996AC07E1E4E3D4800C20AA8 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 996AC07D1E4E3D4800C20AA8 /* ViewController.swift */; };
 		996AC0801E4E3D4800C20AA8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 996AC07F1E4E3D4800C20AA8 /* Assets.xcassets */; };
 		996AC0831E4E3D4800C20AA8 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 996AC0811E4E3D4800C20AA8 /* Main.storyboard */; };
-		99B9C76F1E50EC7100772B91 /* RadioManagerOld.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B9C76E1E50EC7100772B91 /* RadioManagerOld.swift */; };
 		99C211031F297279003B47F1 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 99C211021F297279003B47F1 /* LICENSE */; };
 		99D64A2F1E5B9BEB0053ED1F /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D64A2E1E5B9BEB0053ED1F /* AudioManager.swift */; };
 		99EC95A21F1523B100E539E8 /* RadioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99EC95A11F1523B100E539E8 /* RadioManager.swift */; };
@@ -30,7 +29,6 @@
 		996AC07F1E4E3D4800C20AA8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		996AC0821E4E3D4800C20AA8 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		996AC0841E4E3D4800C20AA8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		99B9C76E1E50EC7100772B91 /* RadioManagerOld.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadioManagerOld.swift; sourceTree = "<group>"; };
 		99C211021F297279003B47F1 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		99D64A2E1E5B9BEB0053ED1F /* AudioManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioManager.swift; sourceTree = "<group>"; };
 		99EC95A11F1523B100E539E8 /* RadioManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadioManager.swift; sourceTree = "<group>"; };
@@ -77,7 +75,6 @@
 				99217D511E5D02A50042C787 /* RadioPreferences.swift */,
 				993D1E681E5F811D00BB5236 /* PreferenceManager.swift */,
 				99EC95A11F1523B100E539E8 /* RadioManager.swift */,
-				99B9C76E1E50EC7100772B91 /* RadioManagerOld.swift */,
 				99C211021F297279003B47F1 /* LICENSE */,
 			);
 			path = SDRVoiceKeyer;
@@ -168,7 +165,6 @@
 				996AC07E1E4E3D4800C20AA8 /* ViewController.swift in Sources */,
 				99217D521E5D02A50042C787 /* RadioPreferences.swift in Sources */,
 				99D64A2F1E5B9BEB0053ED1F /* AudioManager.swift in Sources */,
-				99B9C76F1E50EC7100772B91 /* RadioManagerOld.swift in Sources */,
 				996AC07C1E4E3D4800C20AA8 /* AppDelegate.swift in Sources */,
 				993D1E691E5F811D00BB5236 /* PreferenceManager.swift in Sources */,
 			);

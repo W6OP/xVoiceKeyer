@@ -46,7 +46,7 @@ import os
 // implement in your viewcontroller to receive messages from the radio manager
 protocol RadioManagerDelegate: class {
     // radio was discovered
-    func didDiscoverRadio(discoveredRadios: [(model: String, nickname: String, ipAddress: String, default: String)])
+    func didDiscoverRadio(discoveredRadios: [(model: String, nickname: String, ipAddress: String, default: String, serialNumber: String)])
     // notify the GUI the tcp connection to the radio was successful
     func didConnectToRadio()
     // notify the GUI the tcp connection to the radio was closed
@@ -186,7 +186,7 @@ internal class RadioManager: NSObject {
     // MARK: - Internal properties
     
     // list of serial numbers of discovered radios
-    var discoveredRadios: [(model: String, nickname: String, ipAddress: String, default: String)]
+    var discoveredRadios: [(model: String, nickname: String, ipAddress: String, default: String, serialNumber: String)]
     
     var availableSlices: [Int : SliceInfo]
     
@@ -263,7 +263,7 @@ internal class RadioManager: NSObject {
         
         availableSlices = [Int : SliceInfo]()
         availableRadios = [RadioParameters]()
-        discoveredRadios = [(model: String, nickname: String, ipAddress: String, default: String)]()
+        discoveredRadios = [(model: String, nickname: String, ipAddress: String, default: String, serialNumber: String)]()
         
         
         os_log("Initializing the RadioFactory.", log: RadioManager.model_log, type: .info)
@@ -297,11 +297,6 @@ internal class RadioManager: NSObject {
                        object:nil, queue:nil,
                        using:tcpDidDisconnect)
         
-        // a Meter was Added
-//        nc.addObserver(forName:Notification.Name(rawValue:"meterHasBeenAdded"),
-//                       object:nil, queue:nil,
-//                       using:meterHasBeenAdded)
-        
         // Radio Initialized
         nc.addObserver(forName:Notification.Name(rawValue:"radioInitialized"),
                        object:nil, queue:nil,
@@ -312,10 +307,18 @@ internal class RadioManager: NSObject {
                        object:nil, queue:nil,
                        using:radiosAvailable)
         
-        // an Opus was Added
-        nc.addObserver(forName:Notification.Name(rawValue:"opusHasBeenAdded"),
+        // Audio stream added
+        nc.addObserver(forName:Notification.Name(rawValue:"txAudioStreamHasBeenAdded"),
                        object:nil, queue:nil,
-                       using:opusHasBeenAdded)
+                       using:radiosAvailable)
+        
+        // Audio stream removed
+        nc.addObserver(forName:Notification.Name(rawValue:"txAudioStreamWillBeRemoved"),
+                       object:nil, queue:nil,
+                       using:radiosAvailable)
+        
+        //NC.makeObserver(self, with: #selector(txAudioStreamInitialized(_:)), of: .txAudioStreamHasBeenAdded, object: nil)
+        //NC.makeObserver(self, with: #selector(txAudioStreamRemoved(_:)), of: .txAudioStreamWillBeRemoved, object: nil)
         
         nc.addObserver(forName:Notification.Name(rawValue:"sliceHasBeenAdded"),
                        object:nil, queue:nil,
@@ -326,7 +329,10 @@ internal class RadioManager: NSObject {
                        using:sliceWillBeRemoved)
     }
     
-    // discovered at least one radio
+    
+    /**
+        Notification that one or more radios were discovered.
+     */
     @objc fileprivate func radiosAvailable(_ note: Notification) {
         
         DispatchQueue.main.async {
@@ -340,14 +346,9 @@ internal class RadioManager: NSObject {
                 for item in self.availableRadios {
                     // only add new radios
                     if !self.discoveredRadios.contains(where: { $0.nickname == item.nickname! }) {
-                        self.discoveredRadios.append((item.model, item.nickname!, item.ipAddress, "No"))
+                        self.discoveredRadios.append((item.model, item.nickname!, item.ipAddress, "No", item.serialNumber))
                         
-                        
-                        // TODO: DELETE
-                        // for debugging to test disconnect/reconnect
-                        self.discoveredRadios.append(("FLEX-6700", item.nickname!, item.ipAddress, "No"))
-                        
-//                        // let the view controller know a radio was discovered
+                        // let the view controller know a radio was discovered
                         self.radioManagerDelegate?.didDiscoverRadio(discoveredRadios: self.discoveredRadios)
                     }
                 }
@@ -427,11 +428,11 @@ internal class RadioManager: NSObject {
         
     }
     
-    /// Process a newly added Opus
+    /// Process a newly added Audio stream
     ///
     /// - Parameter note: a Notification instance
     ///
-    @objc fileprivate func opusHasBeenAdded(_ note: Notification) {
+    @objc fileprivate func txAudioStreamHasBeenAdded(_ note: Notification) {
         
         // the Opus class has been initialized
 //        if let opus = note.object as? Opus {
@@ -443,6 +444,21 @@ internal class RadioManager: NSObject {
 //            }
 //        }
     }
+    
+    @objc fileprivate func txAudioStreamWillBeRemoved(_ note: Notification) {
+        
+        // the Opus class has been initialized
+//        if let slice = note.object as? xLib6000.Slice {
+//            print (slice.id)
+//            //
+//            //            DispatchQueue.main.async { [unowned self] in
+//            //
+//            //                // add Opus property observations
+//            //                self.observations(opus, paths: self._opusKeyPaths)
+//            //            }
+//        }
+    }
+
     
     /// Process a newly added Slice - when the radio first starts up you will get a
     /// notification for each slice that exists
@@ -571,7 +587,7 @@ internal class RadioManager: NSObject {
     
     func keyRadio(doTransmit: Bool) {
         
-        var txAudioStream = radio?.txAudioStreamCreate(callback: replyHandler)
+        //var txAudioStream = radio?.txAudioStreamCreate(callback: replyHandler)
         
         
         radio?.transmitSet(true, callback: transmitSetHandler)
@@ -590,11 +606,11 @@ internal class RadioManager: NSObject {
     }
     
     func replyHandler(_ command: String, seqNum: String, responseValue: String, reply: String) {
-        
+        print(responseValue)
     }
     
     func transmitSetHandler(_ command: String, seqNum: String, responseValue: String, reply: String) {
-        
+        print(responseValue)
     }
     
     // ----------------------------------------------------------------------------
@@ -611,11 +627,12 @@ internal class RadioManager: NSObject {
         
         // for each KeyPath Add / Remove observations
         for keyPath in paths {
-            
-            //            print("\(remove ? "Remove" : "Add   ") \(object.className):\(keyPath) in " + kModule)
-            
-            if remove { object.removeObserver(self, forKeyPath: keyPath, context: nil) }
-            else { object.addObserver(self, forKeyPath: keyPath, options: [.initial, .new], context: nil) }
+            if remove {
+                object.removeObserver(self, forKeyPath: keyPath, context: nil)
+            }
+            else {
+                object.addObserver(self, forKeyPath: keyPath, options: [.initial, .new], context: nil)
+            }
         }
     }
     
@@ -637,13 +654,6 @@ internal class RadioManager: NSObject {
                 //DispatchQueue.main.async { [unowned self] in
                     
                     switch kp {
-                        
-//                    case #keyPath(Radio.lineoutGain):
-//                        //self._mainWindowController?.lineoutGain.integerValue = ch[.newKey] as! Int
-//                        break
-//                    case #keyPath(Radio.lineoutMute):
-////                        self._mainWindowController?.lineoutMute.state = (ch[.newKey] as! Bool) ? NSControl.StateValue.onState : NSControl.StateValue.offState
-//                        break
                     case #keyPath(Radio.headphoneGain):
 //                        self._mainWindowController?.headphoneGain.integerValue = ch[.newKey] as! Int
                         break

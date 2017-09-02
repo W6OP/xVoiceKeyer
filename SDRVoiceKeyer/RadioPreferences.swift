@@ -47,8 +47,8 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
     var preferenceManager: PreferenceManager!
    
     // Array of available Radios
-    var availableRadios = [(model: String, nickname: String, ipAddress: String, default: String)]()
-    private var defaultRadio = (model: "", nickname: "", ipAddress: "", default: "")
+    var availableRadios = [(model: String, nickname: String, ipAddress: String, default: String, serialNumber: String)]()
+    private var defaultRadio = (model: "", nickname: "", ipAddress: "", default: "", serialNumber: "")
     private let radioKey = "defaultRadio"
     private var isDefaultSet = false
     
@@ -154,6 +154,7 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
             self.defaultRadio.nickname = def["nickname"] as! String
             self.defaultRadio.ipAddress = def["ipAddress"] as! String
             self.defaultRadio.default = def["default"] as! String
+            self.defaultRadio.default = def["serialNumber"] as! String
         }
         
         for i in 0..<availableRadios.count {
@@ -189,6 +190,7 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
             def["nickname"] = defaultRadio.nickname
             def["ipAddress"] = defaultRadio.ipAddress
             def["default"] = YesNo.Yes.rawValue
+            def["serialNumber"] = defaultRadio.serialNumber
             
             UserDefaults.standard.set(def, forKey: radioKey)
             

@@ -61,7 +61,7 @@ extension NSOpenPanel {
  */
 protocol PreferenceManagerDelegate: class {
     // radio was discovered
-    func doConnectRadio(nickname: String)
+    func doConnectRadio(serialNumber: String)
 }
 
 enum YesNo: String {
@@ -102,7 +102,7 @@ class PreferenceManager: NSObject {
      */
     @objc func connectToRadio(serialNumber: String){
         
-        self.preferenceManagerDelegate?.doConnectRadio(nickname: serialNumber)
+        self.preferenceManagerDelegate?.doConnectRadio(serialNumber: serialNumber)
         
     }
 
