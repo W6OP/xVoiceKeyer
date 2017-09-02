@@ -587,7 +587,7 @@ internal class RadioManager: NSObject {
     
     func keyRadio(doTransmit: Bool) {
         
-        //var txAudioStream = radio?.txAudioStreamCreate(callback: replyHandler)
+        var txAudioStream = radio?.txAudioStreamCreate(callback: replyHandler)
         
         
         radio?.transmitSet(true, callback: transmitSetHandler)
