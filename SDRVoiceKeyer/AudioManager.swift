@@ -8,7 +8,6 @@
 
 import Cocoa
 import AVFoundation
-//import xFlexAPI
 
 internal class AudioManager: NSObject {
     

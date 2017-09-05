@@ -590,12 +590,16 @@ internal class RadioManager: NSObject {
         
         //var txAudioStream = radio?.txAudioStreamCreate(callback: replyHandler)
         
+        createTxAudioStream()
+        //radio?.transmitSet(true, callback: transmitSetHandler)
         
-        radio?.transmitSet(true, callback: transmitSetHandler)
         
         
         radio?.transmitSet(doTransmit) { (result) -> () in
             // do stuff with the result
+            if doTransmit  {
+                self.createTxAudioStream()
+            }
             print(result)
         }
         
@@ -653,6 +657,8 @@ internal class RadioManager: NSObject {
             // Anything other than 0 is an error, log it and ignore the Reply
 //            _log.message(#function + " - \(responseValue)", level: .error, source: kModule)
             print("StreamId response: \(responseValue)")
+            let errorString = FlexErrors(rawString: responseValue).description()
+            print("StreamId response: \(errorString)")
             os_log("Error requesting tx audio stream ID.", log: RadioManager.model_log, type: .error)
             return
         }
