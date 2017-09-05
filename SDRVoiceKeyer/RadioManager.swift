@@ -34,7 +34,7 @@
 //  Created by Peter Bourget on 7/11/17.
 //  Copyright © 2017 Peter Bourget. All rights reserved.
 //
-// Description: This is a wrapper for the xFlexAPI framework written by Doug Adams K3TZR
+// Description: This is a wrapper for the xLib6000 framework written by Doug Adams K3TZR
 // The purpose is to simplify the interface into the API and allow the GUI to function
 // without a reference to the API or even knowledge of the API.
 
@@ -281,7 +281,7 @@ internal class RadioManager: NSObject {
     // ----------------------------------------------------------------------------
     // MARK: - Notification Methods
     
-    /// Add subscriptions to Notifications from the xFlexAPI
+    /// Add subscriptions to Notifications from the xLib6000 API
     ///
     fileprivate func addNotificationListeners() {
         
@@ -373,7 +373,7 @@ internal class RadioManager: NSObject {
         // let the view controller know a radio was connected
         self.radioManagerDelegate?.didConnectToRadio()
         
-        createTxAudioStream()
+        //createTxAudioStream()
     }
     
     /// Process .tcpDidDisconnect Notification
@@ -478,7 +478,7 @@ internal class RadioManager: NSObject {
              sliceInfo.populateSliceInfo(sliceId: Int(slice.id)!, mode: slice.mode, isActiveSlice: slice.active, txEnabled: slice.txEnabled)
 //            //let sliceInfo = SliceInfo(sliceId: Int(slice.id)!, mode: slice.mode, isActiveSlice: slice.active, txEnabled: slice.txEnabled)
 //            
-//            print ("sliceInfo: \(sliceInfo.sliceId)")
+            print ("sliceInfo: \(sliceInfo.sliceId)")
             
             availableSlices[sliceInfo.sliceId] = sliceInfo
             
@@ -590,7 +590,7 @@ internal class RadioManager: NSObject {
         
         //var txAudioStream = radio?.txAudioStreamCreate(callback: replyHandler)
         
-        createTxAudioStream()
+        //createTxAudioStream()
         //radio?.transmitSet(true, callback: transmitSetHandler)
         
         
