@@ -405,7 +405,7 @@ internal class RadioManager: NSObject {
             os_log("The Radio has been initialized.", log: RadioManager.model_log, type: .info)
             DispatchQueue.main.async { [unowned self] in
                 print (radio.slices.count)
-                self.updateRadio()
+                //self.updateRadio()
                 // use delegate to pass message to view controller ??
                 // or use the radio available ??
             }
@@ -566,7 +566,7 @@ internal class RadioManager: NSObject {
             radio = Radio(radioParameters: selectedRadio!, clientName: clientName, isGui: false)
             
             // start a connection to the Radio
-            if !radio!.connect(selectedRadio: selectedRadio!) {
+            if !radio!.connect(selectedRadio: selectedRadio!, primaryCommands: [.allPrimary], secondaryCommands: [.allSecondary], subscriptionCommands: [.allSubscription]) {
                 // connect failed, log the error and return
                 os_log("Connection to the Radio failed.", log: RadioManager.model_log, type: .error)
                 return false
