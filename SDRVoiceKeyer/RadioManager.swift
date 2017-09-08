@@ -287,12 +287,12 @@ internal class RadioManager: NSObject {
         
         // Initial TCP Connection opened
         let nc = NotificationCenter.default
-        nc.addObserver(forName:Notification.Name(rawValue:"tcpDidConnect"),
+        nc.addObserver(forName:Notification.Name(rawValue:"clientDidConnect"),
                        object:nil, queue:nil,
                        using:tcpDidConnect)
         
         // TCP Connection disconnect
-        nc.addObserver(forName:Notification.Name(rawValue:"tcpDidDisconnect"),
+        nc.addObserver(forName:Notification.Name(rawValue:"clientDidDisconnect"),
                        object:nil, queue:nil,
                        using:tcpDidDisconnect)
         
@@ -373,7 +373,7 @@ internal class RadioManager: NSObject {
         // let the view controller know a radio was connected
         self.radioManagerDelegate?.didConnectToRadio()
         
-        //createTxAudioStream()
+        createTxAudioStream()
     }
     
     /// Process .tcpDidDisconnect Notification
