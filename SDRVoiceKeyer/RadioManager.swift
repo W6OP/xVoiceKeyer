@@ -591,22 +591,28 @@ internal class RadioManager: NSObject {
         //var txAudioStream = radio?.txAudioStreamCreate(callback: replyHandler)
         
         //createTxAudioStream()
-        //radio?.transmitSet(true, callback: transmitSetHandler)
+        radio?.transmitSet(true, callback: transmitSetHandler)
         
         
         
         radio?.transmitSet(doTransmit) { (result) -> () in
             // do stuff with the result
             if doTransmit  {
+                
+                // GET the daxEnabled status and preserve it
+                // SET the daxEnabled status to true (enabled)
+                
                 self.createTxAudioStream()
             }
             print(result)
         }
         
-//        radio?.transmitSet(false) { (result) -> () in
-//            // do stuff with the result
-//            print(result)
-//        }
+        radio?.transmitSet(false) { (result) -> () in
+            // RESET the daxEnabled status to its persisted value
+            
+            // do stuff with the result
+            print(result)
+        }
     
     }
     
@@ -633,6 +639,7 @@ internal class RadioManager: NSObject {
         if let check = radio?.txAudioStreamCreate(callback: updateTxStreamId) {
             if check {
                 txAudioStreamRequested = true
+                os_log("TX audio stream created.", log: RadioManager.model_log, type: .info)
             } else {
                 os_log("Error requesting tx audio stream.", log: RadioManager.model_log, type: .error)
 //                _log.message("Error requesting tx audio stream", level: .error, source: kModule)
@@ -678,25 +685,26 @@ internal class RadioManager: NSObject {
         
         // now check if we already have this stream in the radio object
         if let stream = radio?.txAudioStreams[self.txAudioStreamId] {
-            
-            //initializeTxAudioStream(stream)
+            initializeTxAudioStream(stream)
         }
     }
-//
-//    private func initializeTxAudioStream(_ txAudioStream: TxAudioStream) {
-//        
-////        _log.message("txAudioStreamInitialized: " + txAudioStream.id, level: .info, source: kModule)
-//        
-//        // TODO: explore the dax tx handling
-//        txAudioStream.transmit = _txAudioActive
-//        
-//        // start soundcard
-//        //self.txInputSoundcard?.start()
-//        
-//        self.txAudioStream = txAudioStream
-//        
-//        self.txAudioStreamRequested = false
-//    }
+
+    var txAudioStream: TxAudioStream
+    
+    private func initializeTxAudioStream(_ txAudioStream: TxAudioStream) {
+        
+//        _log.message("txAudioStreamInitialized: " + txAudioStream.id, level: .info, source: kModule)
+        
+        // TODO: explore the dax tx handling
+        txAudioStream.transmit = true //txAudioActive
+        
+        // start soundcard
+        //self.txInputSoundcard?.start()
+        
+        self.txAudioStream = txAudioStream
+        
+        self.txAudioStreamRequested = false
+    }
 
     
     // ----------------------------------------------------------------------------
