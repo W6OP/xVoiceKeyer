@@ -117,6 +117,8 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
             } else {
                 radioManager.keyRadio(doTransmit: false)
             }
+        } else {
+            radioManager.keyRadio(doTransmit: false)
         }
         
         

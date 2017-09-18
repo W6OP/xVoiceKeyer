@@ -621,14 +621,14 @@ internal class RadioManager: NSObject {
 //            //print (errorString)
 //            
 //        }
-        
-//        radio?.transmitSet(false) { (result) -> () in
-//            // RESET the daxEnabled status to its persisted value
-//            
-//            // do stuff with the result
-//            print(result)
-//        }
-    
+        if !doTransmit  {
+            radio?.transmitSet(false) { (result) -> () in
+                // RESET the daxEnabled status to its persisted value
+                
+                // do stuff with the result
+                print(result)
+            }
+        }
     }
     
     func sendAudioStreamToRadio(buffer: [Float]) {
@@ -727,7 +727,9 @@ internal class RadioManager: NSObject {
         
         
         radio?.transmitSet(true) { (result) -> () in
-            self.sendAudioStreamToRadio(buffer: self.audioBuffer)
+            //self.sendAudioStreamToRadio(buffer: self.audioBuffer)
+            txAudioStream.txGain = 35
+            let _ = txAudioStream.sendTXAudio(left: self.audioBuffer, right: self.audioBuffer, samples: Int(self.audioBuffer.count))
         }
     }
     
