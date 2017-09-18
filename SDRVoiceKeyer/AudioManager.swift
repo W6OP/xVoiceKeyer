@@ -42,33 +42,33 @@ internal class AudioManager: NSObject {
     
     
     // play the audio file when a button is clicked
-//    func playAudioFile(filePath: String) {
-//        
-//        audioPlayer = AVAudioPlayer()
-//        
-//        let fileManager = FileManager.default
-//        
-//        if(fileManager.fileExists(atPath: filePath))
-//        {
-//            let soundUrl = URL(fileURLWithPath: filePath)
-//            
-//            convertToPCM(filePath: filePath)
-//            return
-//            
-//            // Create audio player object and initialize with URL to sound
-//            do {
-//                self.audioPlayer = try AVAudioPlayer(contentsOf: soundUrl)
-//                audioPlayer.play()
-//            }
-//            catch {
-//                // debug.print
-//                print (" failed ")
-//            }
-//        } else {
-//            // TODO: will want to notify user
-//        }
-//
-//    }
+    func playAudioFile(filePath: String) {
+        
+        audioPlayer = AVAudioPlayer()
+        
+        let fileManager = FileManager.default
+        
+        if(fileManager.fileExists(atPath: filePath))
+        {
+            let soundUrl = URL(fileURLWithPath: filePath)
+            
+            //convertToPCM(filePath: filePath)
+            //return
+            
+            // Create audio player object and initialize with URL to sound
+            do {
+                self.audioPlayer = try AVAudioPlayer(contentsOf: soundUrl)
+                audioPlayer.play()
+            }
+            catch {
+                // debug.print
+                print (" failed ")
+            }
+        } else {
+            // TODO: will want to notify user
+        }
+
+    }
     
     // read an audio file and convert it to PCM
     // https://stackoverflow.com/questions/34751294/how-can-i-generate-an-array-of-floats-from-an-audio-file-in-swift
@@ -84,16 +84,15 @@ internal class AudioManager: NSObject {
         
         let url = URL(fileURLWithPath: filePath) //Bundle.main.url(forResource: filePath, withExtension: "wav")
         let file = try! AVAudioFile(forReading: url)
-        let format = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: file.fileFormat.sampleRate, channels: 1, interleaved: false)
+        let format = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: 24000, channels: 1, interleaved: false) // sampleRate: file.fileFormat.sampleRate
         
-        let buf = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: 1024)
+        let buf = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: 128) // was 1024
         try! file.read(into: buf)
         
-        // this makes a copy, you might not want that
+        // this makes a copy, might not want that
         floatArray = Array(UnsafeBufferPointer(start: buf.floatChannelData?[0], count:Int(buf.frameLength)))
-        //floatArray = UnsafeBufferPointer(start: buf.floatChannelData, count:Int(buf.frameLength))
         
-        //print("floatArray \(floatArray)\n")
+        print("floatArray \(floatArray)\n")
         
         return floatArray
     }

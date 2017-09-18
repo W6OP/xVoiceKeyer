@@ -236,6 +236,14 @@ internal class RadioManager: NSObject {
     fileprivate var availableRadios = [RadioParameters]()          // Array of available Radios
     fileprivate var radioFactory: RadioFactory
     
+    fileprivate var txAudioStreamId: DaxStreamId
+    fileprivate var txAudioStreamRequested = false
+    fileprivate var txAudioStream: TxAudioStream!
+    var audioBuffer = [Float]()
+    
+//    fileprivate let concurrentTxAudioQueue = DispatchQueue(
+//            label: "com.w6op.txAudioQueue", // 1
+//            attributes: .concurrent ) // 2
     // ----------------------------------------------------------------------------
     // MARK: - Observation properties
     
@@ -269,6 +277,10 @@ internal class RadioManager: NSObject {
         
         // start the Radio discovery process
         radioFactory = RadioFactory()
+        
+        txAudioStreamId = DaxStreamId("")
+       
+        //txAudioStream = TxAudioStream(radio!, txAudioStreamId, concurrentTxAudioQueue)
         
         super.init()
         
@@ -309,7 +321,7 @@ internal class RadioManager: NSObject {
         // Audio stream added
         nc.addObserver(forName:Notification.Name(rawValue:"txAudioStreamHasBeenAdded"),
                        object:nil, queue:nil,
-                       using:txAudioStreamHasBeenAdded)
+                       using:txAudioStreamInitialized)
         
         // Audio stream removed
         nc.addObserver(forName:Notification.Name(rawValue:"txAudioStreamWillBeRemoved"),
@@ -373,7 +385,7 @@ internal class RadioManager: NSObject {
         // let the view controller know a radio was connected
         self.radioManagerDelegate?.didConnectToRadio()
         
-        createTxAudioStream()
+        //createTxAudioStream()
     }
     
     /// Process .tcpDidDisconnect Notification
@@ -433,18 +445,18 @@ internal class RadioManager: NSObject {
     ///
     /// - Parameter note: a Notification instance
     ///
-    @objc fileprivate func txAudioStreamHasBeenAdded(_ note: Notification) {
-        
-        // the Opus class has been initialized
-        if let txAudioStream = note.object as? TxAudioStream {
-
-            DispatchQueue.main.async { [unowned self] in
-
-                // add Opus property observations
-                //self.observations(opus, paths: self._opusKeyPaths)
-            }
-        }
-    }
+//    @objc fileprivate func txAudioStreamHasBeenAdded(_ note: Notification) {
+//        
+//        
+//        if let txAudioStream = note.object as? TxAudioStream {
+//
+//            DispatchQueue.main.async { [unowned self] in
+//
+//                // add Opus property observations
+//                //self.observations(opus, paths: self._opusKeyPaths)
+//            }
+//        }
+//    }
     
     @objc fileprivate func txAudioStreamWillBeRemoved(_ note: Notification) {
         
@@ -577,43 +589,53 @@ internal class RadioManager: NSObject {
     }
     
     // ----------------------------------------------------------------------------
-    // MARK: - Audio methods
-    
-//    func selectAudioFile(tag: Int) {
-//        audiomanager.selectAudioFile(buttonNumber: tag)
-//    }
-    
-    // ----------------------------------------------------------------------------
     // MARK: Transmit methods
     
-    func keyRadio(doTransmit: Bool) {
+    
+    func keyRadio(doTransmit: Bool, buffer: [Float]? = nil) {
         
         //var txAudioStream = radio?.txAudioStreamCreate(callback: replyHandler)
-        
         //createTxAudioStream()
-        radio?.transmitSet(true, callback: transmitSetHandler)
+        //radio?.transmitSet(true, callback: transmitSetHandler)
         
-        
-        
-        radio?.transmitSet(doTransmit) { (result) -> () in
-            // do stuff with the result
-            if doTransmit  {
-                
-                // GET the daxEnabled status and preserve it
-                // SET the daxEnabled status to true (enabled)
-                
-                self.createTxAudioStream()
-            }
-            print(result)
+        if doTransmit  {
+            self.audioBuffer = buffer!
+            self.createTxAudioStream()
         }
         
-        radio?.transmitSet(false) { (result) -> () in
-            // RESET the daxEnabled status to its persisted value
-            
-            // do stuff with the result
-            print(result)
-        }
+//        radio?.transmitSet(doTransmit) { (result) -> () in
+//            // do stuff with the result
+//            if doTransmit  {
+//                
+//                // GET the daxEnabled status and preserve it
+//                // SET the daxEnabled status to true (enabled)
+//                
+//                //TODO: make sure buffer has content
+//                self.audioBuffer = buffer!
+//                self.createTxAudioStream()
+//                
+//               
+//            }
+//            //let errorString = FlexErrors(rawString:"50000016").description()
+//            print(result)
+//            //print (errorString)
+//            
+//        }
+        
+//        radio?.transmitSet(false) { (result) -> () in
+//            // RESET the daxEnabled status to its persisted value
+//            
+//            // do stuff with the result
+//            print(result)
+//        }
     
+    }
+    
+    func sendAudioStreamToRadio(buffer: [Float]) {
+        
+        let _ = txAudioStream.sendTXAudio(left: buffer, right: buffer, samples: Int(buffer.count))
+        
+        //keyRadio(doTransmit: false)
     }
     
     func replyHandler(_ command: String, seqNum: String, responseValue: String, reply: String) {
@@ -621,14 +643,13 @@ internal class RadioManager: NSObject {
     }
     
     func transmitSetHandler(_ command: String, seqNum: String, responseValue: String, reply: String) {
-        print(responseValue)
+        print("TransmitSet Handler Called: /(responseValue)")
     }
     
     // ----------------------------------------------------------------------------
     // MARK: - Audio Stream Methods
     
-    var txAudioStreamRequested = false
-    var txAudioStreamId = ""
+
 //    var _txAudioActive = false
 //    var txAudioStream: TxAudioStream
     
@@ -642,7 +663,6 @@ internal class RadioManager: NSObject {
                 os_log("TX audio stream created.", log: RadioManager.model_log, type: .info)
             } else {
                 os_log("Error requesting tx audio stream.", log: RadioManager.model_log, type: .error)
-//                _log.message("Error requesting tx audio stream", level: .error, source: kModule)
                 //_txStreamButton.state = NSOffState
             }
         }
@@ -658,11 +678,8 @@ internal class RadioManager: NSObject {
     ///
     private func updateTxStreamId(_ command: String, seqNum: String, responseValue: String, reply: String) {
         
-//        _log.message("updateTxStreamId(): response value = \(responseValue) reply = \(reply)", level: .debug, source: kModule)
-        
         guard responseValue == "0" else {
             // Anything other than 0 is an error, log it and ignore the Reply
-//            _log.message(#function + " - \(responseValue)", level: .error, source: kModule)
             print("StreamId response: \(responseValue)")
             let errorString = FlexErrors(rawString: responseValue).description()
             print("StreamId response: \(errorString)")
@@ -672,8 +689,7 @@ internal class RadioManager: NSObject {
         
         // check if we have a stream requested
         if !self.txAudioStreamRequested {
-//            _log.message(#function + " - Reply for not requested TX Audio STream",
-               //          level: .warning, source: kModule)
+            os_log("Unsolicited audio stream received.", log: RadioManager.model_log, type: .error)
             return
         }
         
@@ -681,31 +697,64 @@ internal class RadioManager: NSObject {
         let fillCnt = 8 - reply.characters.count
         let fills = (fillCnt > 0 ? String(repeatElement("0", count: fillCnt)) : "")
         
-        self.txAudioStreamId = fills + reply
+        self.txAudioStreamId = DaxStreamId(fills + reply)
+        print (self.txAudioStreamId)
         
-        // now check if we already have this stream in the radio object
+        // now check if we already have this stream in the radio object and initialize if necessary
         if let stream = radio?.txAudioStreams[self.txAudioStreamId] {
             initializeTxAudioStream(stream)
         }
     }
 
-    var txAudioStream: TxAudioStream
+    //var txAudioStream: TxAudioStream
     
     private func initializeTxAudioStream(_ txAudioStream: TxAudioStream) {
         
 //        _log.message("txAudioStreamInitialized: " + txAudioStream.id, level: .info, source: kModule)
-        
-        // TODO: explore the dax tx handling
-        txAudioStream.transmit = true //txAudioActive
+    
         
         // start soundcard
         //self.txInputSoundcard?.start()
         
         self.txAudioStream = txAudioStream
-        
         self.txAudioStreamRequested = false
+        
+        
+        let txAudioActive = true
+        // TODO: explore the dax tx handling
+        txAudioStream.transmit = txAudioActive
+        
+        
+        
+        radio?.transmitSet(true) { (result) -> () in
+            self.sendAudioStreamToRadio(buffer: self.audioBuffer)
+        }
     }
-
+    
+    /// Process .txAudioStreamInitialized Notification
+    ///
+    /// - Parameter note: a Notification instance
+    ///
+    @objc private func txAudioStreamInitialized(_ note: Notification) {
+        
+        // does the Notification contain a TXAudioStream object?
+        if let txAudioStream = note.object as? TxAudioStream {
+            
+            if !self.txAudioStreamRequested {
+                // stream not requested by us - ignore
+                return
+            } else {
+                
+                if txAudioStream.id != self.txAudioStreamId {
+                    // stream not created by us - ignore
+                    return
+                }
+            
+                // initialize stream
+                initializeTxAudioStream(txAudioStream)
+            }
+        }
+    }
     
     // ----------------------------------------------------------------------------
     // MARK: - Observation methods

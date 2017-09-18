@@ -110,16 +110,16 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         //print("floatArray \(floatArray)\n")
         
         if floatArray.count > 0 {
+            let tag: Int = buttonNumber
             
+            if tag == 1 {
+                radioManager.keyRadio(doTransmit: true, buffer: floatArray)
+            } else {
+                radioManager.keyRadio(doTransmit: false)
+            }
         }
         
-        let tag: Int = buttonNumber
-
-        if tag == 1 {
-           radioManager.keyRadio(doTransmit: true)
-        } else {
-            radioManager.keyRadio(doTransmit: false)
-        }
+        
 
     }
     
