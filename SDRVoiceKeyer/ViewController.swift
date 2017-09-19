@@ -54,13 +54,13 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     var availableSlices: [Int : SliceInfo] = [:]
     var isRadioConnected = false
     
-    // outlets
+    // MARK: Outlets
     @IBOutlet weak var voiceButton1: NSButton!
     @IBOutlet weak var serialNumberLabel: NSTextField!
     @IBOutlet weak var activeSliceLabel: NSTextField!
     @IBOutlet weak var buttonStackView: NSStackView!
 
-    // actions
+    // MARK: Actions
     // this handles all of the voice buttons - use the tag value to determine which audio file to load
     @IBAction func voiceButtonClicked(_ sender: NSButton) {
         voiceButtonSelected(buttonNumber: sender.tag)
@@ -70,6 +70,12 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     @IBAction func buttonShowPreferences(_ sender: AnyObject) {
         showPreferences(sender)
     }
+    
+    // stop the current voice playback
+    @IBAction func stopButtonClicked(_ sender: NSButton) {
+        radioManager.keyRadio(doTransmit: false)
+    }
+    
     
     // generated code
     override func viewDidLoad() {
@@ -106,23 +112,11 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         
         floatArray = audiomanager.selectAudioFile(buttonNumber: buttonNumber)
         
-        
-        //print("floatArray \(floatArray)\n")
-        
         if floatArray.count > 0 {
-            let tag: Int = buttonNumber
-            
-            if tag == 1 {
-                radioManager.keyRadio(doTransmit: true, buffer: floatArray)
-            } else {
-                radioManager.keyRadio(doTransmit: false)
-            }
+            radioManager.keyRadio(doTransmit: true, buffer: floatArray)
         } else {
             radioManager.keyRadio(doTransmit: false)
         }
-        
-        
-
     }
     
     
