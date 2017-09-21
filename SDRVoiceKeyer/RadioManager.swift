@@ -584,6 +584,7 @@ internal class RadioManager: NSObject {
         if !doTransmit  {
             radio?.transmitSet(false) { (result) -> () in
                 // RESET the daxEnabled status to its persisted value
+                //self.txAudioStream.transmit = false
                 print("Stop Transmit: \(result)")
                 // TODO: account for failure - resend
             }
@@ -601,7 +602,7 @@ internal class RadioManager: NSObject {
         txAudioStream.transmit = true
         txAudioStream.txGain = 50
         let _ = txAudioStream.sendTXAudio(left: self.audioBuffer, right: self.audioBuffer, samples: Int(self.audioBuffer.count))
-        txAudioStream.transmit = false
+        
     }
     
     // MARK: - Audio Stream Methods ----------------------------------------------------------------------------
@@ -761,9 +762,9 @@ internal class RadioManager: NSObject {
                 //DispatchQueue.main.async { [unowned self] in
                     
                     switch kp {
-                    case #keyPath(Radio.txAudioStreams):
-//                        self._mainWindowController?.headphoneGain.integerValue = ch[.newKey] as! Int
-                        break
+//                    case #keyPath(Radio.txAudioStreams):
+////                        self._mainWindowController?.headphoneGain.integerValue = ch[.newKey] as! Int
+//                        break
                     case #keyPath(Radio.headphoneMute):
 //                        self._mainWindowController?.headphoneMute.state = (ch[.newKey] as! Bool) ? NSControl.StateValue.onState : NSControl.StateValue.offState
                         break
