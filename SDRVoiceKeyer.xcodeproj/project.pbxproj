@@ -8,12 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		99217D521E5D02A50042C787 /* RadioPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99217D511E5D02A50042C787 /* RadioPreferences.swift */; };
+		992292AE1F79B1CB005F9A48 /* xLib6000.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 992292AD1F79B1CB005F9A48 /* xLib6000.framework */; };
 		993D1E691E5F811D00BB5236 /* PreferenceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 993D1E681E5F811D00BB5236 /* PreferenceManager.swift */; };
 		996AC07C1E4E3D4800C20AA8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 996AC07B1E4E3D4800C20AA8 /* AppDelegate.swift */; };
 		996AC07E1E4E3D4800C20AA8 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 996AC07D1E4E3D4800C20AA8 /* ViewController.swift */; };
 		996AC0801E4E3D4800C20AA8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 996AC07F1E4E3D4800C20AA8 /* Assets.xcassets */; };
 		996AC0831E4E3D4800C20AA8 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 996AC0811E4E3D4800C20AA8 /* Main.storyboard */; };
-		99A86EB81F69BA5800712945 /* xLib6000.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 99A86EB71F69BA5800712945 /* xLib6000.framework */; };
 		99C211031F297279003B47F1 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 99C211021F297279003B47F1 /* LICENSE */; };
 		99D64A2F1E5B9BEB0053ED1F /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D64A2E1E5B9BEB0053ED1F /* AudioManager.swift */; };
 		99EC95A21F1523B100E539E8 /* RadioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99EC95A11F1523B100E539E8 /* RadioManager.swift */; };
@@ -21,6 +21,7 @@
 
 /* Begin PBXFileReference section */
 		99217D511E5D02A50042C787 /* RadioPreferences.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadioPreferences.swift; sourceTree = "<group>"; };
+		992292AD1F79B1CB005F9A48 /* xLib6000.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = xLib6000.framework; path = ../../../../private/tmp/xLib6000.dst/Library/Frameworks/xLib6000.framework; sourceTree = "<group>"; };
 		993D1E681E5F811D00BB5236 /* PreferenceManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreferenceManager.swift; sourceTree = "<group>"; };
 		996AC0781E4E3D4800C20AA8 /* SDRVoiceKeyer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SDRVoiceKeyer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		996AC07B1E4E3D4800C20AA8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -28,7 +29,6 @@
 		996AC07F1E4E3D4800C20AA8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		996AC0821E4E3D4800C20AA8 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		996AC0841E4E3D4800C20AA8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		99A86EB71F69BA5800712945 /* xLib6000.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = xLib6000.framework; path = ../../../../../private/tmp/xLib6000.dst/Library/Frameworks/xLib6000.framework; sourceTree = "<group>"; };
 		99C211021F297279003B47F1 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		99D64A2E1E5B9BEB0053ED1F /* AudioManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioManager.swift; sourceTree = "<group>"; };
 		99EC95A11F1523B100E539E8 /* RadioManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadioManager.swift; sourceTree = "<group>"; };
@@ -39,7 +39,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				99A86EB81F69BA5800712945 /* xLib6000.framework in Frameworks */,
+				992292AE1F79B1CB005F9A48 /* xLib6000.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -83,7 +83,7 @@
 		99E84E6A1F1144A500C8660C /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				99A86EB71F69BA5800712945 /* xLib6000.framework */,
+				992292AD1F79B1CB005F9A48 /* xLib6000.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -297,6 +297,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(USER_LIBRARY_DIR)/Frameworks",
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
 				);
 				HEADER_SEARCH_PATHS = "";
 				"HEADER_SEARCH_PATHS[arch=*]" = "";
@@ -322,6 +323,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(USER_LIBRARY_DIR)/Frameworks",
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
 				);
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = SDRVoiceKeyer/Info.plist;

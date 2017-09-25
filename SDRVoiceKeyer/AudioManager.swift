@@ -72,12 +72,20 @@ internal class AudioManager: NSObject {
         
         let file = try! AVAudioFile(forReading: audioURL as URL)
         
-        let format = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: file.fileFormat.sampleRate, channels: 1, interleaved: false)
+        let format = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: 24000.0, channels: 1, interleaved: false)
         //let audioFormat = file.processingFormat
         let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: AVAudioFrameCount(file.length))
         
         try! file.read(into: buffer) // You probably want better error handling
         
+        // "/Users/pavankumar/Desktop/Testing/Java.txt"
+     let soundUrl = URL(fileURLWithPath: "/Users/pbourget/Desktop/w6op.wav")
+        let settings = [
+            AVFormatIDKey: kAudioFormatLinearPCM,
+            AVSampleRateKey: 44100.0,
+            AVNumberOfChannelsKey: 1 ] as [String : Any]
+        let file2 = try! AVAudioFile(forWriting: soundUrl, settings: settings, commonFormat: AVAudioCommonFormat.pcmFormatFloat32, interleaved: false)
+        try! file2.write(from: buffer)
 //        let inputSoundfile = AFSoundfile.initAsInput()
 //        let status = inputSoundFile.openURL(URL.fileURL(withPath: "existingSoundfile.wav", isDirectory: false))
         
