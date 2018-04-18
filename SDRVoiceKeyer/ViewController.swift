@@ -39,7 +39,7 @@
 import Cocoa
 
 class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerDelegate {
-    
+   
     var radioManager: RadioManager!
     var audiomanager: AudioManager!
     var preferenceManager: PreferenceManager!
@@ -73,7 +73,10 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     
     // stop the current voice playback
     @IBAction func stopButtonClicked(_ sender: NSButton) {
-        radioManager.keyRadio(doTransmit: false)
+        //radioManager.keyRadio(doTransmit: false)
+        
+        // tempararily I'll use this as a connect button
+        //radioManager.connectToRadio(serialNumber: )
     }
     
     
@@ -91,6 +94,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         
         // create the audio manager
         audiomanager = AudioManager()
+        
     }
 
     override var representedObject: Any? {
@@ -99,6 +103,8 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         }
     }
     
+    
+    // ---------------------------------------------------------------------------
     // cleanup network sockets when application terminates
     // TODO: put method in RadioManager and also close Radio object
     override func viewWillDisappear() {

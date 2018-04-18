@@ -66,6 +66,7 @@ import os
         Implement in your viewcontroller to receive messages from the radio manager
     */
     protocol RadioManagerDelegate: class {
+        
         // radio was discovered
         func didDiscoverRadio(discoveredRadios: [(model: String, nickname: String, ipAddress: String, default: String, serialNumber: String)])
         // notify the GUI the tcp connection to the radio was successful
@@ -247,8 +248,9 @@ internal class RadioManager: NSObject, ApiDelegate {
     
     // Radio currently running
     internal var activeRadio: RadioParameters?
-    // Radio class in use
-    internal var api: Api?
+    
+    // this starts the discovery process
+    internal var api = Api.sharedInstance          // Api to the Radio
     
     var audiomanager: AudioManager!
     
@@ -272,7 +274,7 @@ internal class RadioManager: NSObject, ApiDelegate {
     private let buildKey = "CFBundleVersion"
     
     private var availableRadios = [RadioParameters]()          // Array of available Radios
-    private var radioFactory: RadioFactory
+    //private var radioFactory: RadioFactory
     
     private var txAudioStreamId: DaxStreamId
     private var txAudioStreamRequested = false
@@ -308,15 +310,13 @@ internal class RadioManager: NSObject, ApiDelegate {
         availableRadios = [RadioParameters]()
         discoveredRadios = [(model: String, nickname: String, ipAddress: String, default: String, serialNumber: String)]()
         
-        
-        os_log("Initializing the RadioFactory.", log: RadioManager.model_log, type: .info)
-        
+        //os_log("Initializing the RadioFactory.", log: RadioManager.model_log, type: .info)
         // start the Radio discovery process
-        radioFactory = RadioFactory()
-        
+        //radioFactory = RadioFactory()
         
         txAudioStreamId = DaxStreamId("0")!
        
+        
         //txAudioStream = TxAudioStream(radio!, txAudioStreamId, concurrentTxAudioQueue)
         
         super.init()
@@ -329,13 +329,6 @@ internal class RadioManager: NSObject, ApiDelegate {
         
         //addObserver(self, forKeyPath: #keyPath(api.apiState), options: [.old, .new], context: nil)
     }
-    
-    //override func observeValue(forKeyPath: #keyPath(@objc api?.apiState), of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
-//        if keyPath == #keyPath(configurationManager.configuration.updatedAt) {
-//            // Update Time Label
-//            timeLabel.text = configurationManager.updatedAt
-//        }
-   // }
     
     // MARK: - Notification Methods ----------------------------------------------------------------------------
     
@@ -392,7 +385,7 @@ internal class RadioManager: NSObject, ApiDelegate {
         - parameters:
             - note: a Notification instance
     */
-    @objc private func radiosAvailable(_ note: Notification) {
+    private func radiosAvailable(_ note: Notification) {
         
         DispatchQueue.main.async {
             
@@ -433,7 +426,8 @@ internal class RadioManager: NSObject, ApiDelegate {
         
         // look at active radio
         //if (api?.apiState == Api.ApiState.initialized) {
-            self.connectToRadio(serialNumber: (activeRadio?.serialNumber)!)
+            // DO I NEED TO DO THIS??? cause real radio to crash
+            //self.connectToRadio(serialNumber: (activeRadio?.serialNumber)!)
         //}
         // let the view controller know a radio was connected
         self.radioManagerDelegate?.didConnectToRadio()
@@ -553,7 +547,7 @@ internal class RadioManager: NSObject, ApiDelegate {
         
         //observations(radio!, paths: _radioKeyPaths, remove: true)
         
-        api?.disconnect()
+        api.disconnect()
         activeRadio = nil
     }
     
@@ -584,31 +578,26 @@ internal class RadioManager: NSObject, ApiDelegate {
     */
     private func openRadio(_ selectedRadioParameters: RadioParameters?) -> Bool {
         
-        api?.connect(selectedRadioParameters!, clientName: clientName)
+        //api.connect(selectedRadioParameters!, clientName: clientName)
         
-        self.selectedRadio = selectedRadioParameters
+        if api.connect(selectedRadioParameters!, clientName: "xVoiceKeyer", isGui: false) {
         
-        if selectedRadio != nil && selectedRadio == activeRadio {
-            // Disconnect the active Radio
-            closeRadio()
-        } else if selectedRadio != nil {
-            if activeRadio != nil {
+            self.selectedRadio = selectedRadioParameters
+        
+            if selectedRadio != nil && selectedRadio == activeRadio {
                 // Disconnect the active Radio
                 closeRadio()
+            } else if selectedRadio != nil {
+                if activeRadio != nil {
+                // Disconnect the active Radio
+                    closeRadio()
+                }
+            
             }
-            
-            // Create a Radio class
-            //api = Api(clientName: clientName, isGui: false)
-            
-            // start a connection to the Radio
-//            if !api!.connect(selectedRadio!, primaryCmdTypes: [.allPrimary], secondaryCmdTypes: [.allSecondary], subscriptionCmdTypes: [.allSubscription]) {
-//                // connect failed, log the error and return
-//                os_log("Connection to the Radio failed.", log: RadioManager.model_log, type: .error)
-//                return false
-//            }
+            return true
         }
         
-        return true
+        return false
     }
     
     // ----------------------------------------------------------------------------
@@ -671,7 +660,7 @@ internal class RadioManager: NSObject, ApiDelegate {
         
         os_log("Create audio stream.", log: RadioManager.model_log, type: .info)
         
-        if let check = api?.radio?.txAudioStreamCreate(callback: updateTxStreamId) {
+        if let check = api.radio?.txAudioStreamCreate(callback: updateTxStreamId) {
             if check {
                 txAudioStreamRequested = true
                 os_log("TX audio stream created.", log: RadioManager.model_log, type: .info)
@@ -714,7 +703,7 @@ internal class RadioManager: NSObject, ApiDelegate {
         self.txAudioStreamId = DaxStreamId(fills + reply)!
         
         // now check if we already have this stream in the radio object and initialize if necessary
-        if let stream = api?.radio?.txAudioStreams[self.txAudioStreamId] {
+        if let stream = api.radio?.txAudioStreams[self.txAudioStreamId] {
             sendTxAudioStream(stream)
         }
     }
@@ -760,7 +749,7 @@ internal class RadioManager: NSObject, ApiDelegate {
 //        // TODO: explore the dax tx handling
 //        txAudioStream.transmit = txAudioActive
         
-          api?.radio?.transmitSet(true, callback: transmitSetHandler)
+          api.radio?.transmitSet(true, callback: transmitSetHandler)
 //        radio?.transmitSet(true) { (result) -> () in
 //            txAudioStream.txGain = 35
 //            //let _ = txAudioStream.sendTXAudio(left: self.audioBuffer, right: self.audioBuffer, samples: Int(self.audioBuffer.count))
