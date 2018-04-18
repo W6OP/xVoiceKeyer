@@ -81,15 +81,16 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // create an instance of my radio manager and assign a delegate from it so I can handle events it raises
-
-            radioManager = RadioManager()
-            radioManager.radioManagerDelegate = self
-            
-            audiomanager = AudioManager()
+        // create the preference manager
+        preferenceManager = PreferenceManager()
+        preferenceManager.preferenceManagerDelegate = self
         
-            preferenceManager = PreferenceManager()
-            preferenceManager.preferenceManagerDelegate = self
+        // create an instance of my radio manager and assign a delegate from it so I can handle events it raises
+        radioManager = RadioManager()
+        radioManager.radioManagerDelegate = self
+        
+        // create the audio manager
+        audiomanager = AudioManager()
     }
 
     override var representedObject: Any? {
@@ -310,8 +311,8 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     
     // show the preferences panel and populate it
     func showPreferences(_ sender: AnyObject) {
-        let SB = NSStoryboard(name: "Main", bundle: nil)
-        let PVC: RadioPreferences = SB.instantiateController(withIdentifier: "radioPreferences") as! RadioPreferences
+        let SB = NSStoryboard(name: NSStoryboard.Name(rawValue: "Main"), bundle: nil)
+        let PVC: RadioPreferences = SB.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(rawValue: "radioPreferences")) as! RadioPreferences
         PVC.availableRadios = self.availableRadios
         PVC.preferenceManager = self.preferenceManager
         // This works with Swift 4

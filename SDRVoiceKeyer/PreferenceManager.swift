@@ -49,8 +49,8 @@ extension NSOpenPanel {
         canChooseDirectories = false
         canChooseFiles = true
         canCreateDirectories = false
-        allowedFileTypes = ["wav", "mp3", "m4a"]  
-        return runModal() == NSFileHandlingPanelOKButton ? urls.first : nil
+        allowedFileTypes = ["wav", "mp3", "m4a", "aac", "aiff"]
+        return runModal().rawValue == NSFileHandlingPanelOKButton ? urls.first : nil
         // This works with Swift 4
         //return runModal() == NSApplication.ModalResponse.OK ? urls.first : nil
     }

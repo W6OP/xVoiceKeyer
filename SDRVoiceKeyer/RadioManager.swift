@@ -196,7 +196,39 @@ import os
         This class will isolate other apps from the API implemenation allowing reuse by multiple
         programs.
      */
-internal class RadioManager: NSObject {
+internal class RadioManager: NSObject, ApiDelegate {
+    func vitaParser(_ vitaPacket: Vita) {
+         _ = 1
+    }
+    
+    func streamHandler(_ vitaPacket: Vita) {
+         _ = 1
+    }
+    
+    func apiMessage(_ text: String, level: MessageLevel, function: StaticString, file: StaticString, line: Int) {
+        _ = 1
+    }
+    
+    func sentMessage(_ text: String) {
+        // comment
+        _ = 1
+    }
+    
+    func receivedMessage(_ text: String) {
+        // comment
+        _ = 1
+    }
+
+    func addReplyHandler(_ sequenceId: SequenceId, replyTuple: ReplyTuple) {
+       // comment
+        _ = 1
+    }
+    
+    func defaultReplyHandler(_ command: String, seqNum: String, responseValue: String, reply: String) {
+       // comment
+        _ = 1
+    }
+    
     
     // setup logging for the RadioManager
     static let model_log = OSLog(subsystem: "com.w6op.RadioManager-Swift", category: "Model")
@@ -216,44 +248,44 @@ internal class RadioManager: NSObject {
     // Radio currently running
     internal var activeRadio: RadioParameters?
     // Radio class in use
-    internal var radio: Radio?
+    internal var api: Api?
     
     var audiomanager: AudioManager!
     
     // MARK: - Private properties ----------------------------------------------------------------------------
     
     // Radio that is selected - may not be the active radio
-    fileprivate var selectedRadio: RadioParameters?
+    private var selectedRadio: RadioParameters?
     
     // Notification observers
-    fileprivate var notifications = [NSObjectProtocol]()
-    fileprivate let log = (NSApp.delegate as! AppDelegate)
-    //fileprivate let kModule = "RadioManager"   // Module Name reported in log messages
+    private var notifications = [NSObjectProtocol]()
+    private let log = (NSApp.delegate as! AppDelegate)
+    //private let kModule = "RadioManager"   // Module Name reported in log messages
     let clientName = "SDRVoiceKeyer"
     
-    //fileprivate let kxFlexApiIdentifier = "net.k3tzr.xLib6000"      // Bundle identifier for xFlexApi
+    //private let kxFlexApiIdentifier = "net.k3tzr.xLib6000"      // Bundle identifier for xFlexApi
     
-    fileprivate let connectFailed = "Initial Connection failed"    // Error messages
-    fileprivate let udpBindFailed = "Initial UDP bind failed"
+    private let connectFailed = "Initial Connection failed"    // Error messages
+    private let udpBindFailed = "Initial UDP bind failed"
     
-    fileprivate let versionKey = "CFBundleShortVersionString"      // CF constants
-    fileprivate let buildKey = "CFBundleVersion"
+    private let versionKey = "CFBundleShortVersionString"      // CF constants
+    private let buildKey = "CFBundleVersion"
     
-    fileprivate var availableRadios = [RadioParameters]()          // Array of available Radios
-    fileprivate var radioFactory: RadioFactory
+    private var availableRadios = [RadioParameters]()          // Array of available Radios
+    private var radioFactory: RadioFactory
     
-    fileprivate var txAudioStreamId: DaxStreamId
-    fileprivate var txAudioStreamRequested = false
-    fileprivate var txAudioStream: TxAudioStream!
+    private var txAudioStreamId: DaxStreamId
+    private var txAudioStreamRequested = false
+    private var txAudioStream: TxAudioStream!
     var audioBuffer = [Float]()
     
-    //    fileprivate let concurrentTxAudioQueue = DispatchQueue(
+    //    private let concurrentTxAudioQueue = DispatchQueue(
     //            label: "com.w6op.txAudioQueue", // 1
     //            attributes: .concurrent ) // 2
     
     // MARK: - Observation properties ----------------------------------------------------------------------------
     // KVO
-    //    fileprivate let _radioKeyPaths =                                // Radio keypaths to observe
+    //    private let _radioKeyPaths =                                // Radio keypaths to observe
     //        [
     //            #keyPath(Radio.lineoutGain),
     //            #keyPath(Radio.lineoutMute),
@@ -282,7 +314,8 @@ internal class RadioManager: NSObject {
         // start the Radio discovery process
         radioFactory = RadioFactory()
         
-        txAudioStreamId = DaxStreamId("")
+        
+        txAudioStreamId = DaxStreamId("0")!
        
         //txAudioStream = TxAudioStream(radio!, txAudioStreamId, concurrentTxAudioQueue)
         
@@ -291,14 +324,25 @@ internal class RadioManager: NSObject {
         // add notification subscriptions
         addNotificationListeners()
         os_log("Added the notification subscriptions.", log: RadioManager.model_log, type: .info)
+        
+        api = Api.sharedInstance
+        
+        //addObserver(self, forKeyPath: #keyPath(api.apiState), options: [.old, .new], context: nil)
     }
+    
+    //override func observeValue(forKeyPath: #keyPath(@objc api?.apiState), of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+//        if keyPath == #keyPath(configurationManager.configuration.updatedAt) {
+//            // Update Time Label
+//            timeLabel.text = configurationManager.updatedAt
+//        }
+   // }
     
     // MARK: - Notification Methods ----------------------------------------------------------------------------
     
     /**
         Add subscriptions to Notifications from the xLib6000 API
     */
-    fileprivate func addNotificationListeners() {
+    private func addNotificationListeners() {
         
         // Initial TCP Connection opened
         let nc = NotificationCenter.default
@@ -348,7 +392,7 @@ internal class RadioManager: NSObject {
         - parameters:
             - note: a Notification instance
     */
-    @objc fileprivate func radiosAvailable(_ note: Notification) {
+    @objc private func radiosAvailable(_ note: Notification) {
         
         DispatchQueue.main.async {
             
@@ -376,7 +420,7 @@ internal class RadioManager: NSObject {
         - parameters:
             - note: a Notification instance
     */
-    @objc fileprivate func tcpDidConnect(_ note: Notification) {
+    private func tcpDidConnect(_ note: Notification) {
         
         os_log("A TCP connection has been established.", log: RadioManager.model_log, type: .info)
         
@@ -386,6 +430,11 @@ internal class RadioManager: NSObject {
         // observe changes to Radio properties
         //observations(radio!, paths: _radioKeyPaths)
         
+        
+        // look at active radio
+        //if (api?.apiState == Api.ApiState.initialized) {
+            self.connectToRadio(serialNumber: (activeRadio?.serialNumber)!)
+        //}
         // let the view controller know a radio was connected
         self.radioManagerDelegate?.didConnectToRadio()
     
@@ -397,11 +446,11 @@ internal class RadioManager: NSObject {
         - parameters:
             - note: a Notification instance
     */
-    @objc fileprivate func tcpDidDisconnect(_ note: Notification) {
+    private func tcpDidDisconnect(_ note: Notification) {
         
         os_log("The TCP connection is being terminated.", log: RadioManager.model_log, type: .info)
         
-        if (note.object as! Radio.DisconnectReason) != .closed {
+        if ((note.object as! Api.DisconnectReason) == .normal) {
             // let the view controller know a radio was disconnected to
             self.radioManagerDelegate?.didDisconnectFromRadio()
 
@@ -416,7 +465,7 @@ internal class RadioManager: NSObject {
         - parameters:
             - note: a Notification instance
      */
-    @objc fileprivate func radioInitialized(_ note: Notification) {
+    private func radioInitialized(_ note: Notification) {
         
         // the Radio class has been initialized
         if let radio = note.object as? Radio {
@@ -452,7 +501,7 @@ internal class RadioManager: NSObject {
         - parameters:
             - note: a Notification instance
      */
-    @objc fileprivate func sliceHasBeenAdded(_ note: Notification) {
+    private func sliceHasBeenAdded(_ note: Notification) {
         
         if let slice = note.object as? xLib6000.Slice {
             
@@ -480,7 +529,7 @@ internal class RadioManager: NSObject {
         - parameters:
             - note: a Notification instance
      */
-    @objc fileprivate func sliceWillBeRemoved(_ note: Notification) {
+    private func sliceWillBeRemoved(_ note: Notification) {
         
         if let slice = note.object as? xLib6000.Slice {
             print (slice.id)
@@ -493,7 +542,7 @@ internal class RadioManager: NSObject {
      Force the Radio Factory to resend availableRadios.
      */
     func updateAvailableRadios() {
-        radioFactory.updateAvailableRadios()
+        //radioFactory.updateAvailableRadios()
     }
     
     /**
@@ -504,7 +553,7 @@ internal class RadioManager: NSObject {
         
         //observations(radio!, paths: _radioKeyPaths, remove: true)
         
-        radio?.disconnect()
+        api?.disconnect()
         activeRadio = nil
     }
     
@@ -533,7 +582,9 @@ internal class RadioManager: NSObject {
         - parameters:
             - selectedRadioParameters: an object representing a radio
     */
-    fileprivate func openRadio(_ selectedRadioParameters: RadioParameters?) -> Bool {
+    private func openRadio(_ selectedRadioParameters: RadioParameters?) -> Bool {
+        
+        api?.connect(selectedRadioParameters!, clientName: clientName)
         
         self.selectedRadio = selectedRadioParameters
         
@@ -547,14 +598,14 @@ internal class RadioManager: NSObject {
             }
             
             // Create a Radio class
-            radio = Radio(radioParameters: selectedRadio!, clientName: clientName, isGui: false)
+            //api = Api(clientName: clientName, isGui: false)
             
             // start a connection to the Radio
-            if !radio!.connect(selectedRadio: selectedRadio!, primaryCommands: [.allPrimary], secondaryCommands: [.allSecondary], subscriptionCommands: [.allSubscription]) {
-                // connect failed, log the error and return
-                os_log("Connection to the Radio failed.", log: RadioManager.model_log, type: .error)
-                return false
-            }
+//            if !api!.connect(selectedRadio!, primaryCmdTypes: [.allPrimary], secondaryCmdTypes: [.allSecondary], subscriptionCmdTypes: [.allSubscription]) {
+//                // connect failed, log the error and return
+//                os_log("Connection to the Radio failed.", log: RadioManager.model_log, type: .error)
+//                return false
+//            }
         }
         
         return true
@@ -573,6 +624,10 @@ internal class RadioManager: NSObject {
     func keyRadio(doTransmit: Bool, buffer: [Float]? = nil) {
         
         if doTransmit  {
+            // https://community.flexradio.com/flexradio/topics/how-to-control-the-dax-subsystem-via-the-ethernet-api
+            //dax audio set <dax channel> slice=<slice index>
+            // dax audio set <dax channel> tx=0|1
+            
             self.audioBuffer = buffer!
             self.createTxAudioStream()
         }
@@ -581,14 +636,16 @@ internal class RadioManager: NSObject {
         // SET the daxEnabled status to true (enabled)
         //let errorString = FlexErrors(rawString:"50000016").description()
 
-        if !doTransmit  {
-            radio?.transmitSet(false) { (result) -> () in
-                // RESET the daxEnabled status to its persisted value
-                //self.txAudioStream.transmit = false
-                print("Stop Transmit: \(result)")
-                // TODO: account for failure - resend
-            }
-        }
+//        if !doTransmit  {
+//            // swift 4
+//            api?.radio?.transmitSet(false) { (result) -> () in
+//                // RESET the daxEnabled status to its persisted value
+//                //self.txAudioStream.transmit = false
+//                // swift 4
+//                //print("Stop Transmit: \(result)")
+//                // TODO: account for failure - resend
+//            }
+//        }
     }
     
     /**
@@ -614,7 +671,7 @@ internal class RadioManager: NSObject {
         
         os_log("Create audio stream.", log: RadioManager.model_log, type: .info)
         
-        if let check = radio?.txAudioStreamCreate(callback: updateTxStreamId) {
+        if let check = api?.radio?.txAudioStreamCreate(callback: updateTxStreamId) {
             if check {
                 txAudioStreamRequested = true
                 os_log("TX audio stream created.", log: RadioManager.model_log, type: .info)
@@ -651,13 +708,13 @@ internal class RadioManager: NSObject {
         }
         
         // make the string 8 characters long -> add "0" at the beginning
-        let fillCnt = 8 - reply.characters.count
+        let fillCnt = 8 - reply.count
         let fills = (fillCnt > 0 ? String(repeatElement("0", count: fillCnt)) : "")
         
-        self.txAudioStreamId = DaxStreamId(fills + reply)
+        self.txAudioStreamId = DaxStreamId(fills + reply)!
         
         // now check if we already have this stream in the radio object and initialize if necessary
-        if let stream = radio?.txAudioStreams[self.txAudioStreamId] {
+        if let stream = api?.radio?.txAudioStreams[self.txAudioStreamId] {
             sendTxAudioStream(stream)
         }
     }
@@ -703,7 +760,7 @@ internal class RadioManager: NSObject {
 //        // TODO: explore the dax tx handling
 //        txAudioStream.transmit = txAudioActive
         
-        radio?.transmitSet(true, callback: transmitSetHandler)
+          api?.radio?.transmitSet(true, callback: transmitSetHandler)
 //        radio?.transmitSet(true) { (result) -> () in
 //            txAudioStream.txGain = 35
 //            //let _ = txAudioStream.sendTXAudio(left: self.audioBuffer, right: self.audioBuffer, samples: Int(self.audioBuffer.count))
@@ -716,7 +773,7 @@ internal class RadioManager: NSObject {
         - parameters:
             - note: a Notification instance
      */
-    @objc fileprivate func txAudioStreamWillBeRemoved(_ note: Notification) {
+    @objc private func txAudioStreamWillBeRemoved(_ note: Notification) {
         // do I need to do anything ???
     }
 
@@ -731,7 +788,7 @@ internal class RadioManager: NSObject {
     ///   - paths: an array of KeyPaths
     ///   - add: add / remove (defaults to add)
     ///
-    fileprivate func observations<T: NSObject>(_ object: T, paths: [String], remove: Bool = false) {
+    private func observations<T: NSObject>(_ object: T, paths: [String], remove: Bool = false) {
         
         // for each KeyPath Add / Remove observations
         for keyPath in paths {

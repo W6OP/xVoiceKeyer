@@ -263,16 +263,17 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
         
         let columnIdentifier = tableColumn?.identifier
         
-        if columnIdentifier == "model" {
+        // swift 4
+        if columnIdentifier!.rawValue == "model" {
             result = availableRadios[row].model
         }
-        if columnIdentifier == "nickname" {
+        if columnIdentifier!.rawValue == "nickname" {
             result = availableRadios[row].nickname
         }
-        if columnIdentifier == "ipAddress" {
+        if columnIdentifier!.rawValue == "ipAddress" {
             result = availableRadios[row].ipAddress
         }
-        if columnIdentifier == "default" {
+        if columnIdentifier!.rawValue == "default" {
             result = availableRadios[row].default
         }
         

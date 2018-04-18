@@ -11,6 +11,7 @@ import AVFoundation
 
 internal class AudioManager: NSObject {
     
+    // for sinewave generator
 //    var ae: AVAudioEngine
 //    var player: AVAudioPlayerNode
 //    var mixer: AVAudioMixerNode
@@ -21,12 +22,11 @@ internal class AudioManager: NSObject {
     
     // TODO: Make sure exception handling works
     override init() {
-        // initialize objects
+        // initialize objects for sinewave generator
 //        ae = AVAudioEngine()
 //        player = AVAudioPlayerNode()
 //        mixer = ae.mainMixerNode;
-//        let format = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: 24000, channels: 1, interleaved: false)
-//        //buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: 128)
+//        //var format = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: 24000, channels: 1, interleaved: false)
 //        buffer = AVAudioPCMBuffer(pcmFormat: player.outputFormat(forBus: 0), frameCapacity: 128)
 //        buffer.frameLength = 128
     }
@@ -40,9 +40,6 @@ internal class AudioManager: NSObject {
     internal func selectAudioFile(buttonNumber: Int) -> [Float] {
         var floatArray = [Float]()
         let fileManager = FileManager.default
-        
-//            floatArray = generateSineWave()
-//            return floatArray
 
         if let filePath = UserDefaults.standard.string(forKey: String(buttonNumber)) {
             
@@ -51,17 +48,22 @@ internal class AudioManager: NSObject {
             if(fileManager.fileExists(atPath: filePath))
             {
                 //floatArray = convertToPCM(filePath: filePath)
-                
+
                 let soundUrl = URL(fileURLWithPath: filePath)
                 let reply = loadAudioSignal(audioURL: soundUrl as NSURL)
                 floatArray = reply.signal
             }
         }
         
+        //floatArray = generateSineWave()
         //print("floatArray \(floatArray)\n")
         
         return floatArray
     }
+    
+    
+
+
     
     /**
      Read an audio file from disk and convert it to PCM.
@@ -72,20 +74,39 @@ internal class AudioManager: NSObject {
         
         let file = try! AVAudioFile(forReading: audioURL as URL)
         
-        let format = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: 24000.0, channels: 1, interleaved: false)
+        // Get the source data format.
+        
+        var sourceFileID: AudioFileID? = nil
+        AudioFileOpenURL(audioURL as CFURL, .readPermission, 0, &sourceFileID)
+        var sourceFormat = AudioStreamBasicDescription()
+        var size = UInt32(MemoryLayout.stride(ofValue: sourceFormat))
+        AudioFileGetProperty(sourceFileID!, kAudioFilePropertyDataFormat, &size, &sourceFormat)
+        print("Source File format:")
+        self.printAudioStreamBasicDescription(sourceFormat)
+        
+        let format = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: file.fileFormat.sampleRate, channels: 1, interleaved: false)
         //let audioFormat = file.processingFormat
-        let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: AVAudioFrameCount(file.length))
+        let buffer = AVAudioPCMBuffer(pcmFormat: format!, frameCapacity: AVAudioFrameCount(file.length))
         
-        try! file.read(into: buffer) // You probably want better error handling
+        try! file.read(into: buffer!) // You probably want better error handling
         
+// ---------- using NSDATA ---------------------
+//        var audioData = try! Data(contentsOf: audioURL as URL)
+//        var audio = audioData.subdata(in: 44..<audioData.count - 44)
+//        var buffer2 = toPCMBuffer(data: audio as NSData)
+        
+// ---------------------------------------------------------------------
         // "/Users/pavankumar/Desktop/Testing/Java.txt"
-     let soundUrl = URL(fileURLWithPath: "/Users/pbourget/Desktop/w6op.wav")
-        let settings = [
-            AVFormatIDKey: kAudioFormatLinearPCM,
-            AVSampleRateKey: 44100.0,
-            AVNumberOfChannelsKey: 1 ] as [String : Any]
-        let file2 = try! AVAudioFile(forWriting: soundUrl, settings: settings, commonFormat: AVAudioCommonFormat.pcmFormatFloat32, interleaved: false)
-        try! file2.write(from: buffer)
+//        let soundUrl = URL(fileURLWithPath: "/Users/pbourget/Desktop/w6op.wav")
+//        let settings = [
+//            AVFormatIDKey: kAudioFormatLinearPCM,
+//            AVSampleRateKey: sourceFormat.mSampleRate,
+//            AVNumberOfChannelsKey: 1 ] as [String : Any]
+//        let file2 = try! AVAudioFile(forWriting: soundUrl, settings: settings, commonFormat: AVAudioCommonFormat.pcmFormatFloat32, interleaved: false)
+//        try! file2.write(from: buffer)
+// ---------------------------------------------------------------------
+        
+        
 //        let inputSoundfile = AFSoundfile.initAsInput()
 //        let status = inputSoundFile.openURL(URL.fileURL(withPath: "existingSoundfile.wav", isDirectory: false))
         
@@ -96,10 +117,56 @@ internal class AudioManager: NSObject {
 //            Array(UnsafeBufferPointer<Float>(start: $0, count: data.count/MemoryLayout<Float>.size))
 //        }
         
-        let floatArray = Array(UnsafeBufferPointer(start: buffer.floatChannelData?[0], count:Int(buffer.frameLength)))
+        
+        // swift 4
+        let floatArray = Array(UnsafeBufferPointer(start: buffer?.floatChannelData?[0], count: Int(buffer!.frameLength)))
         
         return (signal: floatArray, rate: file.fileFormat.sampleRate, frameCount: Int(file.length))
+        
     }
+    
+    func printAudioStreamBasicDescription(_ asbd: AudioStreamBasicDescription) {
+        print(String(format: "Sample Rate:         %10.0f",  asbd.mSampleRate))
+        //print(String(format: "Format ID:                 \(asbd.mFormatID.fourCharString)"))
+        print(String(format: "Format Flags:        %10X",    asbd.mFormatFlags))
+        print(String(format: "Bytes per Packet:    %10d",    asbd.mBytesPerPacket))
+        print(String(format: "Frames per Packet:   %10d",    asbd.mFramesPerPacket))
+        print(String(format: "Bytes per Frame:     %10d",    asbd.mBytesPerFrame))
+        print(String(format: "Channels per Frame:  %10d",    asbd.mChannelsPerFrame))
+        print(String(format: "Bits per Channel:    %10d",    asbd.mBitsPerChannel))
+        print()
+    }
+    
+    //    create new rate converter
+    func createRateConverter() {
+//        var inputDescription: AudioStreamBasicDescription
+//        var outputDescription: AudioStreamBasicDescription
+//        var status: OSStatus
+//        if rateConverter {
+//            //  remove any previous rate converter
+//            AudioConverterReset(rateConverter)
+//            AudioConverterDispose(rateConverter)
+//            rateConverter = nil
+//        }
+//        //    get AudioInfo's asbd, but set number of channels to numberOfClientChannels (number of active channels in channelMap)
+//        inputDescription = audioHALUnit.outputUnitASBD
+//        outputDescription = inputDescription
+//        outputDescription.mSampleRate = (resamplingRate < 100) ? 48000.0 : resamplingRate as? Float64 ?? Float64()
+//        //  create a default converter as sanity check
+//        status = AudioConverterNew(inputDescription, outputDescription, rateConverter)
+//        if status != 0 {
+//            print("""
+//        AFInputSoundcard: setupRateConverter error.
+//
+//        """)
+//            rateConverter = nil
+//        }
+//        if rateConverter != nil {
+//            needNewRateConverter = false
+//            justStarted = true
+//        }
+    }
+
     
     
     func toNSData(PCMBuffer: AVAudioPCMBuffer) -> NSData {
@@ -107,6 +174,19 @@ internal class AudioManager: NSObject {
         let channels = UnsafeBufferPointer(start: PCMBuffer.floatChannelData, count: channelCount)
         let ch0Data = NSData(bytes: channels[0], length:Int(PCMBuffer.frameCapacity * PCMBuffer.format.streamDescription.pointee.mBytesPerFrame))
         return ch0Data
+    }
+    
+    func toPCMBuffer(data: NSData) -> AVAudioPCMBuffer {
+        let audioFormat = AVAudioFormat(commonFormat: AVAudioCommonFormat.pcmFormatFloat32, sampleRate: 8000, channels: 1, interleaved: false)  // given NSData audio format
+        let PCMBuffer = AVAudioPCMBuffer(pcmFormat: audioFormat!, frameCapacity: UInt32(data.length) / (audioFormat?.streamDescription.pointee.mBytesPerFrame)!)
+        PCMBuffer?.frameLength = (PCMBuffer?.frameCapacity)!
+        // swift 4
+        let channels = UnsafeBufferPointer(start: PCMBuffer?.floatChannelData, count: Int(PCMBuffer!.format.channelCount))
+        data.getBytes(UnsafeMutableRawPointer(channels[0]) , length: data.length)
+        //data.getBytes(to: UnsafeMutableRawBufferPointer(channels[0]) , count: data.count)
+        //data.copyBytes(to: channels[0])
+        // data.getBytes(UnsafeMutableRawPointer(channels[0]) , count: data.count) - Original
+        return PCMBuffer!
     }
     
     func playAudioFile(data: Data) {
@@ -167,11 +247,12 @@ internal class AudioManager: NSObject {
         let file = try! AVAudioFile(forReading: url)
         let format = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: file.fileFormat.sampleRate, channels: 1, interleaved: false) // sampleRate: file.fileFormat.sampleRate
         
-        let buf = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: AVAudioFrameCount(file.length)) // was 1024
-        try! file.read(into: buf)
+        let buffer = AVAudioPCMBuffer(pcmFormat: format!, frameCapacity: AVAudioFrameCount(file.length)) // was 1024
+        try! file.read(into: buffer!)
         
         // this makes a copy, might not want that
-        floatArray = Array(UnsafeBufferPointer(start: buf.floatChannelData?[0], count:Int(buf.frameLength)))
+        // swift 4
+        floatArray = Array(UnsafeBufferPointer(start: buffer?.floatChannelData?[0], count:Int(buffer!.frameLength)))
         
         print("floatArray \(floatArray)\n")
         
@@ -186,6 +267,7 @@ internal class AudioManager: NSObject {
     func generateSineWave() -> [Float] {
 
         var floatArray = [Float]()
+//        var tempArray = [Float]()
 //
 //        // generate sine wave
 //        let sr:Float = Float(mixer.outputFormat(forBus: 0).sampleRate)
@@ -195,9 +277,16 @@ internal class AudioManager: NSObject {
 //            let val = sinf(441.0*Float(i)*2*Float(Double.pi)/sr)
 //            buffer.floatChannelData?.pointee[i] = val * 0.5
 //            floatArray = Array(UnsafeBufferPointer(start: buffer.floatChannelData?[0], count:Int(buffer.frameLength)))
+//            tempArray = Array(UnsafeBufferPointer(start: buffer.floatChannelData?[0], count:Int(buffer.frameLength)))
+//
+//            for _ in 0..<50000 {
+//                floatArray.append(contentsOf: tempArray)
+//            }
 //        }
 
-        // setup audio engine
+        
+       
+//        // setup audio engine
 //        ae.attach(player)
 //        ae.connect(player, to: mixer, format: player.outputFormat(forBus: 0))
 //        try! ae.start()
@@ -205,11 +294,12 @@ internal class AudioManager: NSObject {
 //        player.play()
 //        player.scheduleBuffer(buffer, at: nil, options: .loops, completionHandler: nil)
 
-        //        for var i = 0; i < Int(buffer.frameLength); i+=Int(n_channels) {
-        //            var val = sinf(441.0*Float(i)*2*Float(Double.pi)/sr)
-        //
-        //            buffer.floatChannelData?.pointee[i] = val * 0.5
-        //        }
+//                for var i = 0; i < Int(buffer.frameLength); i+=Int(n_channels) {
+//                    var val = sinf(441.0*Float(i)*2*Float(Double.pi)/sr)
+//
+//                    buffer.floatChannelData?.pointee[i] = val * 0.5
+//                }
+        
 
         return floatArray
     }
@@ -241,3 +331,8 @@ internal class AudioManager: NSObject {
     
 
 } // end class
+extension Data {
+    func castToCPointer<T>() -> T {
+        return self.withUnsafeBytes { $0.pointee }
+    }
+}
