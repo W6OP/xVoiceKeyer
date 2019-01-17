@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017 W6OP
+ * Copyright (c) 2019 Peter Bourget W6OP
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,7 +32,7 @@
 //  SDRVoiceKeyer
 //
 //  Created by Peter Bourget on 7/11/17.
-//  Copyright © 2017 Peter Bourget. All rights reserved.
+//  Copyright © 2019 Peter Bourget. All rights reserved.
 //
 // Description: This is a wrapper for the xLib6000 framework written by Doug Adams K3TZR
 // The purpose is to simplify the interface into the API and allow the GUI to function
@@ -40,7 +40,19 @@
 
 import Foundation
 import xLib6000
+import Repeat
 import os
+
+    // MARK: Extensions ------------------------------------------------------------------------------------------------
+
+    // breaks an array into chunks of a specific size, the last chunk may be smaller than the specified size
+    extension Array {
+        func chunked(into size: Int) -> [[Element]] {
+            return stride(from: 0, to: count, by: size).map {
+                Array(self[$0 ..< Swift.min($0 + size, count)])
+            }
+        }
+    }
 
     // MARK: Helper Functions ------------------------------------------------------------------------------------------------
 
@@ -53,6 +65,8 @@ import os
     func BG(_ block: @escaping ()->Void) {
         DispatchQueue.global(qos: .background).async(execute: block)
     }
+
+    // USAGE:
     //UI() {
     // everything in here will execute on the main thread
     //}
@@ -70,13 +84,13 @@ import os
         // radio was discovered
         func didDiscoverRadio(discoveredRadios: [(model: String, nickname: String, ipAddress: String, default: String, serialNumber: String)])
         // notify the GUI the tcp connection to the radio was successful
-        func didConnectToRadio()
+        //func didConnectToRadio()
         // notify the GUI the tcp connection to the radio was closed
         func didDisconnectFromRadio()
         // an update to the radio was received
-        func didUpdateRadio(serialNumber: String, activeSlice: String, transmitMode: TransmitMode)
+        //func didUpdateRadio(serialNumber: String, activeSlice: String, transmitMode: TransmitMode)
         // a slice update was received - let the GUI know
-        func didUpdateSlice(availableSlices : [Int : SliceInfo])
+        //func didUpdateSlice(availableSlices : [Int : SliceInfo])
         // probably not needed
         func openRadioSelector(serialNumber: String)
     }
@@ -90,7 +104,6 @@ import os
         var txEnabled: Bool = false
         var isActiveSlice: Bool = false
         var isValidForTransmit: Bool = false
-        
         
         init() {
         }
@@ -192,44 +205,18 @@ import os
 
     // MARK: Class Definition ------------------------------------------------------------------------------------------------
 
+    private var _replyHandlers                  = [SequenceId: ReplyTuple]()  // Dictionary of pending replies
+    internal let _objectQ                       = DispatchQueue(label: "xVoiceKeyer" + ".objectQ", attributes: [.concurrent])
+    internal var replyHandlers: [SequenceId: ReplyTuple] {
+    get { return _objectQ.sync { _replyHandlers } }
+    set { _objectQ.sync(flags: .barrier) { _replyHandlers = newValue } } }
+
     /**
         Wrapper class for the FlexAPI Library xLib6000 written for the Mac by Doug Adams K3TZR.
         This class will isolate other apps from the API implemenation allowing reuse by multiple
         programs.
      */
 internal class RadioManager: NSObject, ApiDelegate {
-    func vitaParser(_ vitaPacket: Vita) {
-         _ = 1
-    }
-    
-    func streamHandler(_ vitaPacket: Vita) {
-         _ = 1
-    }
-    
-    func apiMessage(_ text: String, level: MessageLevel, function: StaticString, file: StaticString, line: Int) {
-        _ = 1
-    }
-    
-    func sentMessage(_ text: String) {
-        // comment
-        _ = 1
-    }
-    
-    func receivedMessage(_ text: String) {
-        // comment
-        _ = 1
-    }
-
-    func addReplyHandler(_ sequenceId: SequenceId, replyTuple: ReplyTuple) {
-       // comment
-        _ = 1
-    }
-    
-    func defaultReplyHandler(_ command: String, seqNum: String, responseValue: String, reply: String) {
-       // comment
-        _ = 1
-    }
-    
     
     // setup logging for the RadioManager
     static let model_log = OSLog(subsystem: "com.w6op.RadioManager-Swift", category: "Model")
@@ -241,6 +228,7 @@ internal class RadioManager: NSObject, ApiDelegate {
     
     // list of serial numbers of discovered radios
     var discoveredRadios: [(model: String, nickname: String, ipAddress: String, default: String, serialNumber: String)]
+    
     // list of avaiable slices - only one will be active
     var availableSlices: [Int : SliceInfo]
 
@@ -250,9 +238,9 @@ internal class RadioManager: NSObject, ApiDelegate {
     internal var activeRadio: RadioParameters?
     
     // this starts the discovery process
-    internal var api = Api.sharedInstance          // Api to the Radio
+    private var api = Api.sharedInstance          // Api to the Radio
     
-    var audiomanager: AudioManager!
+    private var audiomanager: AudioManager!
     
     // MARK: - Private properties ----------------------------------------------------------------------------
     
@@ -262,10 +250,8 @@ internal class RadioManager: NSObject, ApiDelegate {
     // Notification observers
     private var notifications = [NSObjectProtocol]()
     private let log = (NSApp.delegate as! AppDelegate)
-    //private let kModule = "RadioManager"   // Module Name reported in log messages
-    let clientName = "SDRVoiceKeyer"
-    
-    //private let kxFlexApiIdentifier = "net.k3tzr.xLib6000"      // Bundle identifier for xFlexApi
+   
+    private let clientName = "xVoiceKeyer"
     
     private let connectFailed = "Initial Connection failed"    // Error messages
     private let udpBindFailed = "Initial UDP bind failed"
@@ -274,16 +260,18 @@ internal class RadioManager: NSObject, ApiDelegate {
     private let buildKey = "CFBundleVersion"
     
     private var availableRadios = [RadioParameters]()          // Array of available Radios
-    //private var radioFactory: RadioFactory
     
+    private var txAudioStream: TxAudioStream!
     private var txAudioStreamId: DaxStreamId
     private var txAudioStreamRequested = false
-    private var txAudioStream: TxAudioStream!
-    var audioBuffer = [Float]()
     
-    //    private let concurrentTxAudioQueue = DispatchQueue(
-    //            label: "com.w6op.txAudioQueue", // 1
-    //            attributes: .concurrent ) // 2
+    private var audioBuffer = [Float]()
+    
+    private var audioStreamTimer :Repeater?
+    
+    private let concurrentTxAudioQueue = DispatchQueue(
+                label: "com.w6op.txAudioQueue",
+                attributes: .concurrent )
     
     // MARK: - Observation properties ----------------------------------------------------------------------------
     // KVO
@@ -305,29 +293,85 @@ internal class RadioManager: NSObject, ApiDelegate {
     override init() {
         
         audiomanager = AudioManager()
-        
         availableSlices = [Int : SliceInfo]()
         availableRadios = [RadioParameters]()
         discoveredRadios = [(model: String, nickname: String, ipAddress: String, default: String, serialNumber: String)]()
         
-        //os_log("Initializing the RadioFactory.", log: RadioManager.model_log, type: .info)
-        // start the Radio discovery process
-        //radioFactory = RadioFactory()
-        
-        txAudioStreamId = DaxStreamId("0")!
+        txAudioStreamId = DaxStreamId("1")!
+        txAudioStream = TxAudioStream(id: txAudioStreamId, queue: concurrentTxAudioQueue)
+        //api.radio?.audioStreams
        
-        
-        //txAudioStream = TxAudioStream(radio!, txAudioStreamId, concurrentTxAudioQueue)
-        
         super.init()
         
         // add notification subscriptions
         addNotificationListeners()
-        os_log("Added the notification subscriptions.", log: RadioManager.model_log, type: .info)
-        
-        api = Api.sharedInstance
-        
+
+        api.delegate = self
+       
         //addObserver(self, forKeyPath: #keyPath(api.apiState), options: [.old, .new], context: nil)
+    }
+    
+    // MARK: - Open and Close Radio Methods ----------------------------------------------------------------------------
+    
+    func sentMessage(_ text: String) {
+        _ = 1
+    }
+    
+    func receivedMessage(_ text: String) {
+        // get all except the first character
+        _ = String(text.dropFirst())
+        os_log("Message received.", log: RadioManager.model_log, type: .info)
+        
+    }
+    
+    func addReplyHandler(_ sequenceId: SequenceId, replyTuple: ReplyTuple) {
+        // add the handler
+        replyHandlers[sequenceId] = replyTuple
+        os_log("addReplyHandler added.", log: RadioManager.model_log, type: .info)
+    }
+    
+    func defaultReplyHandler(_ command: String, seqNum: String, responseValue: String, reply: String) {
+        // unused in xVoiceKeyer
+        os_log("defaultReplyHandler added.", log: RadioManager.model_log, type: .info)
+    }
+    
+    func vitaParser(_ vitaPacket: Vita) {
+        // unused in xVoiceKeyer
+        os_log("Vita parser added.", log: RadioManager.model_log, type: .info)
+    }
+    
+    /**
+     Exposed function for the GUI to indicate which radio to connect to.
+     
+     - parameters:
+     - serialNumber: a string representing the serial number of the radio to connect
+     */
+    internal func connectToRadio( serialNumber: String) -> Bool {
+        
+        os_log("Connect to the Radio.", log: RadioManager.model_log, type: .info)
+        
+        // allow time to hear the UDP broadcasts
+        usleep(1500)
+        
+        for (_, foundRadio) in api.availableRadios.enumerated() where foundRadio.serialNumber == serialNumber {
+            activeRadio = foundRadio
+            //guard let activeRadio = RadioParameters?foundRadio else { return false }
+        
+            if api.connect(activeRadio!, clientName: "xVoiceKeyer", isGui: false) {
+                return true
+            }
+        }
+        
+        return false
+    }
+    
+    /**
+     Stop the active radio. Remove observations of Radio properties.
+     Perform an orderly close of the Radio resources.
+     */
+    internal func closeRadio() {
+        api.disconnect()
+        activeRadio = nil
     }
     
     // MARK: - Notification Methods ----------------------------------------------------------------------------
@@ -336,22 +380,7 @@ internal class RadioManager: NSObject, ApiDelegate {
         Add subscriptions to Notifications from the xLib6000 API
     */
     private func addNotificationListeners() {
-        
-        // Initial TCP Connection opened
         let nc = NotificationCenter.default
-        nc.addObserver(forName:Notification.Name(rawValue:"clientDidConnect"),
-                       object:nil, queue:nil,
-                       using:tcpDidConnect)
-        
-        // TCP Connection disconnect
-        nc.addObserver(forName:Notification.Name(rawValue:"clientDidDisconnect"),
-                       object:nil, queue:nil,
-                       using:tcpDidDisconnect)
-        
-        // Radio Initialized
-        nc.addObserver(forName:Notification.Name(rawValue:"radioInitialized"),
-                       object:nil, queue:nil,
-                       using:radioInitialized)
         
         // Available Radios changed
         nc.addObserver(forName:Notification.Name(rawValue:"radiosAvailable"),
@@ -364,17 +393,10 @@ internal class RadioManager: NSObject, ApiDelegate {
                        using:txAudioStreamHasBeenAdded)
         
         // Audio stream removed
-        nc.addObserver(forName:Notification.Name(rawValue:"txAudioStreamWillBeRemoved"),
-                       object:nil, queue:nil,
-                       using:txAudioStreamWillBeRemoved)
+//        nc.addObserver(forName:Notification.Name(rawValue:"txAudioStreamWillBeRemoved"),
+//                       object:nil, queue:nil,
+//                       using:txAudioStreamWillBeRemoved)
         
-        nc.addObserver(forName:Notification.Name(rawValue:"sliceHasBeenAdded"),
-                       object:nil, queue:nil,
-                       using:sliceHasBeenAdded)
-        
-        nc.addObserver(forName:Notification.Name(rawValue:"sliceWillBeRemoved"),
-                       object:nil, queue:nil,
-                       using:sliceWillBeRemoved)
     }
     
     // MARK: - Radio Methods ----------------------------------------------------------------------------
@@ -390,218 +412,29 @@ internal class RadioManager: NSObject, ApiDelegate {
         DispatchQueue.main.async {
             
             // receive the updated list of Radios
-            self.availableRadios = (note.object as! [RadioParameters])
-            if self.availableRadios.count > 0 {
-                
+            let availableRadios = (note.object as! [RadioParameters])
+            var newRadios: Int = 0
+            
+            if availableRadios.count > 0 {
                 os_log("Discovery process has completed.", log: RadioManager.model_log, type: .info)
                 
-                for item in self.availableRadios {
+                for item in availableRadios {
                     // only add new radios
                     if !self.discoveredRadios.contains(where: { $0.nickname == item.nickname! }) {
+                        newRadios += 1
                         self.discoveredRadios.append((item.model, item.nickname!, item.ipAddress, "No", item.serialNumber))
-                        // let the view controller know a radio was discovered
-                        self.radioManagerDelegate?.didDiscoverRadio(discoveredRadios: self.discoveredRadios)
                     }
                 }
-            }
-        }
-    }
-    
-    /** 
-     Process the tcpDidConnect Notification.
-     
-        - parameters:
-            - note: a Notification instance
-    */
-    private func tcpDidConnect(_ note: Notification) {
-        
-        os_log("A TCP connection has been established.", log: RadioManager.model_log, type: .info)
-        
-        // save the active Radio as the selected Radio
-        activeRadio = selectedRadio
-        
-        // observe changes to Radio properties
-        //observations(radio!, paths: _radioKeyPaths)
-        
-        
-        // look at active radio
-        //if (api?.apiState == Api.ApiState.initialized) {
-            // DO I NEED TO DO THIS??? cause real radio to crash
-            //self.connectToRadio(serialNumber: (activeRadio?.serialNumber)!)
-        //}
-        // let the view controller know a radio was connected
-        self.radioManagerDelegate?.didConnectToRadio()
-    
-    }
-    
-    /** 
-     Process the tcpDidDisconnect Notification.
-     
-        - parameters:
-            - note: a Notification instance
-    */
-    private func tcpDidDisconnect(_ note: Notification) {
-        
-        os_log("The TCP connection is being terminated.", log: RadioManager.model_log, type: .info)
-        
-        if ((note.object as! Api.DisconnectReason) == .normal) {
-            // let the view controller know a radio was disconnected to
-            self.radioManagerDelegate?.didDisconnectFromRadio()
-
-        }
-    }
-    
-    /** 
-     Let the view controller or other object know the radio was initialized.
-     At this point I have the radio but may not have slice and other information.
-     i.e. SmartSDR may not be running
-     
-        - parameters:
-            - note: a Notification instance
-     */
-    private func radioInitialized(_ note: Notification) {
-        
-        // the Radio class has been initialized
-        if let radio = note.object as? Radio {
-            os_log("The Radio has been initialized.", log: RadioManager.model_log, type: .info)
-            DispatchQueue.main.async { [unowned self] in
-                print (radio.slices.count)
-                //self.updateRadio()
-                // use delegate to pass message to view controller ??
-                // or use the radio available ??
-            }
-        }
-    }
-    
-    
-    /** 
-     Raise event and send to view controller.
-     Not in use currently.
-    */
-    func updateRadio() {
-        
-        os_log("An update to the Radio has been received.", log: RadioManager.model_log, type: .info)
-        
-        // we have an update, let the GUI know
-        //radioManagerDelegate?.didUpdateRadio(serialNumber: serialNumber!, activeSlice: activeSlice, transmitMode: mode)
-    }
-    
-    // MARK: - Slice Methods ----------------------------------------------------------------------------
-    
-    /**
-     Process a newly added Slice - when the radio first starts up you will get a
-     notification for each slice that exists.
-     
-        - parameters:
-            - note: a Notification instance
-     */
-    private func sliceHasBeenAdded(_ note: Notification) {
-        
-        if let slice = note.object as? xLib6000.Slice {
-            
-            // TODO: USE xLib60000 SLICE OBJECT ???
-//            print ("slice: \(slice.id)")
-//            print ("sliceActive: \(slice.active)")
-//            print ("sliceTxEnabled: \(slice.txEnabled)")
-
-             var sliceInfo = SliceInfo()
-             sliceInfo.populateSliceInfo(sliceId: Int(slice.id)!, mode: slice.mode, isActiveSlice: slice.active, txEnabled: slice.txEnabled)
-//            //let sliceInfo = SliceInfo(sliceId: Int(slice.id)!, mode: slice.mode, isActiveSlice: slice.active, txEnabled: slice.txEnabled)
-//            
-            print ("sliceInfo: \(sliceInfo.sliceId)")
-            
-            availableSlices[sliceInfo.sliceId] = sliceInfo
-            
-            radioManagerDelegate?.didUpdateSlice(availableSlices: availableSlices)
-            
-        }
-    }
-    
-    /**
-     Cleanup when a slice has been removed.
-     
-        - parameters:
-            - note: a Notification instance
-     */
-    private func sliceWillBeRemoved(_ note: Notification) {
-        
-        if let slice = note.object as? xLib6000.Slice {
-            print (slice.id)
-        }
-    }
-    
-    // MARK: - RadioManagerDelegate methods ----------------------------------------------------------------------------
-    
-    /**
-     Force the Radio Factory to resend availableRadios.
-     */
-    func updateAvailableRadios() {
-        //radioFactory.updateAvailableRadios()
-    }
-    
-    /**
-     Stop the active radio. Remove observations of Radio properties.
-     Perform an orderly close of the Radio resources.
-    */
-    func closeRadio() {
-        
-        //observations(radio!, paths: _radioKeyPaths, remove: true)
-        
-        api.disconnect()
-        activeRadio = nil
-    }
-    
-    /**
-     Exposed function for the GUI to indicate which radio to connect to.
-     
-        - parameters:
-            - serialNumber: a string representing the serial number of the radio to connect
-    */
-    public func connectToRadio( serialNumber: String) {
-        
-        os_log("Connect to the Radio.", log: RadioManager.model_log, type: .info)
-        
-        for i in 0..<self.availableRadios.count {
-            if self.availableRadios[i].serialNumber == serialNumber {
-                if self.openRadio(self.availableRadios[i]) == true {
-                    // self.UpdateRadio()
+                
+                if newRadios > 0 {
+                    // let the view controller know a radio was discovered
+                    self.radioManagerDelegate?.didDiscoverRadio(discoveredRadios: self.discoveredRadios)
                 }
             }
         }
     }
     
-    /**
-     Connect / Disconnect the selected Radio.
-     
-        - parameters:
-            - selectedRadioParameters: an object representing a radio
-    */
-    private func openRadio(_ selectedRadioParameters: RadioParameters?) -> Bool {
-        
-        //api.connect(selectedRadioParameters!, clientName: clientName)
-        
-        if api.connect(selectedRadioParameters!, clientName: "xVoiceKeyer", isGui: false) {
-        
-            self.selectedRadio = selectedRadioParameters
-        
-            if selectedRadio != nil && selectedRadio == activeRadio {
-                // Disconnect the active Radio
-                closeRadio()
-            } else if selectedRadio != nil {
-                if activeRadio != nil {
-                // Disconnect the active Radio
-                    closeRadio()
-                }
-            
-            }
-            return true
-        }
-        
-        return false
-    }
-    
-    // ----------------------------------------------------------------------------
-    // MARK: Transmit methods
+    // MARK: Transmit methods ----------------------------------------------------------------------------
     
     /**
      Prepare to key the selected Radio. Create the audio stream to be sent.
@@ -611,80 +444,35 @@ internal class RadioManager: NSObject, ApiDelegate {
             - buffer: an array of floats representing an audio sample in PCM format
     */
     func keyRadio(doTransmit: Bool, buffer: [Float]? = nil) {
+        var frameCount: Int = 0
         
         if doTransmit  {
-            // https://community.flexradio.com/flexradio/topics/how-to-control-the-dax-subsystem-via-the-ethernet-api
-            //dax audio set <dax channel> slice=<slice index>
-            // dax audio set <dax channel> tx=0|1
-            
             self.audioBuffer = buffer!
-            self.createTxAudioStream()
-        }
-        
-        // GET the daxEnabled status and preserve it
-        // SET the daxEnabled status to true (enabled)
-        //let errorString = FlexErrors(rawString:"50000016").description()
-
-//        if !doTransmit  {
-//            // swift 4
-//            api?.radio?.transmitSet(false) { (result) -> () in
-//                // RESET the daxEnabled status to its persisted value
-//                //self.txAudioStream.transmit = false
-//                // swift 4
-//                //print("Stop Transmit: \(result)")
-//                // TODO: account for failure - resend
-//            }
-//        }
-    }
-    
-    /**
-     Reply handler for the transmitSet command. Not used currently.
-    */
-    func transmitSetHandler(_ command: String, seqNum: String, responseValue: String, reply: String) {
-       
-        print("TransmitSet Handler Called: \(command):\(responseValue):\(reply)")
-        
-        // TODO: explore the dax tx handling
-        txAudioStream.transmit = true
-        txAudioStream.txGain = 50
-        let _ = txAudioStream.sendTXAudio(left: self.audioBuffer, right: self.audioBuffer, samples: Int(self.audioBuffer.count))
-        
-    }
-    
-    // MARK: - Audio Stream Methods ----------------------------------------------------------------------------
-    
-    /**
-     Ask the radio to create an audio stream. The response will be provided in the callback method.
-    */
-    private func createTxAudioStream() {
-        
-        os_log("Create audio stream.", log: RadioManager.model_log, type: .info)
-        
-        if let check = api.radio?.txAudioStreamCreate(callback: updateTxStreamId) {
-            if check {
-                txAudioStreamRequested = true
-                os_log("TX audio stream created.", log: RadioManager.model_log, type: .info)
-            } else {
-                os_log("Error requesting tx audio stream.", log: RadioManager.model_log, type: .error)
-                // TODO: notify GUI
+            if txAudioStreamRequested == false {
+                if TxAudioStream.create(callback: updateTxStreamId) {
+                    txAudioStreamRequested = true
+                }
+            }
+            else{
+                sendTxAudioStream()
             }
         }
     }
     
     /** Callback for the TX Stream Request command.
-    
-         - Parameters:
-           - command:        the original command
-           - seqNum:         the Sequence Number of the original command
-           - responseValue:  the response value
-           - reply:          the reply
-    */
+     
+     - Parameters:
+     - command:        the original command
+     - seqNum:         the Sequence Number of the original command
+     - responseValue:  the response value
+     - reply:          the reply
+     */
     private func updateTxStreamId(_ command: String, seqNum: String, responseValue: String, reply: String) {
         
         guard responseValue == "0" else {
             // Anything other than 0 is an error, log it and ignore the Reply
-            let errorString = FlexErrors(rawString: responseValue).description()
-            print("StreamId response: \(errorString)")
+            //            let errorString = FlexErrors(rawString: responseValue).description()
+            //            print("StreamId response: \(errorString)")
             os_log("Error requesting tx audio stream ID.", log: RadioManager.model_log, type: .error)
             // TODO: notify GUI
             return
@@ -695,18 +483,117 @@ internal class RadioManager: NSObject, ApiDelegate {
             os_log("Unsolicited audio stream received.", log: RadioManager.model_log, type: .error)
             return
         }
+       
+        // "reply" is the streamId in hex //84000001 2214592513
+        let streamId = UInt32(reply, radix:16)
         
-        // make the string 8 characters long -> add "0" at the beginning
-        let fillCnt = 8 - reply.count
-        let fills = (fillCnt > 0 ? String(repeatElement("0", count: fillCnt)) : "")
         
-        self.txAudioStreamId = DaxStreamId(fills + reply)!
         
-        // now check if we already have this stream in the radio object and initialize if necessary
-        if let stream = api.radio?.txAudioStreams[self.txAudioStreamId] {
-            sendTxAudioStream(stream)
+        self.txAudioStream = api.radio?.txAudioStreams[streamId!]
+        //sendTxAudioStream(streamId: streamId!)
+        sendTxAudioStream()
+    }
+    
+    func sendTxAudioStream(){ //func sendTxAudioStream(streamId: UInt32){
+        var frameCount: Int = 0
+        let result = self.audioBuffer.chunked(into: 128)
+        
+        api.radio?.mox = true
+        
+        //self.txAudioStream = api.radio?.txAudioStreams[streamId]
+        txAudioStream.transmit = true
+        txAudioStream.txGain = 100
+        
+        
+        self.audioStreamTimer = Repeater.every(.microseconds(5300), count: result.count) { _ in
+            
+            //print("Timer fired: \(frameCount):\(result[frameCount])\n")
+            let _ = self.txAudioStream.sendTXAudio(left: result[frameCount], right: result[frameCount], samples: Int(result[frameCount].count))
+            frameCount += 1
+        }
+        // stop transmitting when you run out of audio - could also be interrupted
+        self.audioStreamTimer!.onStateChanged = { (_ timer: Repeater, _ state: Repeater.State) in
+            if self.audioStreamTimer!.state.isFinished {
+                self.api.radio?.mox = false
+                self.audioStreamTimer = nil
+            }
+        }
+        
+        audioStreamTimer?.start()
+    }
+    
+//        case nanoseconds(Int)
+//        case microseconds(Int)
+//        case milliseconds(Int)
+//        case seconds(Double)
+    
+    /**
+     Reply handler for the transmitSet command.
+    */
+    func transmitSetHandler(_ command: String, seqNum: String, responseValue: String, reply: String) {
+
+        var frameCount: Int = 0
+        
+        print("TransmitSet Handler Called: \(command):\(responseValue):\(reply)")
+
+        
+        // IS A "0" SUCCESS ???
+        
+        // if success do the following. Otherwise let the GUI know it failed and if possible, why.
+        
+         //self.createTxAudioStream()
+        
+        
+        let result = self.audioBuffer.chunked(into: 128)
+        
+        txAudioStream.transmit = true
+        txAudioStream.txGain = 50
+        
+        // 72 msec = 48Khz - 0.072
+        self.audioStreamTimer = Repeater.every(.seconds(0.072), count: result.count) { _ in
+            
+            //print("Timer fired: \(frameCount):\(result[frameCount])\n")
+            let _ = self.txAudioStream.sendTXAudio(left: result[frameCount], right: result[frameCount], samples: Int(result[frameCount].count))
+            frameCount += 1
+        }
+        // stop transmitting when you run out of audio - could also be interrupted
+        self.audioStreamTimer!.onStateChanged = { (_ timer: Repeater, _ state: Repeater.State) in
+            if self.audioStreamTimer!.state.isFinished {
+                //self.api.radio.
+                self.api.send("xmit 0")
+                self.audioStreamTimer = nil
+            }
+        }
+        
+        audioStreamTimer?.start()
+    }
+    
+    // MARK: - Audio Stream Methods ----------------------------------------------------------------------------
+    
+    /**
+     Ask the radio to create an audio stream. The response will be provided in the callback method.
+    */
+    private func createTxAudioStream() {
+        
+        os_log("Create audio stream.", log: RadioManager.model_log, type: .info)
+    
+        #warning("THIS IS WRONG - check.count needs to be handled correctly")
+        //if let check = api.radio?.txAudioStreams(callback: updateTxStreamId) {
+        if TxAudioStream.create(callback: updateTxStreamId){
+            if let check = api.radio?.txAudioStreams {
+                if check.count == 1 {
+                    txAudioStream = check[0]
+                    txAudioStreamRequested = true
+                    os_log("TX audio stream created.", log: RadioManager.model_log, type: .info)
+                } else {
+                    os_log("Error requesting tx audio stream.", log: RadioManager.model_log, type: .error)
+                    // TODO: notify GUI
+                }
+            }
         }
     }
+    
+   
 
     
     /// Process txAudioStreamHasBeenAdded Notification
@@ -729,42 +616,11 @@ internal class RadioManager: NSObject, ApiDelegate {
                 }
             
                 // initialize stream
-                sendTxAudioStream(txAudioStream)
+                //sendTxAudioStream(txAudioStream)
             }
         }
     }
     
-    /** Key the radio and send the audio stream to the radio.
-     
-        - Parameters:
-            - txAudioStream: the audio stream to send
-     */
-    private func sendTxAudioStream(_ txAudioStream: TxAudioStream) {
-        
-        self.txAudioStream = txAudioStream
-        self.txAudioStreamRequested = false
-        
-//        let txAudioActive = false
-//        
-//        // TODO: explore the dax tx handling
-//        txAudioStream.transmit = txAudioActive
-        
-          api.radio?.transmitSet(true, callback: transmitSetHandler)
-//        radio?.transmitSet(true) { (result) -> () in
-//            txAudioStream.txGain = 35
-//            //let _ = txAudioStream.sendTXAudio(left: self.audioBuffer, right: self.audioBuffer, samples: Int(self.audioBuffer.count))
-//        }
-    }
-    
-    /**
-     The audio stream has been removed.
-     
-        - parameters:
-            - note: a Notification instance
-     */
-    @objc private func txAudioStreamWillBeRemoved(_ note: Notification) {
-        // do I need to do anything ???
-    }
 
     
     // ----------------------------------------------------------------------------
@@ -820,36 +676,36 @@ internal class RadioManager: NSObject, ApiDelegate {
                     case #keyPath(Radio.fullDuplexEnabled):
 //                        self._mainWindowController?.fdxEnabled.state = (ch[.newKey] as! Bool) ? NSControl.StateValue.onState : NSControl.StateValue.offState
                         break
-                    case #keyPath(Opus.remoteRxOn):
+//                    case #keyPath(Opus.remoteRxOn):
+//
+//                        if let opus = object as? Opus, let start = ch[.newKey] as? Bool{
+//
+//                            if start == true && opus.delegate == nil {
+//
+//                                // Opus starting, supply a decoder
+////                                self._opusManager.rxAudio(true)
+////                                opus.delegate = self._opusManager
+//
+//                            } else if start == false && opus.delegate != nil {
+//
+//                                // opus stopping, remove the decoder
+////                                self._opusManager.rxAudio(false)
+////                                opus.delegate = nil
+//                            }
+//                        }
                         
-                        if let opus = object as? Opus, let start = ch[.newKey] as? Bool{
-                            
-                            if start == true && opus.delegate == nil {
-                                
-                                // Opus starting, supply a decoder
-//                                self._opusManager.rxAudio(true)
-//                                opus.delegate = self._opusManager
-                                
-                            } else if start == false && opus.delegate != nil {
-                                
-                                // opus stopping, remove the decoder
-//                                self._opusManager.rxAudio(false)
-//                                opus.delegate = nil
-                            }
-                        }
-                        
-                    case #keyPath(Opus.remoteTxOn):
-                        break
-                        //if let opus = object as? Opus, let start = ch[.newKey] as? Bool{
-                            
-                            // Tx Opus starting / stopping
-                            //self._opusManager.txAudio( start, opus: opus )
-                        //}
-                        
-                    case #keyPath(Opus.rxStreamStopped):
-                        
-                        // FIXME: Implement this
-                        break
+//                    case #keyPath(Opus.remoteTxOn):
+//                        break
+//                        //if let opus = object as? Opus, let start = ch[.newKey] as? Bool{
+//
+//                            // Tx Opus starting / stopping
+//                            //self._opusManager.txAudio( start, opus: opus )
+//                        //}
+//
+//                    case #keyPath(Opus.rxStreamStopped):
+//
+//                        // FIXME: Implement this
+//                        break
                         
                     default:
                         // log and ignore any other keyPaths
@@ -860,5 +716,7 @@ internal class RadioManager: NSObject, ApiDelegate {
             }
         }
     }
+    
+   
     
 } // end class

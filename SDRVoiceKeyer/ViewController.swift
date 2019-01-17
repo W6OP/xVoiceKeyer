@@ -39,15 +39,12 @@
 import Cocoa
 
 class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerDelegate {
-   
+    
     var radioManager: RadioManager!
     var audiomanager: AudioManager!
     var preferenceManager: PreferenceManager!
     
-    // delegate to pass messages back to viewcontroller
-    //var mainViewControllerDelegate:MainViewControllerDelegate?
     var availableRadios = [(model: String, nickname: String, ipAddress: String, default: String, serialNumber: String)]()
-    //var defaultRadio = [String : String]()
     var defaultRadio = (model: "", nickname: "", ipAddress: "", default: "", serialNumber: "")
     
     var transmitMode: TransmitMode = TransmitMode.Invalid
@@ -73,7 +70,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     
     // stop the current voice playback
     @IBAction func stopButtonClicked(_ sender: NSButton) {
-        //radioManager.keyRadio(doTransmit: false)
+        radioManager.keyRadio(doTransmit: false)
         
         // tempararily I'll use this as a connect button
         //radioManager.connectToRadio(serialNumber: )
@@ -95,6 +92,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         // create the audio manager
         audiomanager = AudioManager()
         
+        self.activeSliceLabel.stringValue = "Connecting"
     }
 
     override var representedObject: Any? {
@@ -159,11 +157,15 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
                         self.defaultRadio.model = discoveredRadios[0].model
                         self.defaultRadio.nickname = discoveredRadios[0].nickname
                         self.defaultRadio.ipAddress = discoveredRadios[0].ipAddress
-                        
                         self.updateUserDefaults()
-                        //print("nickname \(self.defaultRadio.nickname)")
-                        self.serialNumberLabel.stringValue = self.defaultRadio.nickname
-                        self.doConnectRadio(serialNumber: self.defaultRadio.serialNumber)
+                        
+                        print("nickname \(self.defaultRadio.nickname)")
+                        if self.radioManager.connectToRadio(serialNumber: self.defaultRadio.serialNumber) == true {
+                            self.serialNumberLabel.stringValue = self.defaultRadio.nickname
+                            self.isRadioConnected = true
+                            self.activeSliceLabel.stringValue = "Connected"
+                            self.enableVoiceButtons()
+                        }
                     }
                     else{
                         self.showPreferences("" as AnyObject)
@@ -179,12 +181,15 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
                                 self.defaultRadio.model = radio.model
                                 self.defaultRadio.nickname = radio.nickname
                                 self.defaultRadio.ipAddress = radio.ipAddress
-                                
                                 self.updateUserDefaults()
-                                //print("nickname \(self.defaultRadio.nickname)")
-                                self.serialNumberLabel.stringValue = self.defaultRadio.nickname
-                                self.doConnectRadio(serialNumber: self.defaultRadio.serialNumber)
                                 
+                                //print("nickname \(self.defaultRadio.nickname)")
+                                if self.radioManager.connectToRadio(serialNumber: self.defaultRadio.serialNumber) == true {
+                                    self.serialNumberLabel.stringValue = self.defaultRadio.nickname
+                                    self.isRadioConnected = true
+                                    self.activeSliceLabel.stringValue = "Connected"
+                                    self.enableVoiceButtons()
+                                }
                                 break
                             }
                         }
@@ -223,30 +228,11 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         - parameter serialNumber: String
      */
     func doConnectRadio(serialNumber: String) {
-        
-        if !self.isRadioConnected {
-            self.radioManager.connectToRadio(serialNumber: serialNumber)
-        } else {
-            if serialNumber != defaultRadio.serialNumber {
-                // disconnect current radio and connect new one
-                self.radioManager.closeRadio()
-                
-                // TODO: WHY ??? - for display?
-                defaultRadio.serialNumber = serialNumber
-                
-                self.radioManager.connectToRadio(serialNumber: serialNumber)
-            }
-        }
-    }
-   
-    /**
-        We connected to the selected radio.
-     */
-    func didConnectToRadio() {
-        
-        DispatchQueue.main.async { [unowned self] in
+        if self.radioManager.connectToRadio(serialNumber: self.defaultRadio.serialNumber) == true {
+            self.serialNumberLabel.stringValue = self.defaultRadio.nickname
             self.isRadioConnected = true
             self.activeSliceLabel.stringValue = "Connected"
+            self.enableVoiceButtons()
         }
     }
     
@@ -262,30 +248,6 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     }
     
     /**
-      A slice was updated.
-     */
-    func didUpdateSlice(availableSlices : [Int : SliceInfo]) {
-        
-        DispatchQueue.main.async { [unowned self] in
-            self.availableSlices = availableSlices
-            
-            if self.isActiveSlice(availableSlices: availableSlices) < 8 {
-                self.enableVoiceButtons()
-            }
-        }
-        
-    }
-    
-    /**
-        Something about the radio was updated.
-     */
-    func didUpdateRadio(serialNumber: String, activeSlice: String, transmitMode: TransmitMode) {
-//        DispatchQueue.main.async { [unowned self] in
-//            
-//        }
-    }
-    
-    /**
         Enable all the voice bttons.
      */
     func enableVoiceButtons(){
@@ -297,22 +259,6 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     
     func openRadioSelector(serialNumber: String) {
         
-    }
-    
-    /**
-        Check the list of avaiable slices and return sliceId or 0 if none.
-     - returns: Int
-     */
-    func isActiveSlice(availableSlices : [Int : SliceInfo]) -> Int {
-        var activeSlice = 99
-        
-        for (key, element) in availableSlices {
-            if element.isValidForTransmit == true {
-                activeSlice = key
-            }
-        }
-        
-        return activeSlice
     }
     
     // show the preferences panel and populate it

@@ -84,39 +84,12 @@ internal class AudioManager: NSObject {
         print("Source File format:")
         self.printAudioStreamBasicDescription(sourceFormat)
         
+        // file.fileFormat.sampleRate
         let format = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: file.fileFormat.sampleRate, channels: 1, interleaved: false)
         //let audioFormat = file.processingFormat
         let buffer = AVAudioPCMBuffer(pcmFormat: format!, frameCapacity: AVAudioFrameCount(file.length))
         
         try! file.read(into: buffer!) // You probably want better error handling
-        
-// ---------- using NSDATA ---------------------
-//        var audioData = try! Data(contentsOf: audioURL as URL)
-//        var audio = audioData.subdata(in: 44..<audioData.count - 44)
-//        var buffer2 = toPCMBuffer(data: audio as NSData)
-        
-// ---------------------------------------------------------------------
-        // "/Users/pavankumar/Desktop/Testing/Java.txt"
-//        let soundUrl = URL(fileURLWithPath: "/Users/pbourget/Desktop/w6op.wav")
-//        let settings = [
-//            AVFormatIDKey: kAudioFormatLinearPCM,
-//            AVSampleRateKey: sourceFormat.mSampleRate,
-//            AVNumberOfChannelsKey: 1 ] as [String : Any]
-//        let file2 = try! AVAudioFile(forWriting: soundUrl, settings: settings, commonFormat: AVAudioCommonFormat.pcmFormatFloat32, interleaved: false)
-//        try! file2.write(from: buffer)
-// ---------------------------------------------------------------------
-        
-        
-//        let inputSoundfile = AFSoundfile.initAsInput()
-//        let status = inputSoundFile.openURL(URL.fileURL(withPath: "existingSoundfile.wav", isDirectory: false))
-        
-        //let data: Data = toNSData(PCMBuffer: buffer) as Data
-        //playAudioFile(data: data)
-        // float array, sounds same as floatArray does
-//        let arr2 = data.withUnsafeBytes {
-//            Array(UnsafeBufferPointer<Float>(start: $0, count: data.count/MemoryLayout<Float>.size))
-//        }
-        
         
         // swift 4
         let floatArray = Array(UnsafeBufferPointer(start: buffer?.floatChannelData?[0], count: Int(buffer!.frameLength)))
@@ -254,7 +227,7 @@ internal class AudioManager: NSObject {
         // swift 4
         floatArray = Array(UnsafeBufferPointer(start: buffer?.floatChannelData?[0], count:Int(buffer!.frameLength)))
         
-        print("floatArray \(floatArray)\n")
+        //print("floatArray \(floatArray)\n")
         
         return floatArray
     }
@@ -336,3 +309,30 @@ extension Data {
         return self.withUnsafeBytes { $0.pointee }
     }
 }
+// ---------- using NSDATA ---------------------
+//        var audioData = try! Data(contentsOf: audioURL as URL)
+//        var audio = audioData.subdata(in: 44..<audioData.count - 44)
+//        var buffer2 = toPCMBuffer(data: audio as NSData)
+
+// ---------------------------------------------------------------------
+// "/Users/pavankumar/Desktop/Testing/Java.txt"
+//        let soundUrl = URL(fileURLWithPath: "/Users/pbourget/Desktop/w6op.wav")
+//        let settings = [
+//            AVFormatIDKey: kAudioFormatLinearPCM,
+//            AVSampleRateKey: sourceFormat.mSampleRate,
+//            AVNumberOfChannelsKey: 1 ] as [String : Any]
+//        let file2 = try! AVAudioFile(forWriting: soundUrl, settings: settings, commonFormat: AVAudioCommonFormat.pcmFormatFloat32, interleaved: false)
+//        try! file2.write(from: buffer)
+// ---------------------------------------------------------------------
+
+
+//        let inputSoundfile = AFSoundfile.initAsInput()
+//        let status = inputSoundFile.openURL(URL.fileURL(withPath: "existingSoundfile.wav", isDirectory: false))
+
+//let data: Data = toNSData(PCMBuffer: buffer) as Data
+//playAudioFile(data: data)
+// float array, sounds same as floatArray does
+//        let arr2 = data.withUnsafeBytes {
+//            Array(UnsafeBufferPointer<Float>(start: $0, count: data.count/MemoryLayout<Float>.size))
+//        }
+
