@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="14113" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14113"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14460.31"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
-        <capability name="stacking Non-gravity area distributions on NSStackView" minToolsVersion="7.0" minSystemVersion="10.11"/>
     </dependencies>
     <scenes>
         <!--Application-->
@@ -669,7 +668,7 @@
         <scene sceneID="R2V-B0-nI4">
             <objects>
                 <windowController id="B8D-0N-5wS" sceneMemberID="viewController">
-                    <window key="window" title="SDR Voice Keyer" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="IQv-IB-iLA">
+                    <window key="window" title="SDR Voice Keyer" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="IQv-IB-iLA">
                         <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
                         <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
                         <rect key="contentRect" x="196" y="240" width="480" height="270"/>
@@ -845,7 +844,7 @@
                                 </customSpacing>
                             </stackView>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="s4N-YB-pa1">
-                                <rect key="frame" x="326" y="9" width="130" height="17"/>
+                                <rect key="frame" x="344" y="9" width="112" height="17"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" placeholderString="Status" id="S61-vg-UtS">
                                     <font key="font" metaFont="system"/>
@@ -865,7 +864,7 @@
                                 </connections>
                             </button>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="SiB-HI-Og7">
-                                <rect key="frame" x="160" y="9" width="147" height="17"/>
+                                <rect key="frame" x="167" y="9" width="147" height="17"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" placeholderString="Radio Serial Number" id="aOk-p2-gGF">
                                     <font key="font" metaFont="system"/>
@@ -1049,7 +1048,7 @@
                                         <rect key="frame" x="0.0" y="261" width="400" height="22"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="fxE-l5-5kc">
                                             <font key="font" metaFont="system"/>
-                                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
@@ -1057,7 +1056,7 @@
                                         <rect key="frame" x="0.0" y="232" width="400" height="22"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="fbh-Kt-AMv">
                                             <font key="font" metaFont="system"/>
-                                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
@@ -1065,7 +1064,7 @@
                                         <rect key="frame" x="0.0" y="203" width="400" height="22"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="abV-KE-b7S">
                                             <font key="font" metaFont="system"/>
-                                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
@@ -1073,7 +1072,7 @@
                                         <rect key="frame" x="0.0" y="174" width="400" height="22"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="a2f-7q-GyB">
                                             <font key="font" metaFont="system"/>
-                                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
@@ -1081,7 +1080,7 @@
                                         <rect key="frame" x="0.0" y="145" width="400" height="22"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="XPt-3F-hhN">
                                             <font key="font" metaFont="system"/>
-                                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
@@ -1089,7 +1088,7 @@
                                         <rect key="frame" x="0.0" y="116" width="400" height="22"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="dso-NQ-Vdd">
                                             <font key="font" metaFont="system"/>
-                                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
@@ -1097,7 +1096,7 @@
                                         <rect key="frame" x="0.0" y="87" width="400" height="22"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="dzA-Jh-r9Q">
                                             <font key="font" metaFont="system"/>
-                                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
@@ -1105,7 +1104,7 @@
                                         <rect key="frame" x="0.0" y="58" width="400" height="22"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="ckt-E4-4qX">
                                             <font key="font" metaFont="system"/>
-                                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
@@ -1113,7 +1112,7 @@
                                         <rect key="frame" x="0.0" y="29" width="400" height="22"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="LaQ-97-FMb">
                                             <font key="font" metaFont="system"/>
-                                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
@@ -1121,7 +1120,7 @@
                                         <rect key="frame" x="0.0" y="0.0" width="400" height="22"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="eta-AV-feb">
                                             <font key="font" metaFont="system"/>
-                                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
@@ -1245,11 +1244,11 @@
                                         </tableView>
                                     </subviews>
                                 </clipView>
-                                <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="b9P-HF-QKN">
+                                <scroller key="horizontalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="b9P-HF-QKN">
                                     <rect key="frame" x="1" y="118" width="454" height="16"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
-                                <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="Nmh-d0-WDT">
+                                <scroller key="verticalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="NO" id="Nmh-d0-WDT">
                                     <rect key="frame" x="224" y="17" width="15" height="102"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
@@ -1272,9 +1271,9 @@
                                 </connections>
                             </button>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="czF-qH-MSC">
-                                <rect key="frame" x="214" y="13" width="81" height="32"/>
+                                <rect key="frame" x="208" y="13" width="81" height="32"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="69" id="Obu-TN-pPT"/>
+                                    <constraint firstAttribute="width" constant="69" id="xwg-6w-Igc"/>
                                 </constraints>
                                 <buttonCell key="cell" type="push" title="Connect" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="fHW-wa-k1Z">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -1287,10 +1286,9 @@
                         </subviews>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="T09-ER-pbr" secondAttribute="trailing" constant="20" symbolic="YES" id="0mJ-P5-yWY"/>
-                            <constraint firstItem="czF-qH-MSC" firstAttribute="leading" secondItem="ruq-x0-7zt" secondAttribute="trailing" constant="94" id="4D1-nZ-Yl6"/>
                             <constraint firstItem="dZq-9s-K7G" firstAttribute="leading" secondItem="ruq-x0-7zt" secondAttribute="leading" id="50k-1n-NKL"/>
                             <constraint firstItem="MPB-Oa-nvd" firstAttribute="leading" secondItem="3gJ-RU-icY" secondAttribute="leading" constant="20" symbolic="YES" id="A7p-90-EW9"/>
-                            <constraint firstItem="ruq-x0-7zt" firstAttribute="baseline" secondItem="czF-qH-MSC" secondAttribute="baseline" id="Avq-8F-6po"/>
+                            <constraint firstItem="czF-qH-MSC" firstAttribute="centerX" secondItem="dZq-9s-K7G" secondAttribute="centerX" id="HLD-Uq-JRD"/>
                             <constraint firstItem="sPn-rB-RYG" firstAttribute="top" secondItem="dZq-9s-K7G" secondAttribute="bottom" constant="13" id="OyM-72-OEE"/>
                             <constraint firstItem="ruq-x0-7zt" firstAttribute="top" secondItem="dZq-9s-K7G" secondAttribute="bottom" constant="12" id="Svj-rd-4S0"/>
                             <constraint firstItem="MPB-Oa-nvd" firstAttribute="top" secondItem="3gJ-RU-icY" secondAttribute="top" constant="20" symbolic="YES" id="Zea-BX-FJ6"/>
@@ -1300,6 +1298,7 @@
                             <constraint firstAttribute="bottom" secondItem="ruq-x0-7zt" secondAttribute="bottom" constant="20" symbolic="YES" id="hEV-XK-d3g"/>
                             <constraint firstItem="dZq-9s-K7G" firstAttribute="top" secondItem="T09-ER-pbr" secondAttribute="bottom" constant="8" symbolic="YES" id="mMH-RT-bUF"/>
                             <constraint firstItem="dZq-9s-K7G" firstAttribute="trailing" secondItem="sPn-rB-RYG" secondAttribute="trailing" id="v1u-Ca-LDv"/>
+                            <constraint firstItem="czF-qH-MSC" firstAttribute="baseline" secondItem="ruq-x0-7zt" secondAttribute="baseline" id="xbM-Yy-wtl"/>
                             <constraint firstItem="T09-ER-pbr" firstAttribute="trailing" secondItem="dZq-9s-K7G" secondAttribute="trailing" id="yUS-5X-mqO"/>
                         </constraints>
                     </view>

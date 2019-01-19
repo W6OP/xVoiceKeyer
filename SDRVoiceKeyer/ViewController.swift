@@ -39,7 +39,7 @@
 import Cocoa
 
 class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerDelegate {
-    
+   
     var radioManager: RadioManager!
     var audiomanager: AudioManager!
     var preferenceManager: PreferenceManager!
@@ -47,8 +47,8 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     var availableRadios = [(model: String, nickname: String, ipAddress: String, default: String, serialNumber: String)]()
     var defaultRadio = (model: "", nickname: "", ipAddress: "", default: "", serialNumber: "")
     
-    var transmitMode: TransmitMode = TransmitMode.Invalid
-    var availableSlices: [Int : SliceInfo] = [:]
+    //var transmitMode: TransmitMode = TransmitMode.Invalid
+    //var availableSlices: [Int : SliceInfo] = [:]
     var isRadioConnected = false
     
     // MARK: Outlets
@@ -71,9 +71,6 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     // stop the current voice playback
     @IBAction func stopButtonClicked(_ sender: NSButton) {
         radioManager.keyRadio(doTransmit: false)
-        
-        // tempararily I'll use this as a connect button
-        //radioManager.connectToRadio(serialNumber: )
     }
     
     
@@ -120,10 +117,40 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         if floatArray.count > 0 {
             radioManager.keyRadio(doTransmit: true, buffer: floatArray)
         } else {
-            radioManager.keyRadio(doTransmit: false)
+            let alert = NSAlert()
+            alert.messageText = "Unable to play audio."
+            alert.informativeText = "The file is missing or is the incorrect format."
+            alert.alertStyle = .warning
+            alert.addButton(withTitle: "OK")
+            //alert.addButton(withTitle: "Cancel")
+            alert.runModal() //== .alertFirstButtonReturn
         }
     }
     
+    func radioMessageReceived(messageKey: String) {
+        var heading: String
+        var message: String
+          
+        switch messageKey {
+        case "DAX":
+            heading = "DAX Disabled"
+            message = "TX DAX must be enabled"
+        case "MODE":
+            heading = "Invalid Mode"
+            message = "The mode must be a voice mode"
+        default:
+            heading = "Unknown"
+            message = messageKey
+        }
+        
+        let alert = NSAlert()
+        alert.messageText = heading
+        alert.informativeText = message
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: "OK")
+        //alert.addButton(withTitle: "Cancel")
+        alert.runModal() //== .alertFirstButtonReturn
+    }
     
     // my code
     // Load the information for the default radio if there is any
