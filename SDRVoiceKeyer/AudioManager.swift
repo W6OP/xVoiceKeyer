@@ -9,6 +9,7 @@
 import Cocoa
 import AVFoundation
 import MediaPlayer
+import AudioToolbox
 
 internal class AudioManager: NSObject {
     
@@ -16,7 +17,7 @@ internal class AudioManager: NSObject {
     var buffers = [Int: [Float]]() // cache for audio buffers to reduce disk reads
     
     override init() {
-        
+       
     }
     
     /**
@@ -56,47 +57,80 @@ internal class AudioManager: NSObject {
      - parameter filePath: path to the file to be converted
      - returns: tuple (array of floats, rate, frame count)
      */
-    //func loadAudioSignal(audioURL: NSURL) throws -> (signal: [Float], rate: Double, frameCount: Int) {
     func loadAudioSignal(audioURL: NSURL) throws -> ([Float]) {
         var floatArray = [Float]()
+        var sourceFileID: AudioFileID? = nil
         
-        guard let file = try? AVAudioFile(forReading: audioURL as URL) else {
+        // read the file to a stream
+        guard let stream = try? AVAudioFile(forReading: audioURL as URL) else {
             return floatArray
         }
         
         // Get the source data format
-        var sourceFileID: AudioFileID? = nil
-        
         AudioFileOpenURL(audioURL as CFURL, .readPermission, 0, &sourceFileID)
+        defer {AudioFileClose(sourceFileID!)}
         
-        var sourceFormat = AudioStreamBasicDescription()
-        var size = UInt32(MemoryLayout.stride(ofValue: sourceFormat))
-        AudioFileGetProperty(sourceFileID!, kAudioFilePropertyDataFormat, &size, &sourceFormat)
+        var sourceDescription = AudioStreamBasicDescription()
+        var size = UInt32(MemoryLayout.stride(ofValue: sourceDescription))
+        AudioFileGetProperty(sourceFileID!, kAudioFilePropertyDataFormat, &size, &sourceDescription)
         
-        print("Source File format:")
-        self.printAudioStreamBasicDescription(sourceFormat)
+        print("Source File description:")
+        self.printAudioStreamBasicDescription(sourceDescription)
         
-        let format = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: file.fileFormat.sampleRate, channels: 1, interleaved: false)
-        let buffer = AVAudioPCMBuffer(pcmFormat: format!, frameCapacity: AVAudioFrameCount(file.length))
+       
+        let format = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: stream.fileFormat.sampleRate, channels: 1, interleaved: false)
+        var buffer = AVAudioPCMBuffer(pcmFormat: format!, frameCapacity: AVAudioFrameCount(stream.length))
+    
         
         do {
-            try file.read(into: buffer!) // You probably want better error handling
+            try stream.read(into: buffer!)
         } catch {
             return floatArray
         }
         
-//                if file.fileFormat.sampleRate != 24000{
-//                    //convert to 24khz
-//                    buffer = convertAudioFormat(buffer: buffer!)
-//                }
+        // convert to 24khz if necessary
+        if stream.fileFormat.sampleRate != 24000{
+            buffer = convertPCMBufferSampleRate(inBuffer: buffer!, inputFormat: format!)
+        }
         
         // swift 4
         floatArray = Array(UnsafeBufferPointer(start: buffer?.floatChannelData?[0], count: Int(buffer!.frameLength)))
         
         return (floatArray)
-        //return (signal: floatArray, rate: file.fileFormat.sampleRate, frameCount: Int(file.length))
     }
     
+    // https://forums.developer.apple.com/message/193747#193747
+    // https://forums.developer.apple.com/message/263741#263741
+    /**
+     Convert an audio file sample rate to 24khz.
+     - parameter inBuffer: the PCM buffer to be coverted
+     - parameter inputFormat: the format of the buffer to be converted
+     - returns: AVAudioPCMBuffer converted to 24khz
+    */
+    func convertPCMBufferSampleRate(inBuffer : AVAudioPCMBuffer, inputFormat: AVAudioFormat) -> AVAudioPCMBuffer {
+
+        let outputFormat = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: 24000, channels: 1, interleaved: false)
+        let converter = AVAudioConverter(from: inputFormat, to: outputFormat!)
+        
+        let convertedBuffer = AVAudioPCMBuffer(pcmFormat: outputFormat!, frameCapacity: AVAudioFrameCount(inBuffer.frameCapacity))
+        
+        let inputBlock : AVAudioConverterInputBlock = {
+            inNumPackets, outStatus in
+            outStatus.pointee = AVAudioConverterInputStatus.haveData
+            return inBuffer
+        }
+        
+        var error : NSError?
+        _ = converter!.convert(to: convertedBuffer!, error: &error, withInputFrom: inputBlock)
+        //assert(status != .error)
+//        print(status.rawValue)
+//        print(inBuffer.format)
+//        print(convertedBuffer!.format)
+//        print(convertedBuffer!.floatChannelData)
+//        print(convertedBuffer!.format.streamDescription.pointee.mBytesPerFrame)
+        
+        return convertedBuffer!
+    }
     /**
      print the detailed information about an audio file.
      - parameter asbd: printAudioStreamBasicDescription - description object for the file
