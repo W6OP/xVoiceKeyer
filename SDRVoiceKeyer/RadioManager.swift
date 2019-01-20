@@ -463,7 +463,7 @@ internal class RadioManager: NSObject, ApiDelegate {
     func sendTxAudioStream(){
         var frameCount: Int = 0
         let result = self.audioBuffer.chunked(into: 128)
-        
+    
         api.radio?.mox = true
         txAudioStream.transmit = true
         txAudioStream.txGain = 100

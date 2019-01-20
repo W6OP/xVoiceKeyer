@@ -13,6 +13,7 @@ import MediaPlayer
 internal class AudioManager: NSObject {
     
     var audioPlayer: AVAudioPlayer!
+    var buffers = [Int: [Float]]() // cache for audio buffers to reduce disk reads
     
     override init() {
         
@@ -29,13 +30,18 @@ internal class AudioManager: NSObject {
         let fileManager = FileManager.default
         
         if let filePath = UserDefaults.standard.string(forKey: String(buttonNumber)) {
-            if(fileManager.fileExists(atPath: filePath))
+            // check cache first
+            if buffers[buttonNumber] != nil {
+                return buffers[buttonNumber]!
+            }
+            
+            if (fileManager.fileExists(atPath: filePath))
             {
                 let soundUrl = URL(fileURLWithPath: filePath)
                 do{
                     floatArray = try loadAudioSignal(audioURL: soundUrl as NSURL)
-                    //let reply = try loadAudioSignal(audioURL: soundUrl as NSURL)
-                    //floatArray = reply.signal
+                    // if buffer does not contain value already
+                    buffers.updateValue(floatArray, forKey: buttonNumber)
                 } catch{
                     print("error \(error.localizedDescription)")
                 }
