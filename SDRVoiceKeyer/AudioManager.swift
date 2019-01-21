@@ -11,7 +11,21 @@ import AVFoundation
 import MediaPlayer
 import AudioToolbox
 
+protocol AudioManagerDelegate: class {
+    // send message to view controller
+    func audioMessageReceived(messageKey: AudioMessage, message: String)
+}
+
+public enum AudioMessage : String {
+    case ButtonNotConfigured = "BUTTON"
+    case Error = "ERROR"
+    case FileMissing = "FILE"
+    case InvalidFileType = "FILETYPE"
+}
+
 internal class AudioManager: NSObject {
+    
+    weak var audioManagerDelegate:AudioManagerDelegate?
     
     var audioPlayer: AVAudioPlayer!
     var buffers = [Int: [Float]]() // cache for audio buffers to reduce disk reads
@@ -31,6 +45,12 @@ internal class AudioManager: NSObject {
         let fileManager = FileManager.default
         
         if let filePath = UserDefaults.standard.string(forKey: String(buttonNumber)) {
+            
+            if filePath.isEmpty {
+                notifyViewController(key: AudioMessage.ButtonNotConfigured, messageData: String(buttonNumber))
+                return floatArray
+            }
+            
             // check cache first
             if buffers[buttonNumber] != nil {
                 return buffers[buttonNumber]!
@@ -44,8 +64,10 @@ internal class AudioManager: NSObject {
                     // if buffer does not contain value already
                     buffers.updateValue(floatArray, forKey: buttonNumber)
                 } catch{
-                    print("error \(error.localizedDescription)")
+                    notifyViewController(key: AudioMessage.Error, messageData: String(error.localizedDescription))
                 }
+            } else {
+                notifyViewController(key: AudioMessage.FileMissing, messageData: filePath)
             }
         }
         
@@ -63,6 +85,10 @@ internal class AudioManager: NSObject {
         
         // read the file to a stream
         guard let stream = try? AVAudioFile(forReading: audioURL as URL) else {
+            notifyViewController(key: AudioMessage.InvalidFileType, messageData: audioURL.absoluteString!)
+//            UI() {
+//                self.audioManagerDelegate?.audioMessageReceived(messageKey: "FILETYPE", message: "The file \(audioURL) could not be read. It may be corrupt or an invalid file type.")
+//            }
             return floatArray
         }
         
@@ -147,10 +173,34 @@ internal class AudioManager: NSObject {
         print()
     }
     
+    /**
+     pass messages to the view controller
+     - parameter key: AudioMessage - enum value for the message
+     - parameter messageData: String - data to be added to the message
+     */
+    func notifyViewController(key: AudioMessage, messageData: String){
+    
+        var message: String
+        
+        switch key {
+        case AudioMessage.FileMissing:
+            message = "The file \(messageData) could not be found."
+        case AudioMessage.InvalidFileType:
+            message = "The file \(messageData) could not be read. It may be corrupt or an invalid file type."
+        case AudioMessage.ButtonNotConfigured  :
+            message = "Button \(messageData) does not have an audio file configured."
+        case AudioMessage.Error:
+            message = "The file \(messageData) could not be read. It may be corrupt or an invalid file type."
+        }
+        
+        UI() {
+            self.audioManagerDelegate?.audioMessageReceived(messageKey: key, message: message)
+        }
+    }
+    
     // TODO: if I ever want to add recording
     // https://stackoverflow.com/questions/26472747/recording-audio-in-swift
     // https://github.com/snyuryev/m4a-converter-swift/blob/master/ConverterTest/ViewController.swift
    
 } // end class
-
 

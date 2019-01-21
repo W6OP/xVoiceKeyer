@@ -38,8 +38,8 @@
 
 import Cocoa
 
-class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerDelegate {
-   
+class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerDelegate, AudioManagerDelegate {
+    
     var radioManager: RadioManager!
     var audiomanager: AudioManager!
     var preferenceManager: PreferenceManager!
@@ -88,7 +88,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         
         // create the audio manager
         audiomanager = AudioManager()
-        
+        audiomanager.audioManagerDelegate = self
         self.activeSliceLabel.stringValue = "Connecting"
     }
 
@@ -117,13 +117,16 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         if floatArray.count > 0 {
             radioManager.keyRadio(doTransmit: true, buffer: floatArray)
         } else {
-            let alert = NSAlert()
-            alert.messageText = "Unable to play audio."
-            alert.informativeText = "The file is missing or is the incorrect format."
-            alert.alertStyle = .warning
-            alert.addButton(withTitle: "OK")
-            //alert.addButton(withTitle: "Cancel")
-            alert.runModal() //== .alertFirstButtonReturn
+//            let alert = NSAlert()
+//            alert.messageText = "Unable to play audio."
+//            alert.informativeText = "The file is missing or is the incorrect format."
+//            alert.alertStyle = .warning
+//            alert.addButton(withTitle: "OK")
+//            //alert.addButton(withTitle: "Cancel")
+//            //alert.runModal() //== .alertFirstButtonReturn
+//            alert.beginSheetModal(for: NSApp.mainWindow!, completionHandler: { (response) in
+//                if response == NSApplication.ModalResponse.alertFirstButtonReturn { return }
+//            })
         }
     }
     
@@ -149,7 +152,37 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         alert.alertStyle = .warning
         alert.addButton(withTitle: "OK")
         //alert.addButton(withTitle: "Cancel")
-        alert.runModal() //== .alertFirstButtonReturn
+        //alert.runModal() //== .alertFirstButtonReturn
+        alert.beginSheetModal(for: NSApp.mainWindow!, completionHandler: { (response) in
+            if response == NSApplication.ModalResponse.alertFirstButtonReturn { return }
+        })
+    }
+    
+    func audioMessageReceived(messageKey: AudioMessage, message: String) {
+        var heading: String
+        //var message: String
+        
+        switch messageKey {
+        case AudioMessage.FileMissing:
+            heading = "Missing File"
+        case AudioMessage.InvalidFileType:
+            heading = "Invalid File Type"
+        case AudioMessage.ButtonNotConfigured:
+            heading = "Button Not Configured"
+        case AudioMessage.Error:
+            heading = "An Error Has Occurred"
+        }
+        
+        let alert = NSAlert()
+        alert.messageText = heading
+        alert.informativeText = message
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: "OK")
+        //alert.addButton(withTitle: "Cancel")
+        //alert.runModal() //== .alertFirstButtonReturn
+        alert.beginSheetModal(for: NSApp.mainWindow!, completionHandler: { (response) in
+            if response == NSApplication.ModalResponse.alertFirstButtonReturn { return }
+        })
     }
     
     // my code
