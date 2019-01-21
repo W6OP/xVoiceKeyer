@@ -27,16 +27,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-//
-//  RadioManager.swift
-//  SDRVoiceKeyer
-//
-//  Created by Peter Bourget on 7/11/17.
-//  Copyright © 2019 Peter Bourget. All rights reserved.
-//
-// Description: This is a wrapper for the xLib6000 framework written by Doug Adams K3TZR
-// The purpose is to simplify the interface into the API and allow the GUI to function
-// without a reference to the API or even knowledge of the API.
+
+/*
+    RadioManager.swift
+    SDRVoiceKeyer
+
+    Created by Peter Bourget on 7/11/17.
+    Copyright © 2019 Peter Bourget. All rights reserved.
+
+    Description: This is a wrapper for the xLib6000 framework written by Doug Adams K3TZR
+    The purpose is to simplify the interface into the API and allow the GUI to function
+    without a reference to the API or even knowledge of the API.
+*/
 
 import Foundation
 import xLib6000
@@ -93,7 +95,7 @@ protocol RadioManagerDelegate: class {
     // probably not needed
     func openRadioSelector(serialNumber: String)
     // send message to view controller
-    func radioMessageReceived(messageKey: String)
+    func radioMessageReceived(messageKey: RadioManagerMessage)
 }
 
 // MARK: Structs ------------------------------------------------------------------------------------------------
@@ -101,7 +103,7 @@ protocol RadioManagerDelegate: class {
 
 // MARK: Enums ------------------------------------------------------------------------------------------------
 
-public enum ErrorMessage : String {
+public enum RadioManagerMessage : String {
     case DAX = "DAX"
     case MODE = "MODE"
 }
@@ -144,6 +146,8 @@ internal class RadioManager: NSObject, ApiDelegate {
     private var api = Api.sharedInstance          // Api to the Radio
     
     private var audiomanager: AudioManager!
+    
+    private var xmitGain = 75
     
     // MARK: - Private properties ----------------------------------------------------------------------------
     
@@ -364,7 +368,9 @@ internal class RadioManager: NSObject, ApiDelegate {
      - doTransmit: true create and send an audio stream, false will unkey MOX
      - buffer: an array of floats representing an audio sample in PCM format
      */
-    func keyRadio(doTransmit: Bool, buffer: [Float]? = nil) {
+    func keyRadio(doTransmit: Bool, buffer: [Float]? = nil, xmitGain: Int) {
+        
+        self.xmitGain = xmitGain
         
         if doTransmit  {
             self.audioBuffer = buffer!
@@ -397,8 +403,6 @@ internal class RadioManager: NSObject, ApiDelegate {
         
         guard responseValue == "0" else {
             // Anything other than 0 is an error, log it and ignore the Reply
-            //            let errorString = FlexErrors(rawString: responseValue).description()
-            //            print("StreamId response: \(errorString)")
             os_log("Error requesting tx audio stream ID.", log: RadioManager.model_log, type: .error)
             // TODO: notify GUI
             return
@@ -424,11 +428,11 @@ internal class RadioManager: NSObject, ApiDelegate {
      Check to see if there is any reason we can't transmit
      */
     func clearToTransmit() -> Bool {
-        var message: String = ""
+        var message: RadioManagerMessage
         
         if api.radio?.transmit.daxEnabled != true{
             // change DAX to ErrorMessage enum
-            message = "DAX"
+            message = RadioManagerMessage.DAX
             UI() {
                self.radioManagerDelegate?.radioMessageReceived(messageKey: message)
             }
@@ -443,7 +447,7 @@ internal class RadioManager: NSObject, ApiDelegate {
                     case .USB, .LSB, .AM, .FM:
                         break;
                     default:
-                        message = "MODE"
+                        message = RadioManagerMessage.MODE
                         UI() {
                             self.radioManagerDelegate?.radioMessageReceived(messageKey: message)
                         }
@@ -466,7 +470,7 @@ internal class RadioManager: NSObject, ApiDelegate {
     
         api.radio?.mox = true
         txAudioStream.transmit = true
-        txAudioStream.txGain = 100
+        txAudioStream.txGain = self.xmitGain
         
         //if api.radio?.interlock.state == "READY" {
             // define the repeating timer for 24000 hz
@@ -524,7 +528,7 @@ internal class RadioManager: NSObject, ApiDelegate {
     ///
     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         
-        if let kp = keyPath, let ch = change {
+        if let kp = keyPath, let _ = change {
             
             if kp != "springLoaded" {
                 

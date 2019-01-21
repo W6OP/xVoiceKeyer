@@ -86,9 +86,6 @@ internal class AudioManager: NSObject {
         // read the file to a stream
         guard let stream = try? AVAudioFile(forReading: audioURL as URL) else {
             notifyViewController(key: AudioMessage.InvalidFileType, messageData: audioURL.absoluteString!)
-//            UI() {
-//                self.audioManagerDelegate?.audioMessageReceived(messageKey: "FILETYPE", message: "The file \(audioURL) could not be read. It may be corrupt or an invalid file type.")
-//            }
             return floatArray
         }
         
@@ -110,7 +107,8 @@ internal class AudioManager: NSObject {
         
         do {
             try stream.read(into: buffer!)
-        } catch {
+        } catch let error {
+            notifyViewController(key: AudioMessage.Error, messageData: audioURL.absoluteString! + "    \(error.localizedDescription)")
             return floatArray
         }
         
@@ -148,15 +146,10 @@ internal class AudioManager: NSObject {
         
         var error : NSError?
         _ = converter!.convert(to: convertedBuffer!, error: &error, withInputFrom: inputBlock)
-        //assert(status != .error)
-//        print(status.rawValue)
-//        print(inBuffer.format)
-//        print(convertedBuffer!.format)
-//        print(convertedBuffer!.floatChannelData)
-//        print(convertedBuffer!.format.streamDescription.pointee.mBytesPerFrame)
-        
+    
         return convertedBuffer!
     }
+    
     /**
      print the detailed information about an audio file.
      - parameter asbd: printAudioStreamBasicDescription - description object for the file

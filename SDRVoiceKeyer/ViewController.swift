@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017 W6OP
+ * Copyright (c) 2019 Peter Bourget W6OP
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,13 +28,14 @@
  * THE SOFTWARE.
  */
 
-//
-//  MainViewController.swift
-//  SDRVoiceKeyer
-//
-//  Created by Peter Bourget on 2/10/17.
-//  Copyright © 2017 Peter Bourget. All rights reserved.
-//
+/*
+    MainViewController.swift
+    SDRVoiceKeyer
+ 
+    Created by Peter Bourget on 2/10/17.
+    Copyright © 2019 Peter Bourget. All rights reserved.
+    Description: Main View Controller for the SDR Voice Keyer
+*/
 
 import Cocoa
 
@@ -47,8 +48,6 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     var availableRadios = [(model: String, nickname: String, ipAddress: String, default: String, serialNumber: String)]()
     var defaultRadio = (model: "", nickname: "", ipAddress: "", default: "", serialNumber: "")
     
-    //var transmitMode: TransmitMode = TransmitMode.Invalid
-    //var availableSlices: [Int : SliceInfo] = [:]
     var isRadioConnected = false
     
     // MARK: Outlets
@@ -56,7 +55,9 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     @IBOutlet weak var serialNumberLabel: NSTextField!
     @IBOutlet weak var activeSliceLabel: NSTextField!
     @IBOutlet weak var buttonStackView: NSStackView!
-
+    @IBOutlet weak var gainSlider: NSSlider!
+    @IBOutlet weak var gainLabel: NSTextField!
+    
     // MARK: Actions
     // this handles all of the voice buttons - use the tag value to determine which audio file to load
     @IBAction func voiceButtonClicked(_ sender: NSButton) {
@@ -70,9 +71,15 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     
     // stop the current voice playback
     @IBAction func stopButtonClicked(_ sender: NSButton) {
-        radioManager.keyRadio(doTransmit: false)
+        let xmitGain = gainSlider.intValue
+        radioManager.keyRadio(doTransmit: false, xmitGain: Int(xmitGain))
     }
     
+    // update the label when the slider is changed
+    @IBAction func gainSliderChanged(_ sender: NSSlider) {
+        gainLabel.stringValue = "\(gainSlider.intValue)"
+        self.updateUserDefaults()
+    }
     
     // generated code
     override func viewDidLoad() {
@@ -92,58 +99,50 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         self.activeSliceLabel.stringValue = "Connecting"
     }
 
+    // generated code
     override var representedObject: Any? {
         didSet {
         // Update the view, if already loaded.
         }
     }
     
-    
-    // ---------------------------------------------------------------------------
-    // cleanup network sockets when application terminates
-    // TODO: put method in RadioManager and also close Radio object
+    // generated code
     override func viewWillDisappear() {
-        //radioManager.CloseAll()
+        
     }
     
+     // ---------------------------------------------------------------------------
     
     // MARK: Handle button clicks etc.
     internal func voiceButtonSelected(buttonNumber: Int) {
         
         var floatArray = [Float]()
+        let xmitGain = gainSlider.intValue
+        
+        self.serialNumberLabel.isEnabled = true
         
         floatArray = audiomanager.selectAudioFile(buttonNumber: buttonNumber)
         
         if floatArray.count > 0 {
-            radioManager.keyRadio(doTransmit: true, buffer: floatArray)
-        } else {
-//            let alert = NSAlert()
-//            alert.messageText = "Unable to play audio."
-//            alert.informativeText = "The file is missing or is the incorrect format."
-//            alert.alertStyle = .warning
-//            alert.addButton(withTitle: "OK")
-//            //alert.addButton(withTitle: "Cancel")
-//            //alert.runModal() //== .alertFirstButtonReturn
-//            alert.beginSheetModal(for: NSApp.mainWindow!, completionHandler: { (response) in
-//                if response == NSApplication.ModalResponse.alertFirstButtonReturn { return }
-//            })
+            radioManager.keyRadio(doTransmit: true, buffer: floatArray, xmitGain: Int(xmitGain))
         }
     }
     
-    func radioMessageReceived(messageKey: String) {
+    /**
+     receive messages from the radio manager
+     - parameter messageKey: String - enum value for the message
+     */
+    func radioMessageReceived(messageKey: RadioManagerMessage) {
         var heading: String
         var message: String
           
         switch messageKey {
-        case "DAX":
+        case RadioManagerMessage.DAX:
             heading = "DAX Disabled"
             message = "TX DAX must be enabled"
-        case "MODE":
+        case RadioManagerMessage.MODE:
             heading = "Invalid Mode"
             message = "The mode must be a voice mode"
-        default:
-            heading = "Unknown"
-            message = messageKey
         }
         
         let alert = NSAlert()
@@ -151,16 +150,18 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         alert.informativeText = message
         alert.alertStyle = .warning
         alert.addButton(withTitle: "OK")
-        //alert.addButton(withTitle: "Cancel")
-        //alert.runModal() //== .alertFirstButtonReturn
         alert.beginSheetModal(for: NSApp.mainWindow!, completionHandler: { (response) in
             if response == NSApplication.ModalResponse.alertFirstButtonReturn { return }
         })
     }
     
+    /**
+     receive messages from the audio manager
+     - parameter key: AudioMessage - enum value for the message
+     - parameter messageData: String - data to be added to the message
+     */
     func audioMessageReceived(messageKey: AudioMessage, message: String) {
         var heading: String
-        //var message: String
         
         switch messageKey {
         case AudioMessage.FileMissing:
@@ -178,8 +179,6 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         alert.informativeText = message
         alert.alertStyle = .warning
         alert.addButton(withTitle: "OK")
-        //alert.addButton(withTitle: "Cancel")
-        //alert.runModal() //== .alertFirstButtonReturn
         alert.beginSheetModal(for: NSApp.mainWindow!, completionHandler: { (response) in
             if response == NSApplication.ModalResponse.alertFirstButtonReturn { return }
         })
@@ -207,6 +206,8 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
                 self.defaultRadio.ipAddress = def["ipAddress"] as! String
                 self.defaultRadio.default = def["default"] as! String
                 self.defaultRadio.serialNumber = def["serialNumber"] as! String
+                self.gainSlider.intValue = Int32(def["xmitGain"] as! String) ?? 75
+                self.gainLabel.stringValue = def["xmitGain"] as! String
             }
             
             switch discoveredRadios.count {
@@ -221,7 +222,8 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
                         
                         print("nickname \(self.defaultRadio.nickname)")
                         if self.radioManager.connectToRadio(serialNumber: self.defaultRadio.serialNumber) == true {
-                            self.serialNumberLabel.stringValue = self.defaultRadio.nickname
+                            //self.serialNumberLabel.stringValue = self.defaultRadio.nickname
+                            self.view.window?.title = "SDR Voice Keyer for " + self.defaultRadio.nickname
                             self.isRadioConnected = true
                             self.activeSliceLabel.stringValue = "Connected"
                             self.enableVoiceButtons()
@@ -245,7 +247,8 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
                                 
                                 //print("nickname \(self.defaultRadio.nickname)")
                                 if self.radioManager.connectToRadio(serialNumber: self.defaultRadio.serialNumber) == true {
-                                    self.serialNumberLabel.stringValue = self.defaultRadio.nickname
+                                    //self.serialNumberLabel.stringValue = self.defaultRadio.nickname
+                                    self.view.window?.title = "SDR Voice Keyer for " + self.defaultRadio.nickname
                                     self.isRadioConnected = true
                                     self.activeSliceLabel.stringValue = "Connected"
                                     self.enableVoiceButtons()
@@ -279,6 +282,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
             def["ipAddress"] = defaultRadio.ipAddress
             def["default"] = defaultRadio.default
             def["serialNumber"] = defaultRadio.serialNumber
+            def["xmitGain"] = "\(gainSlider.intValue)"
             
             UserDefaults.standard.set(def, forKey: "defaultRadio")
     }
@@ -288,8 +292,9 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         - parameter serialNumber: String
      */
     func doConnectRadio(serialNumber: String) {
+        
         if self.radioManager.connectToRadio(serialNumber: self.defaultRadio.serialNumber) == true {
-            self.serialNumberLabel.stringValue = self.defaultRadio.nickname
+            //self.serialNumberLabel.stringValue = self.defaultRadio.nickname
             self.isRadioConnected = true
             self.activeSliceLabel.stringValue = "Connected"
             self.enableVoiceButtons()
@@ -311,12 +316,12 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         Enable all the voice bttons.
      */
     func enableVoiceButtons(){
-        
         for case let button as NSButton in self.buttonStackView.subviews {
             button.isEnabled = true
         }
     }
     
+    // unused
     func openRadioSelector(serialNumber: String) {
         
     }
