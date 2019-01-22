@@ -30,6 +30,8 @@ internal class AudioManager: NSObject {
     var audioPlayer: AVAudioPlayer!
     var buffers = [Int: [Float]]() // cache for audio buffers to reduce disk reads
     
+    let Required_Sample_Rate: Double = 24000
+    
     override init() {
        
     }
@@ -113,8 +115,8 @@ internal class AudioManager: NSObject {
         }
         
         // convert to 24khz if necessary
-        if stream.fileFormat.sampleRate != 24000{
-            buffer = convertPCMBufferSampleRate(inBuffer: buffer!, inputFormat: format!)
+        if stream.fileFormat.sampleRate != Required_Sample_Rate{
+            buffer = convertPCMBufferSampleRate(inBuffer: buffer!, inputFormat: format!, inputSampleRate: stream.fileFormat.sampleRate)
         }
         
         // swift 4
@@ -131,12 +133,15 @@ internal class AudioManager: NSObject {
      - parameter inputFormat: the format of the buffer to be converted
      - returns: AVAudioPCMBuffer converted to 24khz
     */
-    func convertPCMBufferSampleRate(inBuffer : AVAudioPCMBuffer, inputFormat: AVAudioFormat) -> AVAudioPCMBuffer {
+    func convertPCMBufferSampleRate(inBuffer : AVAudioPCMBuffer, inputFormat: AVAudioFormat, inputSampleRate: Double) -> AVAudioPCMBuffer {
 
-        let outputFormat = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: 24000, channels: 1, interleaved: false)
+        let outputFormat = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: Required_Sample_Rate, channels: 1, interleaved: false)
         let converter = AVAudioConverter(from: inputFormat, to: outputFormat!)
         
-        let convertedBuffer = AVAudioPCMBuffer(pcmFormat: outputFormat!, frameCapacity: AVAudioFrameCount(inBuffer.frameCapacity))
+        // need to reduce the frame capacity or you get multiple replays
+        let divisor: UInt32 = UInt32(inputSampleRate/Required_Sample_Rate)
+        
+        let convertedBuffer = AVAudioPCMBuffer(pcmFormat: outputFormat!, frameCapacity: AVAudioFrameCount(inBuffer.frameCapacity/divisor))
         
         let inputBlock : AVAudioConverterInputBlock = {
             inNumPackets, outStatus in

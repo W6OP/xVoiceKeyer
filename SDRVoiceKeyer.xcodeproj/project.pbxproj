@@ -17,9 +17,28 @@
 		999EED30208675230000F9D6 /* xLib6000.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 999EED2F208675230000F9D6 /* xLib6000.framework */; };
 		99BCEC3B21261EED0040C101 /* Repeat.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 99BCEC3A21261EED0040C101 /* Repeat.framework */; };
 		99C211031F297279003B47F1 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 99C211021F297279003B47F1 /* LICENSE */; };
+		99CEBF7E21F7724400C7ED74 /* xLib6000.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 999EED2F208675230000F9D6 /* xLib6000.framework */; };
+		99CEBF7F21F7724400C7ED74 /* xLib6000.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 999EED2F208675230000F9D6 /* xLib6000.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		99CEBF8121F7724A00C7ED74 /* Repeat.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 99BCEC3A21261EED0040C101 /* Repeat.framework */; };
+		99CEBF8221F7724A00C7ED74 /* Repeat.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 99BCEC3A21261EED0040C101 /* Repeat.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		99D64A2F1E5B9BEB0053ED1F /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D64A2E1E5B9BEB0053ED1F /* AudioManager.swift */; };
 		99EC95A21F1523B100E539E8 /* RadioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99EC95A11F1523B100E539E8 /* RadioManager.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		99CEBF8021F7724400C7ED74 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				99CEBF7F21F7724400C7ED74 /* xLib6000.framework in Embed Frameworks */,
+				99CEBF8221F7724A00C7ED74 /* Repeat.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		99217D511E5D02A50042C787 /* RadioPreferences.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadioPreferences.swift; sourceTree = "<group>"; };
@@ -43,6 +62,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				99CEBF7E21F7724400C7ED74 /* xLib6000.framework in Frameworks */,
+				99CEBF8121F7724A00C7ED74 /* Repeat.framework in Frameworks */,
 				99BCEC3B21261EED0040C101 /* Repeat.framework in Frameworks */,
 				999EED30208675230000F9D6 /* xLib6000.framework in Frameworks */,
 			);
@@ -105,6 +126,7 @@
 				996AC0741E4E3D4800C20AA8 /* Sources */,
 				996AC0751E4E3D4800C20AA8 /* Frameworks */,
 				996AC0761E4E3D4800C20AA8 /* Resources */,
+				99CEBF8021F7724400C7ED74 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);

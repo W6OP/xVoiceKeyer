@@ -106,6 +106,7 @@ protocol RadioManagerDelegate: class {
 public enum RadioManagerMessage : String {
     case DAX = "DAX"
     case MODE = "MODE"
+    case INACTIVE = "INACTIVE"
 }
 
 // MARK: Class Definition ------------------------------------------------------------------------------------------------
@@ -151,19 +152,11 @@ internal class RadioManager: NSObject, ApiDelegate {
     
     // MARK: - Private properties ----------------------------------------------------------------------------
     
-    // Radio that is selected - may not be the active radio
-    //private var selectedRadio: RadioParameters?
-    
     // Notification observers
     private var notifications = [NSObjectProtocol]()
     private let log = (NSApp.delegate as! AppDelegate)
     
     private let clientName = "xVoiceKeyer"
-    //private let connectFailed = "Initial Connection failed"    // Error messages
-    //private let udpBindFailed = "Initial UDP bind failed"
-    
-    //private let versionKey = "CFBundleShortVersionString"      // CF constants
-    //private let buildKey = "CFBundleVersion"
     
     private var availableRadios = [RadioParameters]()          // Array of available Radios
     
@@ -255,7 +248,7 @@ internal class RadioManager: NSObject, ApiDelegate {
         // allow time to hear the UDP broadcasts
         usleep(1500)
         
-        for (_, foundRadio) in api.availableRadios.enumerated() where foundRadio.serialNumber == serialNumber {
+         for (_, foundRadio) in api.availableRadios.enumerated() where foundRadio.serialNumber == serialNumber {
             activeRadio = foundRadio
            
             if api.connect(activeRadio!, clientName: "xVoiceKeyer", isGui: false) {
@@ -293,7 +286,6 @@ internal class RadioManager: NSObject, ApiDelegate {
         
         nc.addObserver(forName: Notification.Name(rawValue: "sliceWillBeRemoved"), object:nil, queue:nil,
                        using:sliceWillBeRemoved)
-        
     }
     
     // MARK: - Radio Methods ----------------------------------------------------------------------------
@@ -371,7 +363,7 @@ internal class RadioManager: NSObject, ApiDelegate {
     func keyRadio(doTransmit: Bool, buffer: [Float]? = nil, xmitGain: Int) {
         
         self.xmitGain = xmitGain
-        
+    
         if doTransmit  {
             self.audioBuffer = buffer!
             if txAudioStreamRequested == false {
@@ -428,10 +420,22 @@ internal class RadioManager: NSObject, ApiDelegate {
      Check to see if there is any reason we can't transmit
      */
     func clearToTransmit() -> Bool {
-        var message: RadioManagerMessage
+        var message: RadioManagerMessage = RadioManagerMessage.INACTIVE
         
+        // see if the GUI has gone away and cleanup if it has
+        if api.activeRadio == nil {
+            UI() {
+                self.radioManagerDelegate?.didDisconnectFromRadio()
+            }
+            
+            self.availableSlices.removeAll()
+            activeRadio = nil
+            availableRadios.removeAll()
+            self.txAudioStream = nil
+            
+            return false
+        }
         if api.radio?.transmit.daxEnabled != true{
-            // change DAX to ErrorMessage enum
             message = RadioManagerMessage.DAX
             UI() {
                self.radioManagerDelegate?.radioMessageReceived(messageKey: message)
@@ -455,6 +459,12 @@ internal class RadioManager: NSObject, ApiDelegate {
                     }
                 }
             }
+        } else { // can't do anything without an active slice
+            UI() {
+                message = RadioManagerMessage.INACTIVE
+                self.radioManagerDelegate?.radioMessageReceived(messageKey: message)
+            }
+            return false
         }
         
         return true
@@ -467,6 +477,8 @@ internal class RadioManager: NSObject, ApiDelegate {
     func sendTxAudioStream(){
         var frameCount: Int = 0
         let result = self.audioBuffer.chunked(into: 128)
+        
+        print("Chunks: \(result.count)")
     
         api.radio?.mox = true
         txAudioStream.transmit = true
