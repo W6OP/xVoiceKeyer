@@ -97,6 +97,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         audiomanager = AudioManager()
         audiomanager.audioManagerDelegate = self
         self.activeSliceLabel.stringValue = "Connecting"
+        
     }
 
     // generated code
@@ -186,6 +187,8 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
             heading = "Button Not Configured"
         case AudioMessage.Error:
             heading = "An Error Has Occurred"
+        case AudioMessage.InvalidSampleRate:
+            heading = "Invalid Sample Rate"
         }
         
         let alert = NSAlert()
@@ -212,7 +215,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
             self.availableRadios = discoveredRadios
             
             // FOR DEBUG: delete user defaults
-            //UserDefaults.standard.set(nil, forKey: "defaultRadio")
+            //deleteUserDefaults()
             
             if let def = UserDefaults.standard.dictionary(forKey: "defaultRadio") {
                 self.defaultRadio.model = def["model"] as! String
@@ -306,6 +309,20 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
             def["xmitGain"] = "\(gainSlider.intValue)"
             
             UserDefaults.standard.set(def, forKey: "defaultRadio")
+    }
+    
+    /**
+     delete all the default settings. This is just used for debugging.
+     */
+    func deleteUserDefaults(){
+        
+        UserDefaults.standard.set(nil, forKey: "defaultRadio")
+        UserDefaults.standard.set(nil, forKey: "NSNavLastRootDirectory")
+        
+        for i in 0..<11 {
+            UserDefaults.standard.set(nil, forKey: "\(i)")
+        }
+        
     }
 
     /**

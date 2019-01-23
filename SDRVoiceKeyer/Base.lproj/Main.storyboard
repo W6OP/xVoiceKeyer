@@ -696,7 +696,7 @@
                             <stackView distribution="fill" orientation="horizontal" alignment="centerY" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="5fF-e0-tYH">
                                 <rect key="frame" x="12" y="34" width="442" height="21"/>
                                 <subviews>
-                                    <button toolTip="W6OP Once" verticalHuggingPriority="750" tag="1" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="IbK-12-Q7U">
+                                    <button verticalHuggingPriority="750" tag="1" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="IbK-12-Q7U">
                                         <rect key="frame" x="-6" y="-7" width="46" height="32"/>
                                         <buttonCell key="cell" type="push" title="1" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="oHM-Tc-mW7">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -720,7 +720,7 @@
                                             <action selector="voiceButtonClicked:" target="XfG-lQ-9wD" id="sve-H4-m9g"/>
                                         </connections>
                                     </button>
-                                    <button toolTip="W6OP 59 TU" verticalHuggingPriority="750" tag="3" translatesAutoresizingMaskIntoConstraints="NO" id="LrM-Yv-oNY">
+                                    <button verticalHuggingPriority="750" tag="3" translatesAutoresizingMaskIntoConstraints="NO" id="LrM-Yv-oNY">
                                         <rect key="frame" x="80" y="-7" width="49" height="32"/>
                                         <buttonCell key="cell" type="push" title="3" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="tm8-FQ-wIl">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -847,9 +847,12 @@
                                 <constraints>
                                     <constraint firstAttribute="width" constant="69" id="2Nr-gN-SPy"/>
                                 </constraints>
-                                <buttonCell key="cell" type="push" title="Stop" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" sound="Blow" inset="2" id="2wp-Ix-yxx">
+                                <buttonCell key="cell" type="push" title="Stop" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="2wp-Ix-yxx">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
+                                    <string key="keyEquivalent" base64-UTF8="YES">
+Gw
+</string>
                                 </buttonCell>
                                 <connections>
                                     <action selector="stopButtonClicked:" target="XfG-lQ-9wD" id="4rg-Po-WGE"/>
@@ -1358,7 +1361,4 @@
             <point key="canvasLocation" x="632" y="364.5"/>
         </scene>
     </scenes>
-    <resources>
-        <sound name="Blow"/>
-    </resources>
 </document>

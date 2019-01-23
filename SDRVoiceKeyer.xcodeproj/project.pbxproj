@@ -13,7 +13,6 @@
 		996AC07E1E4E3D4800C20AA8 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 996AC07D1E4E3D4800C20AA8 /* ViewController.swift */; };
 		996AC0801E4E3D4800C20AA8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 996AC07F1E4E3D4800C20AA8 /* Assets.xcassets */; };
 		996AC0831E4E3D4800C20AA8 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 996AC0811E4E3D4800C20AA8 /* Main.storyboard */; };
-		996FFB7C20D801280073BE85 /* Dax.swift in Sources */ = {isa = PBXBuildFile; fileRef = 996FFB7B20D801280073BE85 /* Dax.swift */; };
 		999EED30208675230000F9D6 /* xLib6000.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 999EED2F208675230000F9D6 /* xLib6000.framework */; };
 		99BCEC3B21261EED0040C101 /* Repeat.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 99BCEC3A21261EED0040C101 /* Repeat.framework */; };
 		99C211031F297279003B47F1 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 99C211021F297279003B47F1 /* LICENSE */; };
@@ -49,7 +48,6 @@
 		996AC07F1E4E3D4800C20AA8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		996AC0821E4E3D4800C20AA8 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		996AC0841E4E3D4800C20AA8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		996FFB7B20D801280073BE85 /* Dax.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dax.swift; sourceTree = "<group>"; };
 		999EED2F208675230000F9D6 /* xLib6000.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = xLib6000.framework; path = ../../Library/Frameworks/xLib6000.framework; sourceTree = "<group>"; };
 		99BCEC3A21261EED0040C101 /* Repeat.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Repeat.framework; path = ../../Library/Frameworks/Repeat.framework; sourceTree = "<group>"; };
 		99C211021F297279003B47F1 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
@@ -102,7 +100,6 @@
 				993D1E681E5F811D00BB5236 /* PreferenceManager.swift */,
 				99EC95A11F1523B100E539E8 /* RadioManager.swift */,
 				99C211021F297279003B47F1 /* LICENSE */,
-				996FFB7B20D801280073BE85 /* Dax.swift */,
 			);
 			path = SDRVoiceKeyer;
 			sourceTree = "<group>";
@@ -192,7 +189,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				99EC95A21F1523B100E539E8 /* RadioManager.swift in Sources */,
-				996FFB7C20D801280073BE85 /* Dax.swift in Sources */,
 				996AC07E1E4E3D4800C20AA8 /* ViewController.swift in Sources */,
 				99217D521E5D02A50042C787 /* RadioPreferences.swift in Sources */,
 				99D64A2F1E5B9BEB0053ED1F /* AudioManager.swift in Sources */,
