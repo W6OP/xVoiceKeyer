@@ -168,6 +168,8 @@ internal class RadioManager: NSObject, ApiDelegate {
     
     private var audioStreamTimer :Repeater?
     
+    private var isDaxEnabled = false
+    
 //    private let concurrentTxAudioQueue = DispatchQueue(
 //        label: "com.w6op.txAudioQueue",
 //        attributes: .concurrent )
@@ -363,6 +365,7 @@ internal class RadioManager: NSObject, ApiDelegate {
     func keyRadio(doTransmit: Bool, buffer: [Float]? = nil, xmitGain: Int) {
         
         self.xmitGain = xmitGain
+        self.isDaxEnabled = (api.radio?.transmit.daxEnabled)!
     
         if doTransmit  {
             self.audioBuffer = buffer!
@@ -378,6 +381,7 @@ internal class RadioManager: NSObject, ApiDelegate {
             }
         } else{
             self.audioStreamTimer = nil
+            api.radio?.transmit.daxEnabled  = self.isDaxEnabled
             api.radio?.mox = false
         }
     }
@@ -435,12 +439,14 @@ internal class RadioManager: NSObject, ApiDelegate {
             
             return false
         }
+        
         if api.radio?.transmit.daxEnabled != true{
-            message = RadioManagerMessage.DAX
-            UI() {
-               self.radioManagerDelegate?.radioMessageReceived(messageKey: message)
-            }
-            return false
+            api.radio?.transmit.daxEnabled  = true
+//            message = RadioManagerMessage.DAX
+//            UI() {
+//               self.radioManagerDelegate?.radioMessageReceived(messageKey: message)
+//            }
+//            return false
         }
         
         if availableSlices.count > 0 {
@@ -493,6 +499,7 @@ internal class RadioManager: NSObject, ApiDelegate {
         // stop transmitting when you run out of audio - could also be interrupted by STOP button
         self.audioStreamTimer!.onStateChanged = { (_ timer: Repeater, _ state: Repeater.State) in
             if self.audioStreamTimer!.state.isFinished {
+                self.api.radio?.transmit.daxEnabled  = self.isDaxEnabled
                 self.api.radio?.mox = false
                 self.audioStreamTimer = nil
             }
