@@ -126,65 +126,37 @@ internal class RadioManager: NSObject, ApiDelegate {
     
     // setup logging for the RadioManager
     static let model_log = OSLog(subsystem: "com.w6op.RadioManager-Swift", category: "Model")
-    
     // delegate to pass messages back to viewcontroller
     weak var radioManagerDelegate:RadioManagerDelegate?
     
     // MARK: - Internal properties ----------------------------------------------------------------------------
-    
     // list of serial numbers of discovered radios
     var discoveredRadios: [(model: String, nickname: String, ipAddress: String, default: String, serialNumber: String)]
-    
     // list of avaiable slices - only one will be active
     var availableSlices: [xLib6000.Slice]
     
     // MARK: - Internal Radio properties ----------------------------------------------------------------------------
-    
     // Radio currently running
     internal var activeRadio: RadioParameters?
-    
     // this starts the discovery process
     private var api = Api.sharedInstance          // Api to the Radio
-    
     private var audiomanager: AudioManager!
-    
-    private var xmitGain = 75
+    private var xmitGain = 35
     
     // MARK: - Private properties ----------------------------------------------------------------------------
     
     // Notification observers
     private var notifications = [NSObjectProtocol]()
     private let log = (NSApp.delegate as! AppDelegate)
+    private let clientName = "SDRVoiceKeyer"
     
-    private let clientName = "xVoiceKeyer"
-    
-    private var availableRadios = [RadioParameters]()          // Array of available Radios
-    
+    private var availableRadios = [RadioParameters]()   // Array of available Radios
     private var txAudioStream: TxAudioStream!
     private var txAudioStreamId: DaxStreamId
     private var txAudioStreamRequested = false
-    
     private var audioBuffer = [Float]()
-    
-    private var audioStreamTimer :Repeater?
-    
-    private var isDaxEnabled = false
-    
-//    private let concurrentTxAudioQueue = DispatchQueue(
-//        label: "com.w6op.txAudioQueue",
-//        attributes: .concurrent )
-    
-    // MARK: - Observation properties ----------------------------------------------------------------------------
-    // KVO
-//        private let _radioKeyPaths =                                // Radio keypaths to observe
-//            [
-//                #keyPath(Radio.slices.active),
-//                #keyPath(Radio.lineoutMute),
-//                #keyPath(Radio.headphoneGain),
-//                #keyPath(Radio.headphoneMute),
-//                #keyPath(Radio.tnfEnabled),
-//                #keyPath(Radio.fullDuplexEnabled)
-//        ]
+    private var audioStreamTimer :Repeater? // timer to meter audio chunks to radio at 24khz sample rate
+    private var isDaxEnabled = false    // persist DAX transmit button state
     
     // MARK: - RadioManager Initialization ----------------------------------------------------------------------------
     
@@ -507,105 +479,5 @@ internal class RadioManager: NSObject, ApiDelegate {
         // start the timer
         audioStreamTimer?.start()
     }
-    
-    // MARK: - Audio Stream Methods ----------------------------------------------------------------------------
-    
-   
-    
-    // ----------------------------------------------------------------------------
-    // MARK: - Observation methods
-    
-    /// Add / Remove property observations
-    ///
-    /// - Parameters:
-    ///   - object: the object of the observations
-    ///   - paths: an array of KeyPaths
-    ///   - add: add / remove (defaults to add)
-    ///
-    private func observations<T: NSObject>(_ object: T, paths: [String], remove: Bool = false) {
-        
-        // for each KeyPath Add / Remove observations
-        for keyPath in paths {
-            if remove {
-                object.removeObserver(self, forKeyPath: keyPath, context: nil)
-            }
-            else {
-                object.addObserver(self, forKeyPath: keyPath, options: [.initial, .new], context: nil)
-            }
-        }
-    }
-    
-    /// Process changes to observed keyPaths (may arrive on any thread)
-    ///
-    /// - Parameters:
-    ///   - keyPath: the KeyPath that changed
-    ///   - object: the Object of the KeyPath
-    ///   - change: a change dictionary
-    ///   - context: a pointer to a context (if any)
-    ///
-    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
-        
-        if let kp = keyPath, let _ = change {
-            
-            if kp != "springLoaded" {
-                
-                // interact with the UI
-                //DispatchQueue.main.async { [unowned self] in
-                
-                switch kp {
-                    //                    case #keyPath(Radio.txAudioStreams):
-                    ////                        self._mainWindowController?.headphoneGain.integerValue = ch[.newKey] as! Int
-                //                        break
-                case #keyPath(Radio.headphoneMute):
-                    //                        self._mainWindowController?.headphoneMute.state = (ch[.newKey] as! Bool) ? NSControl.StateValue.onState : NSControl.StateValue.offState
-                    break
-                case #keyPath(Radio.tnfEnabled):
-                    //                        self._mainWindowController?.tnfEnabled.state = (ch[.newKey] as! Bool) ? NSControl.StateValue.onState : NSControl.StateValue.offState
-                    break
-                case #keyPath(Radio.fullDuplexEnabled):
-                    //                        self._mainWindowController?.fdxEnabled.state = (ch[.newKey] as! Bool) ? NSControl.StateValue.onState : NSControl.StateValue.offState
-                    break
-                    //                    case #keyPath(Opus.remoteRxOn):
-                    //
-                    //                        if let opus = object as? Opus, let start = ch[.newKey] as? Bool{
-                    //
-                    //                            if start == true && opus.delegate == nil {
-                    //
-                    //                                // Opus starting, supply a decoder
-                    ////                                self._opusManager.rxAudio(true)
-                    ////                                opus.delegate = self._opusManager
-                    //
-                    //                            } else if start == false && opus.delegate != nil {
-                    //
-                    //                                // opus stopping, remove the decoder
-                    ////                                self._opusManager.rxAudio(false)
-                    ////                                opus.delegate = nil
-                    //                            }
-                    //                        }
-                    
-                    //                    case #keyPath(Opus.remoteTxOn):
-                    //                        break
-                    //                        //if let opus = object as? Opus, let start = ch[.newKey] as? Bool{
-                    //
-                    //                            // Tx Opus starting / stopping
-                    //                            //self._opusManager.txAudio( start, opus: opus )
-                    //                        //}
-                    //
-                    //                    case #keyPath(Opus.rxStreamStopped):
-                    //
-                    //                        // FIXME: Implement this
-                    //                        break
-                    
-                default:
-                    // log and ignore any other keyPaths
-                    break
-                    //self.log.msg("Unknown observation - \(String(describing: keyPath))", level: .error, function: #function, file: #file, line: #line)
-                }
-                //}
-            }
-        }
-    }
-    
-    
-    
+
 } // end class
