@@ -44,6 +44,7 @@
 import Cocoa
 import AVFoundation
 import AudioToolbox
+import os
 
 // send message to view controller
 protocol AudioManagerDelegate: class {
@@ -63,11 +64,12 @@ public enum AudioMessage : String {
 internal class AudioManager: NSObject {
     
     weak var audioManagerDelegate:AudioManagerDelegate?
+    // setup logging for the RadioManager
+    static let model_log = OSLog(subsystem: "com.w6op.AudioManager-Swift", category: "Model")
+    static let Required_Sample_Rate: Double = 24000
     
     var audioPlayer: AVAudioPlayer!
     var buffers = [Int: [Float]]() // cache for audio buffers to reduce disk reads
-    
-    let Required_Sample_Rate: Double = 24000
     
     override init() {
        
@@ -148,7 +150,7 @@ internal class AudioManager: NSObject {
         var buffer = AVAudioPCMBuffer(pcmFormat: format!, frameCapacity: AVAudioFrameCount(stream.length))
     
         // if sample rate is less than 24khz, just notify user
-        if sampleRate < Required_Sample_Rate {
+        if sampleRate < AudioManager.Required_Sample_Rate {
             notifyViewController(key: AudioMessage.InvalidSampleRate, messageData: "\(audioURL)", "\(sampleRate)")
             return floatArray
         }
@@ -161,8 +163,8 @@ internal class AudioManager: NSObject {
         }
         
         // convert to 24khz if necessary
-        if sampleRate > Required_Sample_Rate {
-            if Int32(sampleRate.truncatingRemainder(dividingBy: Required_Sample_Rate)) == 0 {
+        if sampleRate > AudioManager.Required_Sample_Rate {
+            if Int32(sampleRate.truncatingRemainder(dividingBy: AudioManager.Required_Sample_Rate)) == 0 {
                 buffer = convertPCMBufferSampleRate(inBuffer: buffer!, inputFormat: format!, inputSampleRate: sampleRate)
             } else {
                 notifyViewController(key: AudioMessage.InvalidSampleRate, messageData: "\(audioURL)", "\(sampleRate)")
@@ -187,11 +189,13 @@ internal class AudioManager: NSObject {
     */
     func convertPCMBufferSampleRate(inBuffer : AVAudioPCMBuffer, inputFormat: AVAudioFormat, inputSampleRate: Double) -> AVAudioPCMBuffer {
 
-        let outputFormat = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: Required_Sample_Rate, channels: 1, interleaved: false)
+        let outputFormat = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: AudioManager.Required_Sample_Rate, channels: 1, interleaved: false)
         let converter = AVAudioConverter(from: inputFormat, to: outputFormat!)
         
+        os_log("Sample rate conversion requested.", log: AudioManager.model_log, type: .info)
+        
         // need to reduce the frame capacity or you get multiple replays
-        let divisor: UInt32 = UInt32(inputSampleRate/Required_Sample_Rate)
+        let divisor: UInt32 = UInt32(inputSampleRate/AudioManager.Required_Sample_Rate)
         
         let convertedBuffer = AVAudioPCMBuffer(pcmFormat: outputFormat!, frameCapacity: AVAudioFrameCount(inBuffer.frameCapacity/divisor))
         

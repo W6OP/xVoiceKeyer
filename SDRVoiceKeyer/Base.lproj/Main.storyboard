@@ -871,7 +871,7 @@ Gw
                             </textField>
                             <slider verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="sf7-82-7TM">
                                 <rect key="frame" x="180" y="5" width="136" height="24"/>
-                                <sliderCell key="cell" state="on" alignment="left" maxValue="100" doubleValue="75" tickMarkPosition="above" numberOfTickMarks="10" sliderType="linear" id="ijp-li-onz"/>
+                                <sliderCell key="cell" state="on" alignment="left" maxValue="100" doubleValue="35" tickMarkPosition="above" numberOfTickMarks="10" sliderType="linear" id="ijp-li-onz"/>
                                 <connections>
                                     <action selector="gainSliderChanged:" target="XfG-lQ-9wD" id="4VT-bO-ry9"/>
                                 </connections>
@@ -881,7 +881,7 @@ Gw
                                 <constraints>
                                     <constraint firstAttribute="width" constant="26" id="28V-wx-gfZ"/>
                                 </constraints>
-                                <textFieldCell key="cell" lineBreakMode="clipping" title="75" id="fJI-Sq-bWE">
+                                <textFieldCell key="cell" lineBreakMode="clipping" title="35" id="fJI-Sq-bWE">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>

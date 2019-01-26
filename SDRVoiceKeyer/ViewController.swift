@@ -150,14 +150,14 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         
         switch messageKey {
         case RadioManagerMessage.DAX:
-            heading = "DAX Disabled"
-            message = "TX DAX must be enabled"
+            heading = "TX DAX Disabled"
+            message = "TX DAX must be enabled to transmit."
         case RadioManagerMessage.MODE:
             heading = "Invalid Mode"
-            message = "The mode must be a voice mode"
+            message = "The mode must be a voice mode."
         case RadioManagerMessage.INACTIVE:
             heading = "Missing Slice or Radio"
-            message = "There is no active slice or the radio GUI is missing"
+            message = "There is no active slice or the radio GUI is missing."
         }
         
         let alert = NSAlert()
