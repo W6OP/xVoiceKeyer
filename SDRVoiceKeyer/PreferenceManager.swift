@@ -28,6 +28,16 @@
  * THE SOFTWARE.
  */
 
+/*
+ PreferenceManager.swift
+ SDRVoiceKeyer
+ 
+ Created by Peter Bourget on 2/20/17.
+ Copyright © 2019 Peter Bourget W6OP. All rights reserved.
+ 
+ Description: Opens preference panel.
+ */
+
 //
 //  PreferenceManager.swift
 //  SDRVoiceKeyer

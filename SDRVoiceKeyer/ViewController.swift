@@ -29,13 +29,13 @@
  */
 
 /*
-    MainViewController.swift
-    SDRVoiceKeyer
+ MainViewController.swift
+ SDRVoiceKeyer
  
-    Created by Peter Bourget on 2/10/17.
-    Copyright © 2019 Peter Bourget. All rights reserved.
-    Description: Main View Controller for the SDR Voice Keyer
-*/
+ Created by Peter Bourget on 2/10/17.
+ Copyright © 2019 Peter Bourget W6OP. All rights reserved.
+ Description: Main View Controller for the SDR Voice Keyer
+ */
 
 import Cocoa
 
@@ -99,11 +99,11 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         self.activeSliceLabel.stringValue = "Connecting"
         
     }
-
+    
     // generated code
     override var representedObject: Any? {
         didSet {
-        // Update the view, if already loaded.
+            // Update the view, if already loaded.
         }
     }
     
@@ -112,7 +112,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         
     }
     
-     // ---------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------
     
     // MARK: Handle button clicks etc.
     internal func voiceButtonSelected(buttonNumber: Int) {
@@ -147,7 +147,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     func radioMessageReceived(messageKey: RadioManagerMessage) {
         var heading: String
         var message: String
-          
+        
         switch messageKey {
         case RadioManagerMessage.DAX:
             heading = "DAX Disabled"
@@ -201,118 +201,117 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         })
     }
     
-    // my code
-    // Load the information for the default radio if there is any
-    // Check how many radios were discovered. If there is a default and it matches the discovered radio - connect
-    // otherwise show the preference pane. Also if there is a default, update its information
-    // if there are multiple radios, see if one is the default, if so - connect
-    // otherwise pop the preferences pane
+   
+    /**
+     Load the information for the default radio if there is any.
+     Check how many radios were discovered. If there is a default and it matches the discovered radio - connect
+     otherwise show the preference pane. Also if there is a default, update its information
+     if there are multiple radios, see if one is the default, if so - connect
+     otherwise pop the preferences pane.
+     */
     func didDiscoverRadio(discoveredRadios: [(model: String, nickname: String, ipAddress: String, default: String, serialNumber: String)]) {
         
-        //DispatchQueue.main.async { [unowned self] in
+        var found: Bool = false
+        self.availableRadios = discoveredRadios
+        
+        // FOR DEBUG: delete user defaults
+        //deleteUserDefaults()
+        
+        if let def = UserDefaults.standard.dictionary(forKey: "defaultRadio") {
+            self.defaultRadio.model = def["model"] as! String
+            self.defaultRadio.nickname = def["nickname"] as! String
+            self.defaultRadio.ipAddress = def["ipAddress"] as! String
+            self.defaultRadio.default = def["default"] as! String
+            self.defaultRadio.serialNumber = def["serialNumber"] as! String
             
-            var found: Bool = false
-            self.availableRadios = discoveredRadios
-            
-            // FOR DEBUG: delete user defaults
-            //deleteUserDefaults()
-            
-            if let def = UserDefaults.standard.dictionary(forKey: "defaultRadio") {
-                self.defaultRadio.model = def["model"] as! String
-                self.defaultRadio.nickname = def["nickname"] as! String
-                self.defaultRadio.ipAddress = def["ipAddress"] as! String
-                self.defaultRadio.default = def["default"] as! String
-                self.defaultRadio.serialNumber = def["serialNumber"] as! String
+            //self.gainSlider.intValue = def["xmitGain"] as! Int32? ?? 75
+            if def["xmitGain"] != nil {
+                self.gainSlider.intValue = Int32(def["xmitGain"] as! String) ?? 75
+                self.gainLabel.stringValue = def["xmitGain"] as! String
+            } else {
+                self.gainSlider.intValue = 75
+                self.gainLabel.stringValue = "75"
+            }
+        }
+        
+        switch discoveredRadios.count {
+        case 1:
+            if self.defaultRadio.serialNumber == discoveredRadios[0].serialNumber {
                 
-                //self.gainSlider.intValue = def["xmitGain"] as! Int32? ?? 75
-                if def["xmitGain"] != nil {
-                    self.gainSlider.intValue = Int32(def["xmitGain"] as! String) ?? 75
-                    self.gainLabel.stringValue = def["xmitGain"] as! String
-                } else {
-                    self.gainSlider.intValue = 75
-                    self.gainLabel.stringValue = "75"
+                // could have the same nickname but model or ipaddress may have changed
+                self.defaultRadio.model = discoveredRadios[0].model
+                self.defaultRadio.nickname = discoveredRadios[0].nickname
+                self.defaultRadio.ipAddress = discoveredRadios[0].ipAddress
+                self.updateUserDefaults()
+                
+                print("nickname \(self.defaultRadio.nickname)")
+                if self.radioManager.connectToRadio(serialNumber: self.defaultRadio.serialNumber) == true {
+                    //self.serialNumberLabel.stringValue = self.defaultRadio.nickname
+                    self.view.window?.title = "SDR Voice Keyer for " + self.defaultRadio.nickname
+                    self.isRadioConnected = true
+                    self.activeSliceLabel.stringValue = "Connected"
+                    self.enableVoiceButtons()
                 }
             }
-            
-            switch discoveredRadios.count {
-            case 1:
-                if self.defaultRadio.serialNumber == discoveredRadios[0].serialNumber {
-                    
-                    // could have the same nickname but model or ipaddress may have changed
-                    self.defaultRadio.model = discoveredRadios[0].model
-                    self.defaultRadio.nickname = discoveredRadios[0].nickname
-                    self.defaultRadio.ipAddress = discoveredRadios[0].ipAddress
-                    self.updateUserDefaults()
-                    
-                    print("nickname \(self.defaultRadio.nickname)")
-                    if self.radioManager.connectToRadio(serialNumber: self.defaultRadio.serialNumber) == true {
-                        //self.serialNumberLabel.stringValue = self.defaultRadio.nickname
-                        self.view.window?.title = "SDR Voice Keyer for " + self.defaultRadio.nickname
-                        self.isRadioConnected = true
-                        self.activeSliceLabel.stringValue = "Connected"
-                        self.enableVoiceButtons()
-                    }
-                }
-                else{
-                    self.showPreferences("" as AnyObject)
-                }
-                break
-            default:
-                if self.defaultRadio.nickname != "" {
-                    for radio in discoveredRadios {
-                        if self.defaultRadio.serialNumber == radio.serialNumber && self.defaultRadio.default == YesNo.Yes.rawValue {
-                            found = true
-                            
-                            // could have the same nickname but model or ipaddress may have change
-                            self.defaultRadio.model = radio.model
-                            self.defaultRadio.nickname = radio.nickname
-                            self.defaultRadio.ipAddress = radio.ipAddress
-                            self.updateUserDefaults()
-                            
-                            //print("nickname \(self.defaultRadio.nickname)")
-                            if self.radioManager.connectToRadio(serialNumber: self.defaultRadio.serialNumber) == true {
-                                //self.serialNumberLabel.stringValue = self.defaultRadio.nickname
-                                self.view.window?.title = "SDR Voice Keyer for " + self.defaultRadio.nickname
-                                self.isRadioConnected = true
-                                self.activeSliceLabel.stringValue = "Connected"
-                                self.enableVoiceButtons()
-                            }
-                            break
+            else{
+                self.showPreferences("" as AnyObject)
+            }
+            break
+        default:
+            if self.defaultRadio.nickname != "" {
+                for radio in discoveredRadios {
+                    if self.defaultRadio.serialNumber == radio.serialNumber && self.defaultRadio.default == YesNo.Yes.rawValue {
+                        found = true
+                        
+                        // could have the same nickname but model or ipaddress may have change
+                        self.defaultRadio.model = radio.model
+                        self.defaultRadio.nickname = radio.nickname
+                        self.defaultRadio.ipAddress = radio.ipAddress
+                        self.updateUserDefaults()
+                        
+                        //print("nickname \(self.defaultRadio.nickname)")
+                        if self.radioManager.connectToRadio(serialNumber: self.defaultRadio.serialNumber) == true {
+                            //self.serialNumberLabel.stringValue = self.defaultRadio.nickname
+                            self.view.window?.title = "SDR Voice Keyer for " + self.defaultRadio.nickname
+                            self.isRadioConnected = true
+                            self.activeSliceLabel.stringValue = "Connected"
+                            self.enableVoiceButtons()
                         }
+                        break
                     }
-                    
-                    if !found {
-                        self.showPreferences("" as AnyObject)
-                    }
-                }
-                else {
-                    self.showPreferences("" as AnyObject)
                 }
                 
-                break
+                if !found {
+                    self.showPreferences("" as AnyObject)
+                }
             }
-        //}
+            else {
+                self.showPreferences("" as AnyObject)
+            }
+            
+            break
+        }
     }
     
     /**
-        Update the user defaults
+     Update the user defaults.
      */
     func updateUserDefaults() {
         
-            var def = [String : String]()
+        var def = [String : String]()
         
-            def["model"] = defaultRadio.model
-            def["nickname"] = defaultRadio.nickname
-            def["ipAddress"] = defaultRadio.ipAddress
-            def["default"] = defaultRadio.default
-            def["serialNumber"] = defaultRadio.serialNumber
-            def["xmitGain"] = "\(gainSlider.intValue)"
-            
-            UserDefaults.standard.set(def, forKey: "defaultRadio")
+        def["model"] = defaultRadio.model
+        def["nickname"] = defaultRadio.nickname
+        def["ipAddress"] = defaultRadio.ipAddress
+        def["default"] = defaultRadio.default
+        def["serialNumber"] = defaultRadio.serialNumber
+        def["xmitGain"] = "\(gainSlider.intValue)"
+        
+        UserDefaults.standard.set(def, forKey: "defaultRadio")
     }
     
     /**
-     delete all the default settings. This is just used for debugging.
+     Delete all the default settings. This is just used for debugging.
      */
     func deleteUserDefaults(){
         
@@ -324,10 +323,10 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         }
         
     }
-
+    
     /**
-        select the desired radio and instruct the RadioManager to start the connect process
-        - parameter serialNumber: String
+     select the desired radio and instruct the RadioManager to start the connect process
+     - parameter serialNumber: String
      */
     func doConnectRadio(serialNumber: String) {
         
@@ -340,15 +339,15 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     }
     
     /**
-        We disconnected to the selected radio.
+     We disconnected to the selected radio.
      */
     func didDisconnectFromRadio() {
-            self.isRadioConnected = false
-            self.activeSliceLabel.stringValue = "Disconnected"
+        self.isRadioConnected = false
+        self.activeSliceLabel.stringValue = "Disconnected"
     }
     
     /**
-        Enable all the voice bttons.
+     Enable all the voice bttons.
      */
     func enableVoiceButtons(){
         for case let button as NSButton in self.buttonStackView.subviews {
@@ -356,21 +355,22 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         }
     }
     
-    // unused
+    /**
+     Unused.
+     */
     func openRadioSelector(serialNumber: String) {
         
     }
     
-    // show the preferences panel and populate it
+    /**
+     Show the preferences panel and populate it
+     */
     func showPreferences(_ sender: AnyObject) {
         let SB = NSStoryboard(name: NSStoryboard.Name(rawValue: "Main"), bundle: nil)
         let PVC: RadioPreferences = SB.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(rawValue: "radioPreferences")) as! RadioPreferences
         PVC.availableRadios = self.availableRadios
         PVC.preferenceManager = self.preferenceManager
-        // This works with Swift 4
-        //let SB = NSStoryboard(name: NSStoryboard.Name(rawValue: "Main"), bundle: nil)
-        //let PVC: RadioPreferences = SB.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(rawValue: "radioPreferences")) as! RadioPreferences
-        
+       
         presentViewControllerAsSheet(PVC)
     }
     

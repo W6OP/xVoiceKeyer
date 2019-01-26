@@ -28,13 +28,16 @@
  * THE SOFTWARE.
  */
 
-//
-//  RadioPreferences.swift
-//  SDRVoiceKeyer
-//
-//  Created by Peter Bourget on 2/21/17.
-//  Copyright © 2017 Peter Bourget. All rights reserved.
-//
+
+/*
+ RadioPreferences.swift
+ SDRVoiceKeyer
+
+ Created by Peter Bourget on 2/21/17.
+ Copyright © 2019 Peter Bourget W6OP. All rights reserved.
+ 
+ Description: Loads and save the user defaults and settings.
+*/
 
 import Cocoa
 

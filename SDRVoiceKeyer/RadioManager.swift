@@ -33,7 +33,7 @@
     SDRVoiceKeyer
 
     Created by Peter Bourget on 7/11/17.
-    Copyright © 2019 Peter Bourget. All rights reserved.
+    Copyright © 2019 Peter Bourget W6OP. All rights reserved.
 
     Description: This is a wrapper for the xLib6000 framework written by Doug Adams K3TZR
     The purpose is to simplify the interface into the API and allow the GUI to function
@@ -479,28 +479,26 @@ internal class RadioManager: NSObject, ApiDelegate {
         let result = self.audioBuffer.chunked(into: 128)
         
         print("Chunks: \(result.count)")
-    
+        
         api.radio?.mox = true
         txAudioStream.transmit = true
         txAudioStream.txGain = self.xmitGain
         
-        //if api.radio?.interlock.state == "READY" {
-            // define the repeating timer for 24000 hz
-            self.audioStreamTimer = Repeater.every(.microseconds(5300), count: result.count) { _ in
-                let _ = self.txAudioStream.sendTXAudio(left: result[frameCount], right: result[frameCount], samples: Int(result[frameCount].count))
-                frameCount += 1
+        // define the repeating timer for 24000 hz
+        self.audioStreamTimer = Repeater.every(.microseconds(5300), count: result.count) { _ in
+            let _ = self.txAudioStream.sendTXAudio(left: result[frameCount], right: result[frameCount], samples: Int(result[frameCount].count))
+            frameCount += 1
+        }
+        
+        // stop transmitting when you run out of audio - could also be interrupted by STOP button
+        self.audioStreamTimer!.onStateChanged = { (_ timer: Repeater, _ state: Repeater.State) in
+            if self.audioStreamTimer!.state.isFinished {
+                self.api.radio?.mox = false
+                self.audioStreamTimer = nil
             }
-            
-            // stop transmitting when you run out of audio - could also be interrupted by STOP button
-            self.audioStreamTimer!.onStateChanged = { (_ timer: Repeater, _ state: Repeater.State) in
-                if self.audioStreamTimer!.state.isFinished {
-                    self.api.radio?.mox = false
-                    self.audioStreamTimer = nil
-                }
-            }
-            // start the timer
-            audioStreamTimer?.start()
-        //}
+        }
+        // start the timer
+        audioStreamTimer?.start()
     }
     
     // MARK: - Audio Stream Methods ----------------------------------------------------------------------------

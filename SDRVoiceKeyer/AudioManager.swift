@@ -1,21 +1,56 @@
-//
-//  SoundManager.swift
-//  SDRVoiceKeyer
-//
-//  Created by Peter Bourget on 2/20/17.
-//  Copyright © 2019 Peter Bourget W6OP. All rights reserved.
-//
+/**
+ * Copyright (c) 2019 Peter Bourget W6OP
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * Notwithstanding the foregoing, you may not use, copy, modify, merge, publish,
+ * distribute, sublicense, create a derivative work, and/or sell copies of the
+ * Software in any work that is designed, intended, or marketed for pedagogical or
+ * instructional purposes related to programming, coding, application development,
+ * or information technology.  Permission for such use, copying, modification,
+ * merger, publication, distribution, sublicensing, creation of derivative works,
+ * or sale is expressly withheld.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+/*
+ AudioManager.swift
+ SDRVoiceKeyer
+ 
+ Created by Peter Bourget on 2/20/17.
+ Copyright © 2019 Peter Bourget W6OP. All rights reserved.
+ 
+ Description: This class manages all of the audio processing. It loads the audio
+ files off the disk, checks their format and loads an audio buffer. Converts the
+ sample rate if necessary and returns a Float Array to be sent to the radio by
+ the RadioManager class.
+ */
 
 import Cocoa
 import AVFoundation
-import MediaPlayer
 import AudioToolbox
 
+// send message to view controller
 protocol AudioManagerDelegate: class {
-    // send message to view controller
     func audioMessageReceived(messageKey: AudioMessage, message: String)
 }
 
+// enforce error verbs
 public enum AudioMessage : String {
     case ButtonNotConfigured = "BUTTON"
     case Error = "ERROR"
@@ -24,6 +59,7 @@ public enum AudioMessage : String {
     case InvalidSampleRate = "SAMPLERATE"
 }
 
+// Start of class definition.
 internal class AudioManager: NSObject {
     
     weak var audioManagerDelegate:AudioManagerDelegate?
@@ -67,6 +103,8 @@ internal class AudioManager: NSObject {
                     if floatArray.count > 0 // if buffer does not contain value already
                     {
                         buffers.updateValue(floatArray, forKey: buttonNumber)
+                    } else {
+                        buffers.removeValue(forKey: buttonNumber)
                     }
                 } catch{
                     notifyViewController(key: AudioMessage.Error, messageData: String(error.localizedDescription))
@@ -128,6 +166,7 @@ internal class AudioManager: NSObject {
                 buffer = convertPCMBufferSampleRate(inBuffer: buffer!, inputFormat: format!, inputSampleRate: sampleRate)
             } else {
                 notifyViewController(key: AudioMessage.InvalidSampleRate, messageData: "\(audioURL)", "\(sampleRate)")
+                
                 return floatArray
             }
         }
