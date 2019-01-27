@@ -108,6 +108,11 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
             }
         }
     }
+    
+//    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+//        print(self.tableArray[indexPath.row])
+//        tableView.deselectRow(at: indexPath, animated: true)
+//    }
 
     
     // MARK: generated code
@@ -160,9 +165,9 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
         
         for i in 0..<availableRadios.count {
             if availableRadios[i].nickname == defaultRadio.nickname && availableRadios[i].model == defaultRadio.model {
-                availableRadios[i].default = YesNo.Yes.rawValue
+                availableRadios[i].default = YesNo.Yes.rawValue  //YES
             } else {
-                availableRadios[i].default = YesNo.No.rawValue
+                availableRadios[i].default = YesNo.No.rawValue //NO
             }
         }
         

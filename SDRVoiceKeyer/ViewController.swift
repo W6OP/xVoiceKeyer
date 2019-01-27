@@ -208,6 +208,8 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      otherwise show the preference pane. Also if there is a default, update its information
      if there are multiple radios, see if one is the default, if so - connect
      otherwise pop the preferences pane.
+     
+     This is the normal flow. When the Connect button is clicked it goes straight to doConnectToradio()
      */
     func didDiscoverRadio(discoveredRadios: [(model: String, nickname: String, ipAddress: String, default: String, serialNumber: String)]) {
         
@@ -242,16 +244,16 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
                 self.defaultRadio.model = discoveredRadios[0].model
                 self.defaultRadio.nickname = discoveredRadios[0].nickname
                 self.defaultRadio.ipAddress = discoveredRadios[0].ipAddress
+                
                 self.updateUserDefaults()
                 
-                print("nickname \(self.defaultRadio.nickname)")
-                if self.radioManager.connectToRadio(serialNumber: self.defaultRadio.serialNumber) == true {
-                    //self.serialNumberLabel.stringValue = self.defaultRadio.nickname
-                    self.view.window?.title = "SDR Voice Keyer for " + self.defaultRadio.nickname
-                    self.isRadioConnected = true
-                    self.activeSliceLabel.stringValue = "Connected"
-                    self.enableVoiceButtons()
-                }
+                self.doConnectRadio(serialNumber: self.defaultRadio.serialNumber, doConnect: true)
+//                if self.radioManager.connectToRadio(serialNumber: self.defaultRadio.serialNumber, doConnect: true) == true {
+//                    self.view.window?.title = "SDR Voice Keyer V2 for " + self.defaultRadio.nickname
+//                    self.isRadioConnected = true
+//                    self.activeSliceLabel.stringValue = "Connected"
+//                    self.enableVoiceButtons()
+//                }
             }
             else{
                 self.showPreferences("" as AnyObject)
@@ -267,16 +269,16 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
                         self.defaultRadio.model = radio.model
                         self.defaultRadio.nickname = radio.nickname
                         self.defaultRadio.ipAddress = radio.ipAddress
+                        
                         self.updateUserDefaults()
                         
-                        //print("nickname \(self.defaultRadio.nickname)")
-                        if self.radioManager.connectToRadio(serialNumber: self.defaultRadio.serialNumber) == true {
-                            //self.serialNumberLabel.stringValue = self.defaultRadio.nickname
-                            self.view.window?.title = "SDR Voice Keyer for " + self.defaultRadio.nickname
-                            self.isRadioConnected = true
-                            self.activeSliceLabel.stringValue = "Connected"
-                            self.enableVoiceButtons()
-                        }
+                        self.doConnectRadio(serialNumber: self.defaultRadio.serialNumber, doConnect: true)
+//                        if self.radioManager.connectToRadio(serialNumber: self.defaultRadio.serialNumber, doConnect: true) == true {
+//                            self.view.window?.title = "SDR Voice Keyer V2 for " + self.defaultRadio.nickname
+//                            self.isRadioConnected = true
+//                            self.activeSliceLabel.stringValue = "Connected"
+//                            self.enableVoiceButtons()
+//                        }
                         break
                     }
                 }
@@ -328,10 +330,10 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      select the desired radio and instruct the RadioManager to start the connect process
      - parameter serialNumber: String
      */
-    func doConnectRadio(serialNumber: String) {
-        
-        if self.radioManager.connectToRadio(serialNumber: serialNumber) == true {
-            //self.serialNumberLabel.stringValue = self.defaultRadio.nickname
+    func doConnectRadio(serialNumber: String, doConnect: Bool) {
+
+        if self.radioManager.connectToRadio(serialNumber: serialNumber, doConnect: doConnect) == true {
+            self.view.window?.title = "SDR Voice Keyer V2 for " + self.defaultRadio.nickname
             self.isRadioConnected = true
             self.activeSliceLabel.stringValue = "Connected"
             self.enableVoiceButtons()
@@ -339,7 +341,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     }
     
     /**
-     We disconnected to the selected radio.
+     We disconnected from the selected radio.
      */
     func didDisconnectFromRadio() {
         self.isRadioConnected = false

@@ -38,14 +38,6 @@
  Description: Opens preference panel.
  */
 
-//
-//  PreferenceManager.swift
-//  SDRVoiceKeyer
-//
-//  Created by Peter Bourget on 2/23/17.
-//  Copyright © 2017 Peter Bourget. All rights reserved.
-//
-
 import Cocoa
 
 // http://stackoverflow.com/questions/28008262/detailed-instruction-on-use-of-nsopenpanel
@@ -60,9 +52,9 @@ extension NSOpenPanel {
         canChooseFiles = true
         canCreateDirectories = false
         allowedFileTypes = ["wav", "mp3", "m4a", "aac", "aiff"]
-        return runModal().rawValue == NSFileHandlingPanelOKButton ? urls.first : nil
+        //return runModal().rawValue == NSFileHandlingPanelOKButton ? urls.first : nil
         // This works with Swift 4
-        //return runModal() == NSApplication.ModalResponse.OK ? urls.first : nil
+        return runModal() == NSApplication.ModalResponse.OK ? urls.first : nil
     }
 }
 
@@ -71,7 +63,7 @@ extension NSOpenPanel {
  */
 protocol PreferenceManagerDelegate: class {
     // radio was discovered
-    func doConnectRadio(serialNumber: String)
+    func doConnectRadio(serialNumber: String, doConnect: Bool)
 }
 
 enum YesNo: String {
@@ -112,7 +104,7 @@ class PreferenceManager: NSObject {
      */
     @objc func connectToRadio(serialNumber: String){
         
-        self.preferenceManagerDelegate?.doConnectRadio(serialNumber: serialNumber)
+        self.preferenceManagerDelegate?.doConnectRadio(serialNumber: serialNumber, doConnect: true)
         
     }
 

@@ -215,19 +215,29 @@ internal class RadioManager: NSObject, ApiDelegate {
      - parameters:
      - serialNumber: a string representing the serial number of the radio to connect
      */
-    internal func connectToRadio( serialNumber: String) -> Bool {
+    internal func connectToRadio( serialNumber: String, doConnect: Bool) -> Bool {
         
         os_log("Connect to the Radio.", log: RadioManager.model_log, type: .info)
         
         // allow time to hear the UDP broadcasts
         usleep(1500)
         
-         for (_, foundRadio) in api.availableRadios.enumerated() where foundRadio.serialNumber == serialNumber {
-            activeRadio = foundRadio
-           
-            if api.connect(activeRadio!, clientName: "xVoiceKeyer", isGui: false) {
-                return true
+        if (doConnect){
+            for (_, foundRadio) in api.availableRadios.enumerated() where foundRadio.serialNumber == serialNumber {
+                activeRadio = foundRadio
+                
+                // IS THIS NECESSARY?
+//                if api.connectionState == .clientConnected {
+//                    api.disconnect()
+//                    usleep(1000)
+//                }
+                
+                if api.connect(activeRadio!, clientName: self.clientName, isGui: false) {
+                    return true
+                }
             }
+        } else {
+            api.disconnect()
         }
         
         return false
