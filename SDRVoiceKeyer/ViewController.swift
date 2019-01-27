@@ -145,8 +145,8 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      - parameter messageKey: String - enum value for the message
      */
     func radioMessageReceived(messageKey: RadioManagerMessage) {
-        var heading: String
-        var message: String
+        var heading: String = ""
+        var message: String = ""
         
         switch messageKey {
         case RadioManagerMessage.DAX:
@@ -156,8 +156,15 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
             heading = "Invalid Mode"
             message = "The mode must be a voice mode."
         case RadioManagerMessage.INACTIVE:
-            heading = "Missing Slice or Radio"
-            message = "There is no active slice or the radio GUI is missing."
+            //heading = "Missing Slice or Radio"
+            //message = "There is no active slice or the radio GUI is missing."
+            disableVoiceButtons()
+            self.activeSliceLabel.stringValue = "No Active Slice"
+            return
+        case RadioManagerMessage.ACTIVE:
+            enableVoiceButtons()
+            self.activeSliceLabel.stringValue = "Connected"
+            return
         }
         
         let alert = NSAlert()
@@ -226,13 +233,12 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
             self.defaultRadio.default = def["default"] as! String
             self.defaultRadio.serialNumber = def["serialNumber"] as! String
             
-            //self.gainSlider.intValue = def["xmitGain"] as! Int32? ?? 75
             if def["xmitGain"] != nil {
-                self.gainSlider.intValue = Int32(def["xmitGain"] as! String) ?? 75
+                self.gainSlider.intValue = Int32(def["xmitGain"] as! String) ?? 35
                 self.gainLabel.stringValue = def["xmitGain"] as! String
             } else {
-                self.gainSlider.intValue = 75
-                self.gainLabel.stringValue = "75"
+                self.gainSlider.intValue = 35
+                self.gainLabel.stringValue = "35"
             }
         }
         
@@ -248,12 +254,6 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
                 self.updateUserDefaults()
                 
                 self.doConnectRadio(serialNumber: self.defaultRadio.serialNumber, doConnect: true)
-//                if self.radioManager.connectToRadio(serialNumber: self.defaultRadio.serialNumber, doConnect: true) == true {
-//                    self.view.window?.title = "SDR Voice Keyer V2 for " + self.defaultRadio.nickname
-//                    self.isRadioConnected = true
-//                    self.activeSliceLabel.stringValue = "Connected"
-//                    self.enableVoiceButtons()
-//                }
             }
             else{
                 self.showPreferences("" as AnyObject)
@@ -273,12 +273,6 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
                         self.updateUserDefaults()
                         
                         self.doConnectRadio(serialNumber: self.defaultRadio.serialNumber, doConnect: true)
-//                        if self.radioManager.connectToRadio(serialNumber: self.defaultRadio.serialNumber, doConnect: true) == true {
-//                            self.view.window?.title = "SDR Voice Keyer V2 for " + self.defaultRadio.nickname
-//                            self.isRadioConnected = true
-//                            self.activeSliceLabel.stringValue = "Connected"
-//                            self.enableVoiceButtons()
-//                        }
                         break
                     }
                 }
@@ -290,7 +284,6 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
             else {
                 self.showPreferences("" as AnyObject)
             }
-            
             break
         }
     }
@@ -349,11 +342,20 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     }
     
     /**
-     Enable all the voice bttons.
+     Enable all the voice buttons.
      */
     func enableVoiceButtons(){
         for case let button as NSButton in self.buttonStackView.subviews {
             button.isEnabled = true
+        }
+    }
+    
+    /**
+     Disable all the voice buttons.
+     */
+    func disableVoiceButtons(){
+        for case let button as NSButton in self.buttonStackView.subviews {
+            button.isEnabled = false
         }
     }
     

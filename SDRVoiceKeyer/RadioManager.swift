@@ -107,6 +107,7 @@ public enum RadioManagerMessage : String {
     case DAX = "DAX"
     case MODE = "MODE"
     case INACTIVE = "INACTIVE"
+    case ACTIVE = "ACTIVE"
 }
 
 // MARK: Class Definition ------------------------------------------------------------------------------------------------
@@ -233,6 +234,13 @@ internal class RadioManager: NSObject, ApiDelegate {
 //                }
                 
                 if api.connect(activeRadio!, clientName: self.clientName, isGui: false) {
+                    // notify viewcontroller if no slices (or GUI) on connect
+                    if api.radio?.sliceList.count == 0 {
+                        UI() {
+                            let message = RadioManagerMessage.INACTIVE
+                            self.radioManagerDelegate?.radioMessageReceived(messageKey: message)
+                        }
+                    }
                     return true
                 }
             }
@@ -313,6 +321,13 @@ internal class RadioManager: NSObject, ApiDelegate {
             let slice: xLib6000.Slice = (note.object as! xLib6000.Slice)
             self.availableSlices.append(slice)
             print("Slice has been addded")
+        
+        if (api.radio?.slices.count)! > 0 {
+            UI() {
+                let message = RadioManagerMessage.ACTIVE
+                self.radioManagerDelegate?.radioMessageReceived(messageKey: message)
+            }
+        }
     }
     
     /**
@@ -329,9 +344,17 @@ internal class RadioManager: NSObject, ApiDelegate {
             if slice.daxChannel == self.availableSlices[count].daxChannel {
                 self.availableSlices.remove(at: count)
                 print("Slice has been removed")
-                return;
+                break
             }
             count += 1
+        }
+        
+        // notify viewcontroller if no slices
+        if api.radio?.sliceList.count == 0 {
+            UI() {
+                let message = RadioManagerMessage.INACTIVE
+                self.radioManagerDelegate?.radioMessageReceived(messageKey: message)
+            }
         }
     }
     
