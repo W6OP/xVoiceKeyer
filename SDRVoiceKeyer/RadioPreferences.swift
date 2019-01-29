@@ -66,6 +66,8 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
         Close this view.
      */
     @IBAction func buttonOk(_ sender: Any) {
+        saveUserDefaults()
+        preferenceManager.updateButton()
         self.dismiss(self)
     }
     
@@ -88,6 +90,7 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
      */
     @IBAction func buttonConnect(_ sender: NSButton) {
         if defaultRadio.default == YesNo.Yes.rawValue {
+            saveUserDefaults()
             self.dismiss(self)
             preferenceManager.connectToRadio(serialNumber: defaultRadio.serialNumber)
         }
@@ -108,12 +111,6 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
             }
         }
     }
-    
-//    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//        print(self.tableArray[indexPath.row])
-//        tableView.deselectRow(at: indexPath, animated: true)
-//    }
-
     
     // MARK: generated code
     

@@ -64,6 +64,8 @@ extension NSOpenPanel {
 protocol PreferenceManagerDelegate: class {
     // radio was discovered
     func doConnectRadio(serialNumber: String, doConnect: Bool)
+    // buttons updated
+    func doUpdateButtons()
 }
 
 enum YesNo: String {
@@ -97,6 +99,9 @@ class PreferenceManager: NSObject {
         return filePath
     }
     
+    @objc func updateButton(){
+        self.preferenceManagerDelegate?.doUpdateButtons()
+    }
     /**
         Send a message to delegate subscriber to call doConnectRadio() method
         using the radio's serial number.

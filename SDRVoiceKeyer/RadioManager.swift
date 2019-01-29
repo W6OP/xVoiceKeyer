@@ -93,7 +93,7 @@ protocol RadioManagerDelegate: class {
     // notify the GUI the tcp connection to the radio was closed
     func didDisconnectFromRadio()
     // probably not needed
-    func openRadioSelector(serialNumber: String)
+    //func openRadioSelector(serialNumber: String)
     // send message to view controller
     func radioMessageReceived(messageKey: RadioManagerMessage)
 }

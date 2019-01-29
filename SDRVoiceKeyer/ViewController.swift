@@ -40,7 +40,7 @@
 import Cocoa
 
 class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerDelegate, AudioManagerDelegate {
-    
+
     var radioManager: RadioManager!
     var audiomanager: AudioManager!
     var preferenceManager: PreferenceManager!
@@ -106,7 +106,11 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
             // Update the view, if already loaded.
         }
     }
+
     
+    override func viewDidAppear() {
+      
+    }
     // generated code
     override func viewWillDisappear() {
         
@@ -320,7 +324,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     }
     
     /**
-     select the desired radio and instruct the RadioManager to start the connect process
+     Select the desired radio and instruct the RadioManager to start the connect process.
      - parameter serialNumber: String
      */
     func doConnectRadio(serialNumber: String, doConnect: Bool) {
@@ -329,7 +333,6 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
             self.view.window?.title = "SDR Voice Keyer V2 for " + self.defaultRadio.nickname
             self.isRadioConnected = true
             self.activeSliceLabel.stringValue = "Connected"
-            self.enableVoiceButtons()
         }
     }
     
@@ -342,11 +345,25 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     }
     
     /**
+     Refresh the voice buttons.
+     */
+    func doUpdateButtons() {
+        
+        enableVoiceButtons()
+    }
+    
+    /**
      Enable all the voice buttons.
      */
     func enableVoiceButtons(){
         for case let button as NSButton in self.buttonStackView.subviews {
-            button.isEnabled = true
+            if UserDefaults.standard.string(forKey: String(button.tag)) != "" {
+                button.isEnabled = true
+                print("Button enabled: \(button.tag) : \(String(describing: UserDefaults.standard.string(forKey: String(button.tag))))")
+            } else {
+                button.isEnabled = false
+                 print("Button disabled: \(button.tag) : \(String(describing: UserDefaults.standard.string(forKey: String(button.tag))))")
+            }
         }
     }
     
@@ -357,13 +374,6 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         for case let button as NSButton in self.buttonStackView.subviews {
             button.isEnabled = false
         }
-    }
-    
-    /**
-     Unused.
-     */
-    func openRadioSelector(serialNumber: String) {
-        
     }
     
     /**
