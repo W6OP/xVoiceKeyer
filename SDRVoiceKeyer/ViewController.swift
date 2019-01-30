@@ -38,10 +38,9 @@
  */
 
 import Cocoa
-import AVKit
 
 class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerDelegate, AudioManagerDelegate {
-
+    
     var radioManager: RadioManager!
     var audiomanager: AudioManager!
     var preferenceManager: PreferenceManager!
@@ -50,6 +49,8 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     var defaultRadio = (model: "", nickname: "", ipAddress: "", default: "", serialNumber: "")
     
     var isRadioConnected = false
+    
+    lazy var window: NSWindow! = self.view.window
     
     // MARK: Outlets
     @IBOutlet weak var voiceButton1: NSButton!
@@ -72,8 +73,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     
     // stop the current voice playback
     @IBAction func stopButtonClicked(_ sender: NSButton) {
-        let xmitGain = gainSlider.intValue
-        radioManager.keyRadio(doTransmit: false, xmitGain: Int(xmitGain))
+        stopTransmitting()
     }
     
     // update the label when the slider is changed
@@ -108,16 +108,28 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         }
     }
 
-    
+    // don't allow full screen
     override func viewDidAppear() {
-      
+        window.styleMask.remove(.resizable)
     }
-    // generated code
+    // generated codenil
     override func viewWillDisappear() {
         
     }
     
+//    override func acceptsFirstResponder() -> Bool  {
+//        return true
+//    }
+    
     // ---------------------------------------------------------------------------
+    
+    /**
+    Immediately stop transmitting
+     */
+    internal func stopTransmitting() {
+        let xmitGain = gainSlider.intValue
+        radioManager.keyRadio(doTransmit: false, xmitGain: Int(xmitGain))
+    }
     
     // MARK: Handle button clicks etc.
     internal func voiceButtonSelected(buttonNumber: Int) {
