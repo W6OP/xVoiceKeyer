@@ -2,8 +2,11 @@
 <document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
         <deployment identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaDFRPlugin" version="14460.1"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14460.31"/>
+        <capability name="System colors introduced in macOS 10.14" minToolsVersion="10.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+        <capability name="the Touch Bar" minToolsVersion="8.1" minSystemVersion="10.12.2" requiredIntegratedClassName="NSTouchBar"/>
     </dependencies>
     <scenes>
         <!--Application-->
@@ -917,6 +920,196 @@ Gw
                             <constraint firstItem="sf7-82-7TM" firstAttribute="leading" secondItem="SiB-HI-Og7" secondAttribute="trailing" constant="8" symbolic="YES" id="vTi-Ki-2vy"/>
                         </constraints>
                     </view>
+                    <touchBar key="touchBar" id="rsd-78-Xah">
+                        <touchBarItems>
+                            <touchBarItem id="VSA-aW-Cmj">
+                                <viewController key="viewController" id="Km9-cl-wQC">
+                                    <button key="view" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="7zL-nQ-2nY">
+                                        <rect key="frame" x="0.0" y="0.0" width="72" height="30"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <buttonCell key="cell" type="push" title="Stop" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="iDU-9V-sx9">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" usesAppearanceFont="YES"/>
+                                        </buttonCell>
+                                        <color key="bezelColor" name="systemRedColor" catalog="System" colorSpace="catalog"/>
+                                        <connections>
+                                            <action selector="stopButtonClicked:" target="XfG-lQ-9wD" id="5fg-DM-omg"/>
+                                        </connections>
+                                    </button>
+                                </viewController>
+                            </touchBarItem>
+                            <touchBarItem id="aOH-wj-ccc">
+                                <viewController key="viewController" id="ibI-mD-0TO">
+                                    <button key="view" verticalHuggingPriority="750" misplaced="YES" tag="1" translatesAutoresizingMaskIntoConstraints="NO" id="uIl-4S-591">
+                                        <rect key="frame" x="0.0" y="0.0" width="40" height="30"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <buttonCell key="cell" type="push" title="1" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="zVw-bg-Rgy">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" usesAppearanceFont="YES"/>
+                                        </buttonCell>
+                                        <color key="bezelColor" name="controlAccentColor" catalog="System" colorSpace="catalog"/>
+                                        <connections>
+                                            <action selector="voiceButtonClicked:" target="XfG-lQ-9wD" id="wKI-r8-Ivl"/>
+                                        </connections>
+                                    </button>
+                                </viewController>
+                                <size key="designTimeSize" width="40" height="30"/>
+                            </touchBarItem>
+                            <touchBarItem id="Zq3-tF-g9f">
+                                <viewController key="viewController" id="az3-JM-Whi">
+                                    <button key="view" verticalHuggingPriority="750" misplaced="YES" tag="2" translatesAutoresizingMaskIntoConstraints="NO" id="Yr2-Jv-mwk">
+                                        <rect key="frame" x="0.0" y="0.0" width="40" height="30"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <buttonCell key="cell" type="push" title="2" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="EBC-cr-InM">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" usesAppearanceFont="YES"/>
+                                        </buttonCell>
+                                        <color key="bezelColor" name="controlAccentColor" catalog="System" colorSpace="catalog"/>
+                                        <connections>
+                                            <action selector="voiceButtonClicked:" target="XfG-lQ-9wD" id="Z29-WS-SQ6"/>
+                                        </connections>
+                                    </button>
+                                </viewController>
+                                <size key="designTimeSize" width="40" height="30"/>
+                            </touchBarItem>
+                            <touchBarItem id="W0e-ke-wr1">
+                                <viewController key="viewController" id="aII-v2-r0z">
+                                    <button key="view" verticalHuggingPriority="750" misplaced="YES" tag="3" translatesAutoresizingMaskIntoConstraints="NO" id="rdv-FM-oZI">
+                                        <rect key="frame" x="0.0" y="0.0" width="40" height="30"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <buttonCell key="cell" type="push" title="3" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="wMv-G2-MVO">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" usesAppearanceFont="YES"/>
+                                        </buttonCell>
+                                        <color key="bezelColor" name="controlAccentColor" catalog="System" colorSpace="catalog"/>
+                                        <connections>
+                                            <action selector="voiceButtonClicked:" target="XfG-lQ-9wD" id="Uig-n5-UuF"/>
+                                        </connections>
+                                    </button>
+                                </viewController>
+                                <size key="designTimeSize" width="40" height="30"/>
+                            </touchBarItem>
+                            <touchBarItem id="nv2-Xd-5Fn">
+                                <viewController key="viewController" id="41K-sQ-JKg">
+                                    <button key="view" verticalHuggingPriority="750" misplaced="YES" tag="4" translatesAutoresizingMaskIntoConstraints="NO" id="wm0-e8-zhf">
+                                        <rect key="frame" x="0.0" y="0.0" width="40" height="30"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <buttonCell key="cell" type="push" title="4" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="h5T-KD-JcZ">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" usesAppearanceFont="YES"/>
+                                        </buttonCell>
+                                        <color key="bezelColor" name="controlAccentColor" catalog="System" colorSpace="catalog"/>
+                                        <connections>
+                                            <action selector="voiceButtonClicked:" target="XfG-lQ-9wD" id="PS5-Sz-3EI"/>
+                                        </connections>
+                                    </button>
+                                </viewController>
+                                <size key="designTimeSize" width="40" height="30"/>
+                            </touchBarItem>
+                            <touchBarItem id="wX4-53-zkB">
+                                <viewController key="viewController" id="6d3-R4-bNQ">
+                                    <button key="view" verticalHuggingPriority="750" misplaced="YES" tag="5" translatesAutoresizingMaskIntoConstraints="NO" id="GLI-v1-zWi">
+                                        <rect key="frame" x="0.0" y="0.0" width="40" height="30"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <buttonCell key="cell" type="push" title="5" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="t0j-Ib-uTA">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" usesAppearanceFont="YES"/>
+                                        </buttonCell>
+                                        <color key="bezelColor" name="controlAccentColor" catalog="System" colorSpace="catalog"/>
+                                        <connections>
+                                            <action selector="voiceButtonClicked:" target="XfG-lQ-9wD" id="tAe-9b-kNZ"/>
+                                        </connections>
+                                    </button>
+                                </viewController>
+                                <size key="designTimeSize" width="40" height="30"/>
+                            </touchBarItem>
+                            <touchBarItem id="YQh-y3-jFh">
+                                <viewController key="viewController" id="tRL-R6-4YD">
+                                    <button key="view" verticalHuggingPriority="750" misplaced="YES" tag="6" translatesAutoresizingMaskIntoConstraints="NO" id="1RS-i9-qto">
+                                        <rect key="frame" x="0.0" y="0.0" width="40" height="30"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <buttonCell key="cell" type="push" title="6" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="k4p-Xz-nXI">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" usesAppearanceFont="YES"/>
+                                        </buttonCell>
+                                        <color key="bezelColor" name="controlAccentColor" catalog="System" colorSpace="catalog"/>
+                                        <connections>
+                                            <action selector="voiceButtonClicked:" target="XfG-lQ-9wD" id="VL6-id-bj5"/>
+                                        </connections>
+                                    </button>
+                                </viewController>
+                                <size key="designTimeSize" width="40" height="30"/>
+                            </touchBarItem>
+                            <touchBarItem id="Xvy-aK-Qp0">
+                                <viewController key="viewController" id="Lki-2y-NtV">
+                                    <button key="view" verticalHuggingPriority="750" misplaced="YES" tag="7" translatesAutoresizingMaskIntoConstraints="NO" id="2Ha-jR-Z57">
+                                        <rect key="frame" x="0.0" y="0.0" width="40" height="30"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <buttonCell key="cell" type="push" title="7" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Ixe-fE-20X">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" usesAppearanceFont="YES"/>
+                                        </buttonCell>
+                                        <color key="bezelColor" name="controlAccentColor" catalog="System" colorSpace="catalog"/>
+                                        <connections>
+                                            <action selector="voiceButtonClicked:" target="XfG-lQ-9wD" id="2rD-6T-Mw2"/>
+                                        </connections>
+                                    </button>
+                                </viewController>
+                                <size key="designTimeSize" width="40" height="30"/>
+                            </touchBarItem>
+                            <touchBarItem id="XxP-dL-NeC">
+                                <viewController key="viewController" id="wjN-5T-kii">
+                                    <button key="view" verticalHuggingPriority="750" misplaced="YES" tag="8" translatesAutoresizingMaskIntoConstraints="NO" id="Od8-Ms-jSb">
+                                        <rect key="frame" x="0.0" y="0.0" width="40" height="30"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <buttonCell key="cell" type="push" title="8" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="1xQ-1l-19f">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" usesAppearanceFont="YES"/>
+                                        </buttonCell>
+                                        <color key="bezelColor" name="controlAccentColor" catalog="System" colorSpace="catalog"/>
+                                        <connections>
+                                            <action selector="voiceButtonClicked:" target="XfG-lQ-9wD" id="UzU-bt-n3L"/>
+                                        </connections>
+                                    </button>
+                                </viewController>
+                                <size key="designTimeSize" width="40" height="30"/>
+                            </touchBarItem>
+                            <touchBarItem id="0I5-Uc-Syk">
+                                <viewController key="viewController" id="nGt-cZ-PId">
+                                    <button key="view" verticalHuggingPriority="750" misplaced="YES" tag="9" translatesAutoresizingMaskIntoConstraints="NO" id="rww-fz-hGT">
+                                        <rect key="frame" x="0.0" y="0.0" width="40" height="30"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <buttonCell key="cell" type="push" title="9" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Ue3-Nb-ZaZ">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" usesAppearanceFont="YES"/>
+                                        </buttonCell>
+                                        <color key="bezelColor" name="controlAccentColor" catalog="System" colorSpace="catalog"/>
+                                        <connections>
+                                            <action selector="voiceButtonClicked:" target="XfG-lQ-9wD" id="gRQ-mo-ynI"/>
+                                        </connections>
+                                    </button>
+                                </viewController>
+                                <size key="designTimeSize" width="40" height="30"/>
+                            </touchBarItem>
+                            <touchBarItem id="XMf-Pl-CSB">
+                                <viewController key="viewController" id="zvS-Jo-a4M">
+                                    <button key="view" verticalHuggingPriority="750" misplaced="YES" tag="10" translatesAutoresizingMaskIntoConstraints="NO" id="44z-yM-FsU">
+                                        <rect key="frame" x="0.0" y="0.0" width="40" height="30"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <buttonCell key="cell" type="push" title="10" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="rkc-pz-jow">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" usesAppearanceFont="YES"/>
+                                        </buttonCell>
+                                        <color key="bezelColor" name="controlAccentColor" catalog="System" colorSpace="catalog"/>
+                                        <connections>
+                                            <action selector="voiceButtonClicked:" target="XfG-lQ-9wD" id="JWG-eB-3Bi"/>
+                                        </connections>
+                                    </button>
+                                </viewController>
+                                <size key="designTimeSize" width="40" height="30"/>
+                            </touchBarItem>
+                        </touchBarItems>
+                    </touchBar>
                     <connections>
                         <outlet property="activeSliceLabel" destination="s4N-YB-pa1" id="Rtf-cf-zSc"/>
                         <outlet property="buttonStackView" destination="5fF-e0-tYH" id="7qy-Ez-Bfy"/>

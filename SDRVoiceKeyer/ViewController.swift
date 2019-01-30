@@ -38,6 +38,7 @@
  */
 
 import Cocoa
+import AVKit
 
 class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerDelegate, AudioManagerDelegate {
 
@@ -359,10 +360,10 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         for case let button as NSButton in self.buttonStackView.subviews {
             if UserDefaults.standard.string(forKey: String(button.tag)) != "" {
                 button.isEnabled = true
-                print("Button enabled: \(button.tag) : \(String(describing: UserDefaults.standard.string(forKey: String(button.tag))))")
+                //print("Button enabled: \(button.tag) : \(String(describing: UserDefaults.standard.string(forKey: String(button.tag))))")
             } else {
                 button.isEnabled = false
-                 print("Button disabled: \(button.tag) : \(String(describing: UserDefaults.standard.string(forKey: String(button.tag))))")
+                //print("Button disabled: \(button.tag) : \(String(describing: UserDefaults.standard.string(forKey: String(button.tag))))")
             }
         }
     }
