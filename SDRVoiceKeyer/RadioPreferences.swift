@@ -1,6 +1,4 @@
 /**
- * Copyright (c) 2017 W6OP
- *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -168,9 +166,8 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
             }
         }
         
-        // why did these stop working elsewhere
+        // why did this stop working elsewhere
         buttonDefaultControl.isEnabled = true
-        //buttonConnectControl.isEnabled = true
     }
     
     /**
@@ -243,26 +240,17 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
     func numberOfRows(in aTableView: NSTableView) -> Int {
         
         // get the number of rows
-        print ("rows: ")
+        //print ("rows: ")
         return availableRadios.count
     }
     
-    // ----------------------------------------------------------------------------
-    // MARK: - NSTableView Delegate methods
-    
-    ///
-    ///
-    /// - Parameters:
-    ///   - tableView: the Tableview
-    ///   - tableColumn: a Tablecolumn
-    ///   - row: the row number
-    /// - Returns: an NSView
-    ///
+    // MARK: - NSTableView Delegate methods ----------------------------------------------------------------------------
     
     /**
      Tableview view delegate method.
      - parameter tableView: a Tableview
      - parameter tableColumn: a tableColumn
+     - row: the row number
      - returns: an NSView
      */
     func tableView(_ tableView: NSTableView, objectValueFor tableColumn: NSTableColumn?, row: Int) -> Any? {

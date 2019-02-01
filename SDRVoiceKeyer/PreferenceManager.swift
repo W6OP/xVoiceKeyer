@@ -1,6 +1,4 @@
 /**
- * Copyright (c) 2017 W6OP
- *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -52,7 +50,6 @@ extension NSOpenPanel {
         canChooseFiles = true
         canCreateDirectories = false
         allowedFileTypes = ["wav", "mp3", "m4a", "aac", "aiff"]
-        //return runModal().rawValue == NSFileHandlingPanelOKButton ? urls.first : nil
         // This works with Swift 4
         return runModal() == NSApplication.ModalResponse.OK ? urls.first : nil
     }
@@ -102,6 +99,7 @@ class PreferenceManager: NSObject {
     @objc func updateButton(){
         self.preferenceManagerDelegate?.doUpdateButtons()
     }
+    
     /**
         Send a message to delegate subscriber to call doConnectRadio() method
         using the radio's serial number.

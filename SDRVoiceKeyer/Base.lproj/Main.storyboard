@@ -685,7 +685,7 @@
                             <touchBarItem id="VSA-aW-Cmj">
                                 <viewController key="viewController" id="Km9-cl-wQC">
                                     <button key="view" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="7zL-nQ-2nY">
-                                        <rect key="frame" x="0.0" y="0.0" width="72" height="30"/>
+                                        <rect key="frame" x="0.0" y="-11" width="84" height="41"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <buttonCell key="cell" type="push" title="Stop" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="iDU-9V-sx9">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -701,7 +701,7 @@
                             <touchBarItem id="blz-n6-gIM">
                                 <viewController key="viewController" id="l2Z-oY-eRF">
                                     <segmentedControl key="view" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="jFD-bj-Vnf">
-                                        <rect key="frame" x="0.0" y="0.0" width="527" height="30"/>
+                                        <rect key="frame" x="0.0" y="-3" width="531" height="33"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <segmentedCell key="cell" borderStyle="border" alignment="left" tag="1" segmentDistribution="fillEqually" style="rounded" trackingMode="momentary" id="Dkx-0L-Esg">
                                             <font key="font" metaFont="system"/>

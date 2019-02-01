@@ -112,16 +112,12 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     override func viewDidAppear() {
         window.styleMask.remove(.resizable)
     }
-    // generated codenil
+    // generated code
     override func viewWillDisappear() {
         
     }
     
-//    override func acceptsFirstResponder() -> Bool  {
-//        return true
-//    }
-    
-    // ---------------------------------------------------------------------------
+    // Radio Methods ---------------------------------------------------------------------------
     
     /**
     Immediately stop transmitting
@@ -131,7 +127,12 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         radioManager.keyRadio(doTransmit: false, xmitGain: Int(xmitGain))
     }
     
-    // MARK: Handle button clicks etc.
+    // MARK: GUI Methods
+    
+    /**
+     Handle button clicks etc. from any voice button
+     - parameter buttonNumber: Int
+     */
     internal func voiceButtonSelected(buttonNumber: Int) {
         
         var floatArray = [Float]()
@@ -159,7 +160,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     
     /**
      receive messages from the radio manager
-     - parameter messageKey: String - enum value for the message
+     - parameter messageKey: RadioManagerMessage - enum value for the message
      */
     func radioMessageReceived(messageKey: RadioManagerMessage) {
         var heading: String = ""
@@ -339,6 +340,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     /**
      Select the desired radio and instruct the RadioManager to start the connect process.
      - parameter serialNumber: String
+     - parameter doConnect: Bool
      */
     func doConnectRadio(serialNumber: String, doConnect: Bool) {
 
@@ -361,7 +363,6 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      Refresh the voice buttons.
      */
     func doUpdateButtons() {
-        
         enableVoiceButtons()
     }
     

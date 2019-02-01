@@ -88,12 +88,10 @@ func UI(_ block: @escaping ()->Void) {
  */
 protocol RadioManagerDelegate: class {
     
-    // radio was discovered
+    // radio was discovered - notify GUI
     func didDiscoverRadio(discoveredRadios: [(model: String, nickname: String, ipAddress: String, default: String, serialNumber: String)])
     // notify the GUI the tcp connection to the radio was closed
     func didDisconnectFromRadio()
-    // probably not needed
-    //func openRadioSelector(serialNumber: String)
     // send message to view controller
     func radioMessageReceived(messageKey: RadioManagerMessage)
 }
@@ -103,6 +101,9 @@ protocol RadioManagerDelegate: class {
 
 // MARK: Enums ------------------------------------------------------------------------------------------------
 
+/**
+ Unify message nouns going to the view controller
+ */
 public enum RadioManagerMessage : String {
     case DAX = "DAX"
     case MODE = "MODE"
@@ -112,11 +113,11 @@ public enum RadioManagerMessage : String {
 
 // MARK: Class Definition ------------------------------------------------------------------------------------------------
 
-private var _replyHandlers                  = [SequenceId: ReplyTuple]()  // Dictionary of pending replies
-internal let _objectQ                       = DispatchQueue(label: "xVoiceKeyer" + ".objectQ", attributes: [.concurrent])
-internal var replyHandlers: [SequenceId: ReplyTuple] {
-    get { return _objectQ.sync { _replyHandlers } }
-    set { _objectQ.sync(flags: .barrier) { _replyHandlers = newValue } } }
+//private var _replyHandlers                  = [SequenceId: ReplyTuple]()  // Dictionary of pending replies
+//internal let _objectQ                       = DispatchQueue(label: "xVoiceKeyer" + ".objectQ", attributes: [.concurrent])
+//internal var replyHandlers: [SequenceId: ReplyTuple] {
+//    get { return _objectQ.sync { _replyHandlers } }
+//    set { _objectQ.sync(flags: .barrier) { _replyHandlers = newValue } } }
 
 /**
  Wrapper class for the FlexAPI Library xLib6000 written for the Mac by Doug Adams K3TZR.
@@ -127,37 +128,45 @@ internal class RadioManager: NSObject, ApiDelegate {
     
     // setup logging for the RadioManager
     static let model_log = OSLog(subsystem: "com.w6op.RadioManager-Swift", category: "Model")
+    
     // delegate to pass messages back to viewcontroller
     weak var radioManagerDelegate:RadioManagerDelegate?
     
     // MARK: - Internal properties ----------------------------------------------------------------------------
-    // list of serial numbers of discovered radios
+    
+    // list of serial numbers of discovered radios - passed to the view controller
+    // to abstract it from the radio
     var discoveredRadios: [(model: String, nickname: String, ipAddress: String, default: String, serialNumber: String)]
+    
     // list of avaiable slices - only one will be active
     var availableSlices: [xLib6000.Slice]
     
     // MARK: - Internal Radio properties ----------------------------------------------------------------------------
+    
     // Radio currently running
     internal var activeRadio: RadioParameters?
-    // this starts the discovery process
-    private var api = Api.sharedInstance          // Api to the Radio
-    private var audiomanager: AudioManager!
-    private var xmitGain = 35
+    
+    // this starts the discovery process - Api to the Radio
+    private var api = Api.sharedInstance
     
     // MARK: - Private properties ----------------------------------------------------------------------------
+    
+    private var audiomanager: AudioManager!
     
     // Notification observers
     private var notifications = [NSObjectProtocol]()
     private let log = (NSApp.delegate as! AppDelegate)
     private let clientName = "SDRVoiceKeyer"
     
-    private var availableRadios = [RadioParameters]()   // Array of available Radios
+    // Array of available Radios
+    private var availableRadios = [RadioParameters]()
+    
     private var txAudioStream: TxAudioStream!
     private var txAudioStreamId: DaxStreamId
     private var txAudioStreamRequested = false
     private var audioBuffer = [Float]()
     private var audioStreamTimer :Repeater? // timer to meter audio chunks to radio at 24khz sample rate
-    //private var isDaxEnabled = false    // persist DAX transmit button state
+    private var xmitGain = 35
     
     // MARK: - RadioManager Initialization ----------------------------------------------------------------------------
     
@@ -167,7 +176,7 @@ internal class RadioManager: NSObject, ApiDelegate {
     override init() {
         
         audiomanager = AudioManager()
-        availableSlices = [xLib6000.Slice]() //[Int : SliceInfo]()
+        availableSlices = [xLib6000.Slice]()
         availableRadios = [RadioParameters]()
         discoveredRadios = [(model: String, nickname: String, ipAddress: String, default: String, serialNumber: String)]()
         txAudioStreamId = DaxStreamId("0")!
@@ -178,11 +187,9 @@ internal class RadioManager: NSObject, ApiDelegate {
         addNotificationListeners()
         
         api.delegate = self
-        
-        //addObserver(self, forKeyPath: #keyPath(api.apiState), options: [.old, .new], context: nil)
     }
     
-    // MARK: - Open and Close Radio Methods - Required by xLib6000 ----------------------------------------------------------------------------
+    // MARK: - Open and Close Radio Methods - Required by xLib6000 - Not Used ----------------------------------------------------------------------------
     
     func sentMessage(_ text: String) {
         _ = 1 // unused in xVoiceKeyer
@@ -190,14 +197,14 @@ internal class RadioManager: NSObject, ApiDelegate {
     
     func receivedMessage(_ text: String) {
         // get all except the first character // unused in xVoiceKeyer
-        _ = String(text.dropFirst())
+        //_ = String(text.dropFirst())
         os_log("Message received.", log: RadioManager.model_log, type: .info)
         
     }
     
     func addReplyHandler(_ sequenceId: SequenceId, replyTuple: ReplyTuple) {
         // add the handler // unused in xVoiceKeyer
-        replyHandlers[sequenceId] = replyTuple
+        //replyHandlers[sequenceId] = replyTuple
         os_log("addReplyHandler added.", log: RadioManager.model_log, type: .info)
     }
     
@@ -210,6 +217,8 @@ internal class RadioManager: NSObject, ApiDelegate {
         // unused in xVoiceKeyer
         os_log("Vita parser added.", log: RadioManager.model_log, type: .info)
     }
+    
+    // MARK: - Implementation ----------------------------------------------------------------------------
     
     /**
      Exposed function for the GUI to indicate which radio to connect to.
@@ -226,13 +235,7 @@ internal class RadioManager: NSObject, ApiDelegate {
         if (doConnect){
             for (_, foundRadio) in api.availableRadios.enumerated() where foundRadio.serialNumber == serialNumber {
                 activeRadio = foundRadio
-                
-                // IS THIS NECESSARY?
-//                if api.connectionState == .clientConnected {
-//                    api.disconnect()
-//                    usleep(1000)
-//                }
-                
+   
                 if api.connect(activeRadio!, clientName: self.clientName, isGui: false) {
                     // notify viewcontroller if no slices (or GUI) on connect
                     if api.radio?.sliceList.count == 0 {
@@ -320,7 +323,7 @@ internal class RadioManager: NSObject, ApiDelegate {
     private func sliceHasBeenAdded(_ note: Notification){
             let slice: xLib6000.Slice = (note.object as! xLib6000.Slice)
             self.availableSlices.append(slice)
-            print("Slice has been addded")
+            os_log("Slice has been addded.", log: RadioManager.model_log, type: .info)
         
         if (api.radio?.slices.count)! > 0 {
             UI() {
@@ -343,7 +346,7 @@ internal class RadioManager: NSObject, ApiDelegate {
         for _ in self.availableSlices {
             if slice.daxChannel == self.availableSlices[count].daxChannel {
                 self.availableSlices.remove(at: count)
-                print("Slice has been removed")
+                os_log("Slice has been removed.", log: RadioManager.model_log, type: .info)
                 break
             }
             count += 1
@@ -385,7 +388,6 @@ internal class RadioManager: NSObject, ApiDelegate {
             }
         } else{
             self.audioStreamTimer = nil
-            //api.radio?.transmit.daxEnabled  = self.isDaxEnabled
             api.radio?.mox = false
         }
     }
@@ -444,9 +446,7 @@ internal class RadioManager: NSObject, ApiDelegate {
             return false
         }
         
-        //self.isDaxEnabled = (api.radio?.transmit.daxEnabled)!
         if api.radio?.transmit.daxEnabled != true{
-            //api.radio?.transmit.daxEnabled  = true
             message = RadioManagerMessage.DAX
             UI() {
                self.radioManagerDelegate?.radioMessageReceived(messageKey: message)
@@ -489,13 +489,13 @@ internal class RadioManager: NSObject, ApiDelegate {
         var frameCount: Int = 0
         let result = self.audioBuffer.chunked(into: 128)
         
-        print("Chunks: \(result.count)")
+        //print("Chunks: \(result.count)")
         
         api.radio?.mox = true
         txAudioStream.transmit = true
         txAudioStream.txGain = self.xmitGain
         
-        // define the repeating timer for 24000 hz
+        // define the repeating timer for 24000 hz - why 5300, seems it should be 4160
         self.audioStreamTimer = Repeater.every(.microseconds(5300), count: result.count) { _ in
             let _ = self.txAudioStream.sendTXAudio(left: result[frameCount], right: result[frameCount], samples: Int(result[frameCount].count))
             frameCount += 1
@@ -504,7 +504,6 @@ internal class RadioManager: NSObject, ApiDelegate {
         // stop transmitting when you run out of audio - could also be interrupted by STOP button
         self.audioStreamTimer!.onStateChanged = { (_ timer: Repeater, _ state: Repeater.State) in
             if self.audioStreamTimer!.state.isFinished {
-                //self.api.radio?.transmit.daxEnabled  = self.isDaxEnabled
                 self.api.radio?.mox = false
                 self.audioStreamTimer = nil
             }

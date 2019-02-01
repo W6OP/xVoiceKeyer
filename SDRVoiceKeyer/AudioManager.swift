@@ -51,7 +51,7 @@ protocol AudioManagerDelegate: class {
     func audioMessageReceived(messageKey: AudioMessage, message: String)
 }
 
-// enforce error verbs
+// enforce error literals
 public enum AudioMessage : String {
     case ButtonNotConfigured = "BUTTON"
     case Error = "ERROR"
@@ -64,6 +64,7 @@ public enum AudioMessage : String {
 internal class AudioManager: NSObject {
     
     weak var audioManagerDelegate:AudioManagerDelegate?
+    
     // setup logging for the RadioManager
     static let model_log = OSLog(subsystem: "com.w6op.AudioManager-Swift", category: "Model")
     static let Required_Sample_Rate: Double = 24000
@@ -142,8 +143,10 @@ internal class AudioManager: NSObject {
         var size = UInt32(MemoryLayout.stride(ofValue: sourceDescription))
         AudioFileGetProperty(sourceFileID!, kAudioFilePropertyDataFormat, &size, &sourceDescription)
         
-        print("Source File description:")
-        self.printAudioStreamBasicDescription(sourceDescription)
+        #if DEBUG
+            print("Source File description:")
+            self.printAudioStreamBasicDescription(sourceDescription)
+        #endif
         
         let sampleRate = stream.fileFormat.sampleRate
         let format = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: sampleRate, channels: 1, interleaved: false)
