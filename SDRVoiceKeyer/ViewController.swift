@@ -345,7 +345,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     func doConnectRadio(serialNumber: String, doConnect: Bool) {
 
         if self.radioManager.connectToRadio(serialNumber: serialNumber, doConnect: doConnect) == true {
-            self.view.window?.title = "SDR Voice Keyer V2 for " + self.defaultRadio.nickname
+            self.view.window?.title = "SDR Voice Keyer - " + self.defaultRadio.nickname
             self.isRadioConnected = true
             self.activeSliceLabel.stringValue = "Connected"
         }
@@ -400,6 +400,9 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         PVC.preferenceManager = self.preferenceManager
        
         presentViewControllerAsSheet(PVC)
+        // presentAsModalWindow(PVC)
+        // present(_ PVC: NSViewController, asPopoverRelativeTo positioningRect: NSRect, of positioningView: NSView, preferredEdge: NSRectEdge, behavior: NSPopover.Behavior)
+
     }
     
 } // end class
