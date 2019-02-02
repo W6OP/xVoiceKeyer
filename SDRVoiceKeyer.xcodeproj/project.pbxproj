@@ -13,6 +13,7 @@
 		996AC07E1E4E3D4800C20AA8 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 996AC07D1E4E3D4800C20AA8 /* ViewController.swift */; };
 		996AC0801E4E3D4800C20AA8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 996AC07F1E4E3D4800C20AA8 /* Assets.xcassets */; };
 		996AC0831E4E3D4800C20AA8 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 996AC0811E4E3D4800C20AA8 /* Main.storyboard */; };
+		996B9D732206364B0055D0F4 /* FilePreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 996B9D722206364B0055D0F4 /* FilePreferences.swift */; };
 		99931585220243F30017C05A /* WindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99931584220243F30017C05A /* WindowController.swift */; };
 		99C211031F297279003B47F1 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 99C211021F297279003B47F1 /* LICENSE */; };
 		99CEBF7E21F7724400C7ED74 /* xLib6000.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 999EED2F208675230000F9D6 /* xLib6000.framework */; };
@@ -48,6 +49,7 @@
 		996AC07F1E4E3D4800C20AA8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		996AC0821E4E3D4800C20AA8 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		996AC0841E4E3D4800C20AA8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		996B9D722206364B0055D0F4 /* FilePreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilePreferences.swift; sourceTree = "<group>"; };
 		99931584220243F30017C05A /* WindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowController.swift; sourceTree = "<group>"; };
 		999EED2F208675230000F9D6 /* xLib6000.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = xLib6000.framework; path = ../../Library/Frameworks/xLib6000.framework; sourceTree = "<group>"; };
 		99BCEC3A21261EED0040C101 /* Repeat.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Repeat.framework; path = ../../Library/Frameworks/Repeat.framework; sourceTree = "<group>"; };
@@ -93,7 +95,7 @@
 				996AC07B1E4E3D4800C20AA8 /* AppDelegate.swift */,
 				996AC07D1E4E3D4800C20AA8 /* ViewController.swift */,
 				996AC07F1E4E3D4800C20AA8 /* Assets.xcassets */,
-				996AC0811E4E3D4800C20AA8 /* Main.storyboard */,
+				996B9D71220635F20055D0F4 /* Storyboards */,
 				996AC0841E4E3D4800C20AA8 /* Info.plist */,
 				99D64A2E1E5B9BEB0053ED1F /* AudioManager.swift */,
 				996B9D70220634B60055D0F4 /* Preferences */,
@@ -109,8 +111,17 @@
 			children = (
 				99217D511E5D02A50042C787 /* RadioPreferences.swift */,
 				993D1E681E5F811D00BB5236 /* PreferenceManager.swift */,
+				996B9D722206364B0055D0F4 /* FilePreferences.swift */,
 			);
 			path = Preferences;
+			sourceTree = "<group>";
+		};
+		996B9D71220635F20055D0F4 /* Storyboards */ = {
+			isa = PBXGroup;
+			children = (
+				996AC0811E4E3D4800C20AA8 /* Main.storyboard */,
+			);
+			path = Storyboards;
 			sourceTree = "<group>";
 		};
 		99E84E6A1F1144A500C8660C /* Frameworks */ = {
@@ -207,6 +218,7 @@
 			files = (
 				99EC95A21F1523B100E539E8 /* RadioManager.swift in Sources */,
 				996AC07E1E4E3D4800C20AA8 /* ViewController.swift in Sources */,
+				996B9D732206364B0055D0F4 /* FilePreferences.swift in Sources */,
 				99217D521E5D02A50042C787 /* RadioPreferences.swift in Sources */,
 				99931585220243F30017C05A /* WindowController.swift in Sources */,
 				99D64A2F1E5B9BEB0053ED1F /* AudioManager.swift in Sources */,
