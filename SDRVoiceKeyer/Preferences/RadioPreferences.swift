@@ -97,18 +97,18 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
     /**
         Find the correct field using the tag value and populate it.
      */
-    @IBAction func loadFileNameClicked(_ sender: NSButton) {
-        
-        let filePath = preferenceManager.getFilePath()
-        let allTextField = findTextfield(view: self.view)
-        
-        for txtField in allTextField
-        {
-            if txtField.tag == sender.tag && !filePath.isEmpty {
-                txtField.stringValue = filePath
-            }
-        }
-    }
+//    @IBAction func loadFileNameClicked(_ sender: NSButton) {
+//
+//        let filePath = preferenceManager.getFilePath()
+//        let allTextField = findTextfield(view: self.view)
+//
+//        for txtField in allTextField
+//        {
+//            if txtField.tag == sender.tag && !filePath.isEmpty {
+//                txtField.stringValue = filePath
+//            }
+//        }
+//    }
     
     // MARK: generated code
     
@@ -140,15 +140,15 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
      */
     func retrieveUserDefaults() {
         
-        let allTextField = findTextfield(view: self.view)
-        
-        for txtField in allTextField
-        {
-            let tag = txtField.tag
-            if let filePath = UserDefaults.standard.string(forKey: String(tag)) {
-                txtField.stringValue = filePath
-            }
-        }
+//        let allTextField = findTextfield(view: self.view)
+//        
+//        for txtField in allTextField
+//        {
+//            let tag = txtField.tag
+//            if let filePath = UserDefaults.standard.string(forKey: String(tag)) {
+//                txtField.stringValue = filePath
+//            }
+//        }
         
         if let def = UserDefaults.standard.dictionary(forKey: radioKey) {
             self.defaultRadio.model = def["model"] as! String
@@ -175,13 +175,13 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
      */
     func saveUserDefaults() {
         
-        let allTextField = findTextfield(view: self.view)
-        
-        // save all on exit
-        for txtField in allTextField
-        {
-            UserDefaults.standard.set(txtField.stringValue, forKey: String(txtField.tag))
-        }
+//        let allTextField = findTextfield(view: self.view)
+//
+//        // save all on exit
+//        for txtField in allTextField
+//        {
+//            UserDefaults.standard.set(txtField.stringValue, forKey: String(txtField.tag))
+//        }
         
         if (availableRadios.count > 0) {
             defaultRadio = availableRadios[tableViewRadioPicker.selectedRow]
@@ -214,19 +214,19 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
         Collect all the textfields from view and subviews
         - parameter view: - the view to search
      */
-    func findTextfield(view: NSView) -> [NSTextField] {
-        
-        var results = [NSTextField]()
-        
-        for subview in view.subviews as [NSView] {
-            if let textField = subview as? NSTextField {
-                results += [textField]
-            } else {
-                results += findTextfield(view: subview)
-            }
-        }
-        return results
-    }
+//    func findTextfield(view: NSView) -> [NSTextField] {
+//        
+//        var results = [NSTextField]()
+//        
+//        for subview in view.subviews as [NSView] {
+//            if let textField = subview as? NSTextField {
+//                results += [textField]
+//            } else {
+//                results += findTextfield(view: subview)
+//            }
+//        }
+//        return results
+//    }
     
    
     // ----------------------------------------------------------------------------

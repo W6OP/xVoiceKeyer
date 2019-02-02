@@ -38,23 +38,6 @@
 
 import Cocoa
 
-// http://stackoverflow.com/questions/28008262/detailed-instruction-on-use-of-nsopenpanel
-/**
-    Extension to open a preference panel.
- */
-extension NSOpenPanel {
-    var selectUrl: URL? {
-        title = "Select File"
-        allowsMultipleSelection = false
-        canChooseDirectories = false
-        canChooseFiles = true
-        canCreateDirectories = false
-        allowedFileTypes = ["wav", "mp3", "m4a", "aac", "aiff"]
-        // This works with Swift 4
-        return runModal() == NSApplication.ModalResponse.OK ? urls.first : nil
-    }
-}
-
 /**
     Protocol to pass messages back to viewcontroller.
  */
@@ -86,15 +69,17 @@ class PreferenceManager: NSObject {
         Get the file path from the selected item.
         - returns: String
      */
-    internal func getFilePath() -> String {
-        var filePath = ""
-        
-        if let url = NSOpenPanel().selectUrl {
-            filePath = url.path
-        }
-        
-        return filePath
-    }
+//    internal func getFilePath() -> String {
+//        var filePath = ""
+//
+//        if let url = NSOpenPanel().selectUrl {
+//            filePath = url.path
+//        }
+//
+//        return filePath
+//    }
+//
+    
     
     @objc func updateButton(){
         self.preferenceManagerDelegate?.doUpdateButtons()
