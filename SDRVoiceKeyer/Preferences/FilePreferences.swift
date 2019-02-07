@@ -56,14 +56,13 @@ extension NSOpenPanel {
 }
 
 class FilePreferences: NSViewController {
-
-    // class variables
-    //var preferenceManager: PreferenceManager!
-    
+   
+    private var allTextFields: Dictionary = [Int: NSTextField]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do view setup here.
+        
+        findTextfieldByIndex(view: self.view)
         retrieveUserDefaults()
     }
     
@@ -89,12 +88,33 @@ class FilePreferences: NSViewController {
     @IBAction func loadFileNameClicked(_ sender: NSButton) {
         
         let filePath = self.getFilePath()
-        let allTextField = findTextfield(view: self.view)
+        let offset = 10
         
-        for txtField in allTextField
-        {
-            if txtField.tag == sender.tag && !filePath.isEmpty {
-                txtField.stringValue = filePath
+        let textField: NSTextField = allTextFields[sender.tag]!
+        let labelField: NSTextField = allTextFields[sender.tag + offset]!
+        let label = labelField.stringValue
+        
+        if !filePath.isEmpty {
+            textField.stringValue = filePath
+        }
+        
+        if (label.isEmpty) {
+            let fileName = NSURL(fileURLWithPath: filePath).deletingPathExtension!.lastPathComponent
+            labelField.stringValue = fileName
+        }
+    }
+    
+    /**
+     Collect all the textfields from view and subviews at load time
+     - parameter view: - the view to search
+     */
+    func findTextfieldByIndex(view: NSView) {
+
+        for subview in view.subviews as [NSView] {
+            if let textField = subview as? NSTextField {
+                allTextFields[textField.tag] = textField
+            } else {
+                findTextfieldByIndex(view: subview)
             }
         }
     }
@@ -102,11 +122,12 @@ class FilePreferences: NSViewController {
     /**
      Collect all the textfields from view and subviews
      - parameter view: - the view to search
+     - returns: array of NSTextField
      */
     func findTextfield(view: NSView) -> [NSTextField] {
-        
+
         var results = [NSTextField]()
-        
+
         for subview in view.subviews as [NSView] {
             if let textField = subview as? NSTextField {
                 results += [textField]
@@ -137,28 +158,56 @@ class FilePreferences: NSViewController {
      */
     func retrieveUserDefaults() {
         
-        let allTextField = findTextfield(view: self.view)
-        
-        for txtField in allTextField
+        for item in allTextFields
         {
-            let tag = txtField.tag
+            let tag = item.key
             if let filePath = UserDefaults.standard.string(forKey: String(tag)) {
-                txtField.stringValue = filePath
+                allTextFields[tag]!.stringValue = filePath
             }
         }
     }
+    
+//    func retrieveUserDefaults() {
+//
+//        let allTextField = findTextfield(view: self.view)
+//
+//        for txtField in allTextField
+//        {
+//            let tag = txtField.tag
+//            if let filePath = UserDefaults.standard.string(forKey: String(tag)) {
+//                txtField.stringValue = filePath
+//            }
+//        }
+//    }
     
     /**
      Persist the user settings. File paths and the button labels.
      */
     func saveUserDefaults() {
         
-        let allTextField = findTextfield(view: self.view)
+        for item in allTextFields
+        {
+            let tag = item.key
+           
+            if allTextFields[tag]!.stringValue.isEmpty
+            {
+                UserDefaults.standard.set("", forKey: String(tag))
+            } else {
+                UserDefaults.standard.set(allTextFields[tag]!.stringValue, forKey: String(tag))
+            }
+        }
+        
+        //let allTextField = findTextfield(view: self.view)
         
         // save all on exit
-        for txtField in allTextField
-        {
-            UserDefaults.standard.set(txtField.stringValue, forKey: String(txtField.tag))
-        }
+//        for txtField in allTextField
+//        {
+//            if !txtField.stringValue.isEmpty
+//            {
+//                UserDefaults.standard.set(txtField.stringValue, forKey: String(txtField.tag))
+//            } else {
+//                UserDefaults.standard.set("", forKey: String(txtField.tag))
+//            }
+//        }
     }
 }

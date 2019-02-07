@@ -57,6 +57,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     @IBOutlet weak var serialNumberLabel: NSTextField!
     @IBOutlet weak var activeSliceLabel: NSTextField!
     @IBOutlet weak var buttonStackView: NSStackView!
+    @IBOutlet weak var buttonStackViewTwo: NSStackView!
     @IBOutlet weak var gainSlider: NSSlider!
     @IBOutlet weak var gainLabel: NSTextField!
     
@@ -99,6 +100,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         audiomanager.audioManagerDelegate = self
         self.activeSliceLabel.stringValue = "Connecting"
         
+        _ = findButton(view: self.view)
     }
     
     // generated code
@@ -379,6 +381,16 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
                 //print("Button disabled: \(button.tag) : \(String(describing: UserDefaults.standard.string(forKey: String(button.tag))))")
             }
         }
+        
+        for case let button as NSButton in self.buttonStackViewTwo.subviews {
+            if UserDefaults.standard.string(forKey: String(button.tag)) != "" {
+                button.isEnabled = true
+                //print("Button enabled: \(button.tag) : \(String(describing: UserDefaults.standard.string(forKey: String(button.tag))))")
+            } else {
+                button.isEnabled = false
+                //print("Button disabled: \(button.tag) : \(String(describing: UserDefaults.standard.string(forKey: String(button.tag))))")
+            }
+        }
     }
     
     /**
@@ -388,7 +400,35 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         for case let button as NSButton in self.buttonStackView.subviews {
             button.isEnabled = false
         }
+        
+        for case let button as NSButton in self.buttonStackViewTwo.subviews {
+            button.isEnabled = false
+        }
     }
+    
+    /**
+     Collect all the buttons from view and subviews
+     - parameter view: - the view to search
+     */
+    func findButton(view: NSView) -> [NSButton] {
+        
+        var results = [NSButton]()
+        let offset = 10 // labels start with tag = 11
+        
+        for subview in view.subviews as [NSView] {
+            if let button = subview as? NSButton {
+                if button.tag != 0 {
+                    results += [button]
+                    button.title = UserDefaults.standard.string(forKey: String(button.tag + offset)) ?? ""
+                }
+            } else {
+                results += findButton(view: subview)
+            }
+        }
+        return results
+    }
+    
+    
     
     /**
      Show the preferences panel and populate it
