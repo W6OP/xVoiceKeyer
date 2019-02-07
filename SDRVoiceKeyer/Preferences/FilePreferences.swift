@@ -38,6 +38,14 @@
 
 import Cocoa
 
+/**
+ Protocol to pass messages back to viewcontroller.
+ */
+protocol FilePreferencesDelegate: class {
+    // update the button labels after preferences have changed
+    func doUpdateButtonLabels()
+}
+
 // http://stackoverflow.com/questions/28008262/detailed-instruction-on-use-of-nsopenpanel
 /**
  Extension to open a preference panel.
@@ -57,6 +65,11 @@ extension NSOpenPanel {
 
 class FilePreferences: NSViewController {
    
+    /**
+     Delegate to pass messages back to viewcontroller.
+     */
+    var filePreferencesDelegate:FilePreferencesDelegate?
+    
     private var allTextFields: Dictionary = [Int: NSTextField]()
     
     override func viewDidLoad() {
@@ -80,6 +93,12 @@ class FilePreferences: NSViewController {
     
     override func viewWillDisappear() {
         saveUserDefaults()
+        updateButtonLabels()
+    }
+    
+    @objc func updateButtonLabels(){
+        // notify view controller to update button labels
+        self.filePreferencesDelegate?.doUpdateButtonLabels()
     }
     
     /**

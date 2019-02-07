@@ -123,8 +123,6 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
         
         tableViewRadioPicker.dataSource = self
         tableViewRadioPicker.delegate = self
-        
-        
     }
     
     override   func viewWillAppear() {
@@ -154,16 +152,6 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
      */
     func retrieveUserDefaults() {
         
-//        let allTextField = findTextfield(view: self.view)
-//        
-//        for txtField in allTextField
-//        {
-//            let tag = txtField.tag
-//            if let filePath = UserDefaults.standard.string(forKey: String(tag)) {
-//                txtField.stringValue = filePath
-//            }
-//        }
-        
         if let def = UserDefaults.standard.dictionary(forKey: radioKey) {
             self.defaultRadio.model = def["model"] as! String
             self.defaultRadio.nickname = def["nickname"] as! String
@@ -188,15 +176,7 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
         Persist the user settings. File paths and the default radio.
      */
     func saveUserDefaults() {
-        
-//        let allTextField = findTextfield(view: self.view)
-//
-//        // save all on exit
-//        for txtField in allTextField
-//        {
-//            UserDefaults.standard.set(txtField.stringValue, forKey: String(txtField.tag))
-//        }
-        
+    
         if (availableRadios.count > 0) {
             defaultRadio = availableRadios[tableViewRadioPicker.selectedRow]
             

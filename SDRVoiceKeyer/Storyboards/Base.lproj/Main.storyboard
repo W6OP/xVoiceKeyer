@@ -29,7 +29,7 @@
                                         <menuItem title="Select Radio" id="BOF-NM-1cW">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
-                                                <segue destination="3zi-E8-UUr" kind="modal" id="gXQ-Oo-ZkY"/>
+                                                <action selector="buttonShowPreferences:" target="Ady-hI-5gd" id="NeL-VF-Unt"/>
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="Sqr-9k-Jd0"/>
@@ -1524,7 +1524,7 @@ Gw
                 </viewController>
                 <customObject id="5te-B8-BdT" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="764" y="401"/>
+            <point key="canvasLocation" x="797" y="514"/>
         </scene>
     </scenes>
 </document>

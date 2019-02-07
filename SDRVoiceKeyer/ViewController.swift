@@ -100,7 +100,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         audiomanager.audioManagerDelegate = self
         self.activeSliceLabel.stringValue = "Connecting"
         
-        _ = findButton(view: self.view)
+        findButton(view: self.view)
     }
     
     // generated code
@@ -244,7 +244,8 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         self.availableRadios = discoveredRadios
         
         // FOR DEBUG: delete user defaults
-        //deleteUserDefaults()
+//        deleteUserDefaults()
+//        return
         
         if let def = UserDefaults.standard.dictionary(forKey: "defaultRadio") {
             self.defaultRadio.model = def["model"] as! String
@@ -333,7 +334,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         UserDefaults.standard.set(nil, forKey: "defaultRadio")
         UserDefaults.standard.set(nil, forKey: "NSNavLastRootDirectory")
         
-        for i in 0..<11 {
+        for i in 0..<21 {
             UserDefaults.standard.set(nil, forKey: "\(i)")
         }
         
@@ -362,6 +363,13 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     }
     
     /**
+     Refresh the voice buttons lables.
+     */
+//    func doUpdateButtonLabels() {
+//        findButton(view: self.view)
+//    }
+    
+    /**
      Refresh the voice buttons.
      */
     func doUpdateButtons() {
@@ -375,20 +383,16 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         for case let button as NSButton in self.buttonStackView.subviews {
             if UserDefaults.standard.string(forKey: String(button.tag)) != "" {
                 button.isEnabled = true
-                //print("Button enabled: \(button.tag) : \(String(describing: UserDefaults.standard.string(forKey: String(button.tag))))")
             } else {
                 button.isEnabled = false
-                //print("Button disabled: \(button.tag) : \(String(describing: UserDefaults.standard.string(forKey: String(button.tag))))")
             }
         }
         
         for case let button as NSButton in self.buttonStackViewTwo.subviews {
             if UserDefaults.standard.string(forKey: String(button.tag)) != "" {
                 button.isEnabled = true
-                //print("Button enabled: \(button.tag) : \(String(describing: UserDefaults.standard.string(forKey: String(button.tag))))")
             } else {
                 button.isEnabled = false
-                //print("Button disabled: \(button.tag) : \(String(describing: UserDefaults.standard.string(forKey: String(button.tag))))")
             }
         }
     }
@@ -410,7 +414,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      Collect all the buttons from view and subviews
      - parameter view: - the view to search
      */
-    func findButton(view: NSView) -> [NSButton] {
+    func findButton(view: NSView) { //  -> [NSButton]
         
         var results = [NSButton]()
         let offset = 10 // labels start with tag = 11
@@ -422,10 +426,10 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
                     button.title = UserDefaults.standard.string(forKey: String(button.tag + offset)) ?? ""
                 }
             } else {
-                results += findButton(view: subview)
+                findButton(view: subview) // results += 
             }
         }
-        return results
+        //return results
     }
     
     
@@ -435,7 +439,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      */
     func showPreferences(_ sender: AnyObject) {
         let SB = NSStoryboard(name: NSStoryboard.Name(rawValue: "Main"), bundle: nil)
-        let PVC: RadioPreferences = SB.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(rawValue: "radioPreferences")) as! RadioPreferences
+        let PVC: RadioPreferences = SB.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(rawValue: "radioSelection")) as! RadioPreferences
         PVC.availableRadios = self.availableRadios
         PVC.preferenceManager = self.preferenceManager
        

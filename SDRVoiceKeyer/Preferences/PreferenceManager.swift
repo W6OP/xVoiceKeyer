@@ -54,7 +54,7 @@ enum YesNo: String {
 }
 
 class PreferenceManager: NSObject {
-    
+   
     /**
         Delegate to pass messages back to viewcontroller.
      */
@@ -64,22 +64,6 @@ class PreferenceManager: NSObject {
     override init() {
         super.init()
     }
-    
-    /**
-        Get the file path from the selected item.
-        - returns: String
-     */
-//    internal func getFilePath() -> String {
-//        var filePath = ""
-//
-//        if let url = NSOpenPanel().selectUrl {
-//            filePath = url.path
-//        }
-//
-//        return filePath
-//    }
-//
-    
     
     @objc func updateButton(){
         self.preferenceManagerDelegate?.doUpdateButtons()
