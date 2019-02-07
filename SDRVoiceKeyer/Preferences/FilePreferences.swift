@@ -61,6 +61,45 @@ class FilePreferences: NSViewController {
     var preferenceManager: PreferenceManager!
     
     private var allTextFields: Dictionary = [Int: NSTextField]()
+    private var timerState: String = "ON"
+    
+    @IBAction func setTimerState(_ sender: NSButton) {
+        
+        setControlStates(sender: sender)
+        
+//        switch sender.state {
+//        case .on:
+//            timerInterval.isEnabled = true
+//            timerAudioFile.isEnabled = true
+//            fileSelector.isEnabled = true
+//            minutesLabel.isEnabled = true
+//            timerState = "ON"
+//            //preferenceManager.setTimer(true, timerInterval.stringValue)
+//        case .off:
+//            timerInterval.isEnabled = false
+//            timerAudioFile.isEnabled = false
+//            fileSelector.isEnabled = false
+//            minutesLabel.isEnabled = false
+//            timerState = "OFF"
+//        default: break
+//        }
+    }
+    
+    @IBAction func selectTimerFile(_ sender: NSButton) {
+        let filePath = self.getFilePath()
+       
+        let textField: NSTextField = allTextFields[sender.tag]!
+        
+        if !filePath.isEmpty {
+            textField.stringValue = filePath
+        }
+    }
+    
+    @IBOutlet weak var timerInterval: NSTextField!
+    @IBOutlet weak var fileSelector: NSButton!
+    @IBOutlet weak var timerAudioFile: NSTextField!
+    @IBOutlet weak var minutesLabel: NSTextField!
+    @IBOutlet weak var timerEnabler: NSButton!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -156,6 +195,26 @@ class FilePreferences: NSViewController {
         return filePath
     }
     
+    func setControlStates(sender: NSButton) {
+        
+        switch sender.state {
+        case .on:
+            timerInterval.isEnabled = true
+            timerAudioFile.isEnabled = true
+            fileSelector.isEnabled = true
+            minutesLabel.isEnabled = true
+            timerState = "ON"
+        //preferenceManager.setTimer(true, timerInterval.stringValue)
+        case .off:
+            timerInterval.isEnabled = false
+            timerAudioFile.isEnabled = false
+            fileSelector.isEnabled = false
+            minutesLabel.isEnabled = false
+            timerState = "OFF"
+        default: break
+        }
+    }
+    
     /**
      Retrieve the user settings. File paths and the default radio.
      Populate the fields and the tableview
@@ -169,6 +228,14 @@ class FilePreferences: NSViewController {
                 allTextFields[tag]!.stringValue = filePath
             }
         }
+        
+        if  UserDefaults.standard.string(forKey: "TimerState") == "ON" {
+            timerEnabler.state = .on
+        } else {
+            timerEnabler.state = .off
+        }
+        
+        setControlStates(sender: timerEnabler)
     }
     
 //    func retrieveUserDefaults() {
@@ -199,6 +266,8 @@ class FilePreferences: NSViewController {
             } else {
                 UserDefaults.standard.set(allTextFields[tag]!.stringValue, forKey: String(tag))
             }
+            
+            UserDefaults.standard.set(timerState, forKey: "TimerState")
         }
         
         //let allTextField = findTextfield(view: self.view)
