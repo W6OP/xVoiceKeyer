@@ -83,6 +83,10 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         self.updateUserDefaults()
     }
     
+    @IBAction func updateFilePreferences(_ sender: AnyObject){
+        showFilePreferences(sender)
+    }
+    
     // generated code
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -118,6 +122,20 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     override func viewWillDisappear() {
         
     }
+    
+    // send instance to file preferences
+//    override func prepare(for segue: NSStoryboardSegue, sender: Any?) {
+//        if segue.destinationController is FilePreferences
+//        {
+//            let vc = segue.destinationController as? FilePreferences
+//            vc?.preferenceManager = self.preferenceManager
+//        }
+//
+////        if let vc = destinationController as? FilePreferences
+////        {
+////            vc?.preferenceManager = self.preferenceManager
+////        }
+//    }
     
     // Radio Methods ---------------------------------------------------------------------------
     
@@ -376,6 +394,11 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         enableVoiceButtons()
     }
     
+    func doUpdateButtonLabels() {
+        findButton(view: self.view)
+        enableVoiceButtons()
+    }
+    
     /**
      Enable all the voice buttons.
      */
@@ -432,10 +455,23 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         //return results
     }
     
+    /**
+     Show the file preferences panel and populate it
+     */
+    func showFilePreferences(_ sender: AnyObject) {
+        let SB = NSStoryboard(name: NSStoryboard.Name(rawValue: "Main"), bundle: nil)
+        let PVC: FilePreferences = SB.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(rawValue: "filePreferences")) as! FilePreferences
+        PVC.preferenceManager = self.preferenceManager
+        
+        //presentViewControllerAsSheet(PVC)
+        presentViewControllerAsModalWindow(PVC)
+        // present(_ PVC: NSViewController, asPopoverRelativeTo positioningRect: NSRect, of positioningView: NSView, preferredEdge: NSRectEdge, behavior: NSPopover.Behavior)
+        
+    }
     
     
     /**
-     Show the preferences panel and populate it
+     Show the radio selector panel and populate it
      */
     func showPreferences(_ sender: AnyObject) {
         let SB = NSStoryboard(name: NSStoryboard.Name(rawValue: "Main"), bundle: nil)

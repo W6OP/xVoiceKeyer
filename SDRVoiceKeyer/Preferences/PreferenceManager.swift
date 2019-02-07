@@ -46,6 +46,8 @@ protocol PreferenceManagerDelegate: class {
     func doConnectRadio(serialNumber: String, doConnect: Bool)
     // buttons updated
     func doUpdateButtons()
+    // update button labels
+    func doUpdateButtonLabels()
 }
 
 enum YesNo: String {
@@ -67,6 +69,11 @@ class PreferenceManager: NSObject {
     
     @objc func updateButton(){
         self.preferenceManagerDelegate?.doUpdateButtons()
+    }
+    
+    @objc func updateButtonLables()
+    {
+        self.preferenceManagerDelegate?.doUpdateButtonLabels()
     }
     
     /**

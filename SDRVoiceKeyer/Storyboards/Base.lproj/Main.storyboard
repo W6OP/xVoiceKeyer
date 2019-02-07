@@ -35,7 +35,7 @@
                                         <menuItem isSeparatorItem="YES" id="Sqr-9k-Jd0"/>
                                         <menuItem title="Preferences…" keyEquivalent="," id="7tb-a7-S4y">
                                             <connections>
-                                                <segue destination="2eB-1d-oWn" kind="show" id="KSC-K5-iH2"/>
+                                                <action selector="updateFilePreferences:" target="Ady-hI-5gd" id="9JJ-vk-6he"/>
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="wFC-TO-SCJ"/>
@@ -1144,7 +1144,7 @@ Gw
         <!--File Preferences-->
         <scene sceneID="ZtV-4X-0yg">
             <objects>
-                <viewController identifier="FilePreferences" storyboardIdentifier="FilePreferences" id="2eB-1d-oWn" customClass="FilePreferences" customModule="SDRVoiceKeyer" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController identifier="filePreferences" storyboardIdentifier="filePreferences" id="2eB-1d-oWn" customClass="FilePreferences" customModule="SDRVoiceKeyer" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" id="KOI-Js-k2i">
                         <rect key="frame" x="0.0" y="0.0" width="607" height="323"/>
                         <autoresizingMask key="autoresizingMask"/>

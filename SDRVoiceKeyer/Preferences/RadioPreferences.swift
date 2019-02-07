@@ -43,7 +43,6 @@ import Cocoa
 // the audio files they want to use for the voice keyer.
 class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDelegate {
 
-    
     // class variables
     var preferenceManager: PreferenceManager!
    
