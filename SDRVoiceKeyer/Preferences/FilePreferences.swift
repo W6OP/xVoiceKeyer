@@ -63,26 +63,24 @@ class FilePreferences: NSViewController {
     private var allTextFields: Dictionary = [Int: NSTextField]()
     private var timerState: String = "ON"
     
+    @IBOutlet weak var timerInterval: NSTextField!
+    @IBOutlet weak var fileSelector: NSButton!
+    @IBOutlet weak var timerAudioFile: NSTextField!
+    @IBOutlet weak var minutesLabel: NSTextField!
+    @IBOutlet weak var timerEnabler: NSButton!
+    
+    //
     @IBAction func setTimerState(_ sender: NSButton) {
         
-        setControlStates(sender: sender)
+        //setControlStates(sender: sender)
         
-//        switch sender.state {
-//        case .on:
-//            timerInterval.isEnabled = true
-//            timerAudioFile.isEnabled = true
-//            fileSelector.isEnabled = true
-//            minutesLabel.isEnabled = true
-//            timerState = "ON"
-//            //preferenceManager.setTimer(true, timerInterval.stringValue)
-//        case .off:
-//            timerInterval.isEnabled = false
-//            timerAudioFile.isEnabled = false
-//            fileSelector.isEnabled = false
-//            minutesLabel.isEnabled = false
-//            timerState = "OFF"
-//        default: break
-//        }
+        switch sender.state {
+        case .on:
+            preferenceManager.enableTimer(isEnabled: true, interval: Int(timerInterval.stringValue) ?? 10)
+        case .off:
+            preferenceManager.enableTimer(isEnabled: false, interval: Int(timerInterval.stringValue) ?? 10)
+        default: break
+        }
     }
     
     @IBAction func selectTimerFile(_ sender: NSButton) {
@@ -95,11 +93,7 @@ class FilePreferences: NSViewController {
         }
     }
     
-    @IBOutlet weak var timerInterval: NSTextField!
-    @IBOutlet weak var fileSelector: NSButton!
-    @IBOutlet weak var timerAudioFile: NSTextField!
-    @IBOutlet weak var minutesLabel: NSTextField!
-    @IBOutlet weak var timerEnabler: NSButton!
+   
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -195,25 +189,25 @@ class FilePreferences: NSViewController {
         return filePath
     }
     
-    func setControlStates(sender: NSButton) {
-        
-        switch sender.state {
-        case .on:
-            timerInterval.isEnabled = true
-            timerAudioFile.isEnabled = true
-            fileSelector.isEnabled = true
-            minutesLabel.isEnabled = true
-            timerState = "ON"
-        //preferenceManager.setTimer(true, timerInterval.stringValue)
-        case .off:
-            timerInterval.isEnabled = false
-            timerAudioFile.isEnabled = false
-            fileSelector.isEnabled = false
-            minutesLabel.isEnabled = false
-            timerState = "OFF"
-        default: break
-        }
-    }
+//    func setControlStates(sender: NSButton) {
+//
+//        switch sender.state {
+//        case .on:
+//            timerInterval.isEnabled = true
+//            timerAudioFile.isEnabled = true
+//            fileSelector.isEnabled = true
+//            minutesLabel.isEnabled = true
+//            timerState = "ON"
+//        //preferenceManager.setTimer(true, timerInterval.stringValue)
+//        case .off:
+//            timerInterval.isEnabled = false
+//            timerAudioFile.isEnabled = false
+//            fileSelector.isEnabled = false
+//            minutesLabel.isEnabled = false
+//            timerState = "OFF"
+//        default: break
+//        }
+//    }
     
     /**
      Retrieve the user settings. File paths and the default radio.
@@ -224,32 +218,13 @@ class FilePreferences: NSViewController {
         for item in allTextFields
         {
             let tag = item.key
+            
+            // this takes care of timer interval too since it is duplicated as a tag and TimerInterval
             if let filePath = UserDefaults.standard.string(forKey: String(tag)) {
                 allTextFields[tag]!.stringValue = filePath
             }
         }
-        
-        if  UserDefaults.standard.string(forKey: "TimerState") == "ON" {
-            timerEnabler.state = .on
-        } else {
-            timerEnabler.state = .off
-        }
-        
-        setControlStates(sender: timerEnabler)
     }
-    
-//    func retrieveUserDefaults() {
-//
-//        let allTextField = findTextfield(view: self.view)
-//
-//        for txtField in allTextField
-//        {
-//            let tag = txtField.tag
-//            if let filePath = UserDefaults.standard.string(forKey: String(tag)) {
-//                txtField.stringValue = filePath
-//            }
-//        }
-//    }
     
     /**
      Persist the user settings. File paths and the button labels.
@@ -263,24 +238,15 @@ class FilePreferences: NSViewController {
             if allTextFields[tag]!.stringValue.isEmpty
             {
                 UserDefaults.standard.set("", forKey: String(tag))
+                if tag == 101 {
+                    UserDefaults.standard.set("10", forKey: "TimerInterval")
+                }
             } else {
                 UserDefaults.standard.set(allTextFields[tag]!.stringValue, forKey: String(tag))
+                if tag == 101 {
+                    UserDefaults.standard.set(allTextFields[tag]!.stringValue, forKey: "TimerInterval")
+                }
             }
-            
-            UserDefaults.standard.set(timerState, forKey: "TimerState")
         }
-        
-        //let allTextField = findTextfield(view: self.view)
-        
-        // save all on exit
-//        for txtField in allTextField
-//        {
-//            if !txtField.stringValue.isEmpty
-//            {
-//                UserDefaults.standard.set(txtField.stringValue, forKey: String(txtField.tag))
-//            } else {
-//                UserDefaults.standard.set("", forKey: String(txtField.tag))
-//            }
-//        }
     }
 }

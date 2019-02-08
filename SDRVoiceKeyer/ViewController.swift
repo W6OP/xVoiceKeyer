@@ -38,17 +38,20 @@
  */
 
 import Cocoa
+import Repeat
 
 class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerDelegate, AudioManagerDelegate {
     
-    var radioManager: RadioManager!
-    var audiomanager: AudioManager!
-    var preferenceManager: PreferenceManager!
+    private var radioManager: RadioManager!
+    private var audiomanager: AudioManager!
+    private var preferenceManager: PreferenceManager!
     
-    var availableRadios = [(model: String, nickname: String, ipAddress: String, default: String, serialNumber: String)]()
-    var defaultRadio = (model: "", nickname: "", ipAddress: "", default: "", serialNumber: "")
+    private var availableRadios = [(model: String, nickname: String, ipAddress: String, default: String, serialNumber: String)]()
+    private var defaultRadio = (model: "", nickname: "", ipAddress: "", default: "", serialNumber: "")
     
-    var isRadioConnected = false
+    private var isRadioConnected = false
+    private var timerState: String = "ON"
+    private var idTimer :Repeater?
     
     lazy var window: NSWindow! = self.view.window
     
@@ -87,6 +90,18 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         showFilePreferences(sender)
     }
     
+    @IBAction func enableIDTimer(_ sender: NSButton) {
+        
+        let timerInterval: Int = Int(UserDefaults.standard.string(forKey: "TimerInterval") ?? "10") ?? 10
+        
+        switch sender.state {
+        case .on:
+            preferenceManager.enableTimer(isEnabled: true, interval: timerInterval )
+        case .off:
+            preferenceManager.enableTimer(isEnabled: false, interval: timerInterval )
+        default: break
+        }
+    }
     // generated code
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -104,7 +119,17 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         audiomanager.audioManagerDelegate = self
         self.activeSliceLabel.stringValue = "Connecting"
         
-        findButton(view: self.view)
+        updateButtonTitles(view: self.view)
+        
+        let notificationCenter = NotificationCenter.default
+        notificationCenter.addObserver(self, selector: #selector(appMovedToBackground), name: NSApplication.willResignActiveNotification, object: nil)
+
+    }
+    
+    @objc func appMovedToBackground() {
+        print("App moved to background!")
+        
+        //preferenceManager.enableTimer(isEnabled: false, interval: 0 )
     }
     
     // generated code
@@ -117,25 +142,13 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     // don't allow full screen
     override func viewDidAppear() {
         window.styleMask.remove(.resizable)
+        // keep on top of other windows
+        self.window.level = NSWindow.Level.statusBar
     }
     // generated code
     override func viewWillDisappear() {
         
     }
-    
-    // send instance to file preferences
-//    override func prepare(for segue: NSStoryboardSegue, sender: Any?) {
-//        if segue.destinationController is FilePreferences
-//        {
-//            let vc = segue.destinationController as? FilePreferences
-//            vc?.preferenceManager = self.preferenceManager
-//        }
-//
-////        if let vc = destinationController as? FilePreferences
-////        {
-////            vc?.preferenceManager = self.preferenceManager
-////        }
-//    }
     
     // Radio Methods ---------------------------------------------------------------------------
     
@@ -155,17 +168,18 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      */
     internal func voiceButtonSelected(buttonNumber: Int) {
         
-        var floatArray = [Float]()
-        let xmitGain = gainSlider.intValue
+        //var floatArray = [Float]()
+        var transmitGain: Int = 35
         
-        self.serialNumberLabel.isEnabled = true
-        
+        DispatchQueue.main.async {
+            let xmitGain = self.gainSlider.intValue
+            transmitGain = Int(xmitGain)
+            // IS THIS NEEDED?
+            //self.serialNumberLabel.isEnabled = true
+        }
+
         if self.isRadioConnected {
-            floatArray = audiomanager.selectAudioFile(buttonNumber: buttonNumber)
-            
-            if floatArray.count > 0 {
-                radioManager.keyRadio(doTransmit: true, buffer: floatArray, xmitGain: Int(xmitGain))
-            }
+            selectAudioFile(buttonNumber: buttonNumber, transmitGain: transmitGain)
         } else {
             let alert = NSAlert()
             alert.messageText = "Radio Unavailable"
@@ -175,6 +189,22 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
             alert.beginSheetModal(for: NSApp.mainWindow!, completionHandler: { (response) in
                 if response == NSApplication.ModalResponse.alertFirstButtonReturn { return }
             })
+        }
+    }
+    
+    /**
+     Select the audio file to transmit and return it as an array
+     of 32 bit floats
+     - parameter buttonNumber: Int
+     - parameter transmitGain: Int
+    */
+    internal func selectAudioFile(buttonNumber: Int, transmitGain: Int){
+        var floatArray = [Float]()
+        
+        floatArray = self.audiomanager.selectAudioFile(buttonNumber: buttonNumber)
+        
+        if floatArray.count > 0 {
+            self.radioManager.keyRadio(doTransmit: true, buffer: floatArray, xmitGain: transmitGain)
         }
     }
     
@@ -262,8 +292,8 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         self.availableRadios = discoveredRadios
         
         // FOR DEBUG: delete user defaults
-//        deleteUserDefaults()
-//        return
+        //deleteUserDefaults()
+        //return
         
         if let def = UserDefaults.standard.dictionary(forKey: "defaultRadio") {
             self.defaultRadio.model = def["model"] as! String
@@ -279,6 +309,13 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
                 self.gainSlider.intValue = 35
                 self.gainLabel.stringValue = "35"
             }
+        }
+        
+        if  UserDefaults.standard.string(forKey: "TimerState") == "ON" {
+            let interval: Int = Int(UserDefaults.standard.string(forKey: "TimerInterval") ?? "10") ?? 10
+            doSetTimer(isEnabled: true, interval: interval)
+        } else {
+            //timerEnabler.state = .off
         }
         
         switch discoveredRadios.count {
@@ -332,16 +369,17 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      */
     func updateUserDefaults() {
         
-        var def = [String : String]()
+        var defaults = [String : String]()
         
-        def["model"] = defaultRadio.model
-        def["nickname"] = defaultRadio.nickname
-        def["ipAddress"] = defaultRadio.ipAddress
-        def["default"] = defaultRadio.default
-        def["serialNumber"] = defaultRadio.serialNumber
-        def["xmitGain"] = "\(gainSlider.intValue)"
+        defaults["model"] = defaultRadio.model
+        defaults["nickname"] = defaultRadio.nickname
+        defaults["ipAddress"] = defaultRadio.ipAddress
+        defaults["default"] = defaultRadio.default
+        defaults["serialNumber"] = defaultRadio.serialNumber
+        defaults["xmitGain"] = "\(gainSlider.intValue)"
         
-        UserDefaults.standard.set(def, forKey: "defaultRadio")
+        UserDefaults.standard.set(defaults, forKey: "defaultRadio")
+        UserDefaults.standard.set(timerState, forKey: "TimerState")
     }
     
     /**
@@ -351,11 +389,15 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         
         UserDefaults.standard.set(nil, forKey: "defaultRadio")
         UserDefaults.standard.set(nil, forKey: "NSNavLastRootDirectory")
+        UserDefaults.standard.set(nil, forKey: "TimerState")
+        UserDefaults.standard.set(nil, forKey: "TimerInterval")
         
         for i in 0..<21 {
             UserDefaults.standard.set(nil, forKey: "\(i)")
         }
         
+        UserDefaults.standard.set(nil, forKey: "\(101)")
+        UserDefaults.standard.set(nil, forKey: "\(102)")
     }
     
     /**
@@ -381,43 +423,69 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     }
     
     /**
-     Refresh the voice buttons lables.
-     */
-//    func doUpdateButtonLabels() {
-//        findButton(view: self.view)
-//    }
-    
-    /**
      Refresh the voice buttons.
      */
     func doUpdateButtons() {
         enableVoiceButtons()
     }
     
+    /**
+     Refresh the voice buttons labels.
+     */
     func doUpdateButtonLabels() {
-        findButton(view: self.view)
+        updateButtonTitles(view: self.view)
         enableVoiceButtons()
+    }
+    
+    /**
+     Turn on or off the ID timer.
+     */
+    func doSetTimer(isEnabled: Bool, interval: Int) {
+        print("timer called = \(interval)")
+
+        var transmitGain: Int = 35
+        
+        DispatchQueue.main.async {
+            let xmitGain = self.gainSlider.intValue
+            transmitGain = Int(xmitGain)
+            // IS THIS NEEDED?
+            //self.serialNumberLabel.isEnabled = true
+        }
+        
+        if isEnabled {
+            NSRunningApplication.current.activate(options: [.activateAllWindows, .activateIgnoringOtherApps])
+            self.idTimer = Repeater(interval: .minutes(interval), mode: .infinite) { _ in
+                print("timer fired = \(interval)")
+                self.selectAudioFile(buttonNumber: 102, transmitGain: transmitGain)
+            }
+            
+            self.idTimer!.start()
+        } else {
+            self.idTimer = nil
+        }
     }
     
     /**
      Enable all the voice buttons.
      */
     func enableVoiceButtons(){
-        for case let button as NSButton in self.buttonStackView.subviews {
-            if UserDefaults.standard.string(forKey: String(button.tag)) != "" {
-                button.isEnabled = true
-            } else {
-                button.isEnabled = false
+        //if self.isRadioConnected {
+            for case let button as NSButton in self.buttonStackView.subviews {
+                if UserDefaults.standard.string(forKey: String(button.tag)) != "" {
+                    button.isEnabled = self.isRadioConnected
+                } else {
+                    button.isEnabled = false
+                }
             }
-        }
-        
-        for case let button as NSButton in self.buttonStackViewTwo.subviews {
-            if UserDefaults.standard.string(forKey: String(button.tag)) != "" {
-                button.isEnabled = true
-            } else {
-                button.isEnabled = false
+
+            for case let button as NSButton in self.buttonStackViewTwo.subviews {
+                if UserDefaults.standard.string(forKey: String(button.tag)) != "" {
+                    button.isEnabled = self.isRadioConnected
+                } else {
+                    button.isEnabled = false
+                }
             }
-        }
+        //}
     }
     
     /**
@@ -434,10 +502,10 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     }
     
     /**
-     Collect all the buttons from view and subviews
+     Collect all the buttons from view and subviews and update their label (title)
      - parameter view: - the view to search
      */
-    func findButton(view: NSView) { //  -> [NSButton]
+    func updateButtonTitles(view: NSView) {
         
         var results = [NSButton]()
         let offset = 10 // labels start with tag = 11
@@ -449,10 +517,9 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
                     button.title = UserDefaults.standard.string(forKey: String(button.tag + offset)) ?? ""
                 }
             } else {
-                findButton(view: subview) // results += 
+                updateButtonTitles(view: subview)
             }
         }
-        //return results
     }
     
     /**

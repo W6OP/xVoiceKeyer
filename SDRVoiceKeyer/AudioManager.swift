@@ -144,8 +144,8 @@ internal class AudioManager: NSObject {
         AudioFileGetProperty(sourceFileID!, kAudioFilePropertyDataFormat, &size, &sourceDescription)
         
         #if DEBUG
-            print("Source File description:")
-            self.printAudioStreamBasicDescription(sourceDescription)
+            //print("Source File description:")
+            //self.printAudioStreamBasicDescription(sourceDescription)
         #endif
         
         let sampleRate = stream.fileFormat.sampleRate

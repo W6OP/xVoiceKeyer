@@ -509,7 +509,7 @@ internal class RadioManager: NSObject, ApiDelegate {
             }
         }
         // start the timer
-        audioStreamTimer?.start()
+            self.audioStreamTimer?.start()
     }
 
 } // end class

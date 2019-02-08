@@ -48,6 +48,8 @@ protocol PreferenceManagerDelegate: class {
     func doUpdateButtons()
     // update button labels
     func doUpdateButtonLabels()
+    // turn on or off timer fo ID
+    func doSetTimer(isEnabled: Bool, interval: Int)
 }
 
 enum YesNo: String {
@@ -74,6 +76,10 @@ class PreferenceManager: NSObject {
     @objc func updateButtonLables()
     {
         self.preferenceManagerDelegate?.doUpdateButtonLabels()
+    }
+    
+    @objc func enableTimer(isEnabled: Bool, interval: Int) {
+        self.preferenceManagerDelegate?.doSetTimer(isEnabled: isEnabled, interval: interval)
     }
     
     /**

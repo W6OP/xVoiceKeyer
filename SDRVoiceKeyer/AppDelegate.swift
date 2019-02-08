@@ -47,6 +47,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         // Insert code here to initialize your application
+        //window.level = kCGMainMenuWindowLevel - 1
+        //window.collectionBehavior = [.stationary, .canJoinAllSpaces, .fullScreenAuxiliary]
+
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {
