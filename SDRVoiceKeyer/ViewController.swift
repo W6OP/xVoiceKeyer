@@ -40,6 +40,20 @@
 import Cocoa
 import Repeat
 
+// creates image for button background
+// https://stackoverflow.com/questions/29418310/set-color-of-nsbutton-programmatically-swift
+//extension NSImage {
+//    class func swatchWithColor(color: NSColor, size: NSSize) -> NSImage {
+//        let image = NSImage(size: size)
+//        image.lockFocus()
+//        color.drawSwatch(in: NSMakeRect(0, 0, size.width, size.height))
+//        image.unlockFocus()
+//        return image
+//    }
+//}
+// USAGE:
+// self.buttonSendID.image = NSImage.swatchWithColor( color: NSColor.green, size: NSMakeSize(100, 100) )
+
 class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerDelegate, AudioManagerDelegate {
     
     private var radioManager: RadioManager!
@@ -50,8 +64,10 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     private var defaultRadio = (model: "", nickname: "", ipAddress: "", default: "", serialNumber: "")
     
     private var isRadioConnected = false
+    private var isSliceActive = false
     private var timerState: String = "ON"
     private var idTimer :Repeater?
+    private var idlabelTimer :Repeater?
     
     lazy var window: NSWindow! = self.view.window
     
@@ -63,6 +79,9 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     @IBOutlet weak var buttonStackViewTwo: NSStackView!
     @IBOutlet weak var gainSlider: NSSlider!
     @IBOutlet weak var gainLabel: NSTextField!
+    @IBOutlet weak var buttonSendID: NSButton!
+    @IBOutlet weak var buttonStop: NSButton!
+    @IBOutlet weak var labelSendID: NSTextField!
     
     // MARK: Actions
     // this handles all of the voice buttons - use the tag value to determine which audio file to load
@@ -78,6 +97,13 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     // stop the current voice playback
     @IBAction func stopButtonClicked(_ sender: NSButton) {
         stopTransmitting()
+    }
+    
+    @IBAction func sendID(_ sender: NSButton) {
+
+        self.idlabelTimer = nil
+        self.labelSendID.isHidden = true
+        voiceButtonSelected(buttonNumber: sender.tag)
     }
     
     // update the label when the slider is changed
@@ -118,18 +144,33 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         audiomanager = AudioManager()
         audiomanager.audioManagerDelegate = self
         self.activeSliceLabel.stringValue = "Connecting"
-        
+       
         updateButtonTitles(view: self.view)
+        self.labelSendID.backgroundColor = NSColor.green
+        
+        if let mutableAttributedTitle = buttonStop.attributedTitle.mutableCopy() as? NSMutableAttributedString {
+            mutableAttributedTitle.addAttribute(.foregroundColor, value: NSColor.red, range: NSRange(location: 0, length: mutableAttributedTitle.length))
+            buttonStop.attributedTitle = mutableAttributedTitle
+        }
         
         let notificationCenter = NotificationCenter.default
         notificationCenter.addObserver(self, selector: #selector(appMovedToBackground), name: NSApplication.willResignActiveNotification, object: nil)
-
+        
+        let notificationCenter2 = NotificationCenter.default
+        notificationCenter2.addObserver(self, selector: #selector(appMovedToForeround), name: NSApplication.didBecomeActiveNotification, object: nil)
     }
     
     @objc func appMovedToBackground() {
-        print("App moved to background!")
-        
-        //preferenceManager.enableTimer(isEnabled: false, interval: 0 )
+        //print("App moved to background!")
+        // inhibit the aut ID transmission
+       // preferenceManager.enableTimer(isEnabled: false, interval: 0 )
+    }
+    
+    @objc func appMovedToForeround() {
+        //print("App moved to foreground!")
+        // enable the auto ID transmission
+        //let timerInterval: Int = Int(UserDefaults.standard.string(forKey: "TimerInterval") ?? "10") ?? 10
+       // preferenceManager.enableTimer(isEnabled: false, interval: timerInterval )
     }
     
     // generated code
@@ -224,12 +265,12 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
             heading = "Invalid Mode"
             message = "The mode must be a voice mode."
         case RadioManagerMessage.INACTIVE:
-            //heading = "Missing Slice or Radio"
-            //message = "There is no active slice or the radio GUI is missing."
             disableVoiceButtons()
             self.activeSliceLabel.stringValue = "No Active Slice"
+            isSliceActive = false
             return
         case RadioManagerMessage.ACTIVE:
+            self.isSliceActive = true
             enableVoiceButtons()
             self.activeSliceLabel.stringValue = "Connected"
             return
@@ -410,6 +451,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         if self.radioManager.connectToRadio(serialNumber: serialNumber, doConnect: doConnect) == true {
             self.view.window?.title = "SDR Voice Keyer - " + self.defaultRadio.nickname
             self.isRadioConnected = true
+            isSliceActive = true // this is just an assumption
             self.activeSliceLabel.stringValue = "Connected"
         }
     }
@@ -419,6 +461,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      */
     func didDisconnectFromRadio() {
         self.isRadioConnected = false
+        self.isRadioConnected = false
         self.activeSliceLabel.stringValue = "Disconnected"
     }
     
@@ -426,7 +469,9 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      Refresh the voice buttons.
      */
     func doUpdateButtons() {
-        enableVoiceButtons()
+        if self.isRadioConnected && self.isSliceActive {
+            enableVoiceButtons()
+        }
     }
     
     /**
@@ -434,58 +479,69 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      */
     func doUpdateButtonLabels() {
         updateButtonTitles(view: self.view)
-        enableVoiceButtons()
+        if self.isRadioConnected && self.isSliceActive {
+            enableVoiceButtons()
+        }
     }
     
     /**
      Turn on or off the ID timer.
      */
     func doSetTimer(isEnabled: Bool, interval: Int) {
-        print("timer called = \(interval)")
-
-        var transmitGain: Int = 35
-        
-        DispatchQueue.main.async {
-            let xmitGain = self.gainSlider.intValue
-            transmitGain = Int(xmitGain)
-            // IS THIS NEEDED?
-            //self.serialNumberLabel.isEnabled = true
-        }
-        
-        if isEnabled {
-            NSRunningApplication.current.activate(options: [.activateAllWindows, .activateIgnoringOtherApps])
-            self.idTimer = Repeater(interval: .minutes(interval), mode: .infinite) { _ in
-                print("timer fired = \(interval)")
-                self.selectAudioFile(buttonNumber: 102, transmitGain: transmitGain)
+        self.idTimer = Repeater(interval: .minutes(interval), mode: .infinite) { _ in
+            print("timer fired = \(interval)")
+            //self.selectAudioFile(buttonNumber: 102, transmitGain: transmitGain)
+            UI{
+                self.labelSendID.isHidden = false
+                self.startLabelTimer()
             }
-            
-            self.idTimer!.start()
-        } else {
-            self.idTimer = nil
         }
+        
+        self.idTimer!.start()
+    }
+    
+    private func startLabelTimer() {
+        
+        self.idlabelTimer = Repeater(interval: .milliseconds(500), mode: .infinite) { _ in
+            UI{
+                if self.labelSendID.isHidden {
+                    self.labelSendID.isHidden = false
+                } else {
+                    self.labelSendID.isHidden = true
+                }
+            }
+        }
+        
+        self.idlabelTimer!.start()
     }
     
     /**
      Enable all the voice buttons.
      */
     func enableVoiceButtons(){
-        //if self.isRadioConnected {
-            for case let button as NSButton in self.buttonStackView.subviews {
-                if UserDefaults.standard.string(forKey: String(button.tag)) != "" {
-                    button.isEnabled = self.isRadioConnected
-                } else {
-                    button.isEnabled = false
-                }
+        
+        for case let button as NSButton in self.buttonStackView.subviews {
+            if UserDefaults.standard.string(forKey: String(button.tag)) != "" {
+                button.isEnabled = self.isRadioConnected
+            } else {
+                button.isEnabled = false
             }
-
-            for case let button as NSButton in self.buttonStackViewTwo.subviews {
-                if UserDefaults.standard.string(forKey: String(button.tag)) != "" {
-                    button.isEnabled = self.isRadioConnected
-                } else {
-                    button.isEnabled = false
-                }
+        }
+        
+        for case let button as NSButton in self.buttonStackViewTwo.subviews {
+            if UserDefaults.standard.string(forKey: String(button.tag)) != "" {
+                button.isEnabled = self.isRadioConnected
+            } else {
+                button.isEnabled = false
             }
-        //}
+        }
+        
+        // Send ID button
+        if UserDefaults.standard.string(forKey: String(102)) != "" {
+            buttonSendID.isEnabled = self.isRadioConnected
+        } else {
+            buttonSendID.isEnabled = false
+        }
     }
     
     /**
@@ -512,7 +568,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         
         for subview in view.subviews as [NSView] {
             if let button = subview as? NSButton {
-                if button.tag != 0 {
+                if button.tag != 0 && button.tag != 102 {
                     results += [button]
                     button.title = UserDefaults.standard.string(forKey: String(button.tag + offset)) ?? ""
                 }

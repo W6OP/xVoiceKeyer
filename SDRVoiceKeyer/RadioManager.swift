@@ -383,7 +383,9 @@ internal class RadioManager: NSObject, ApiDelegate {
             }
             else{
                 if clearToTransmit(){
-                    sendTxAudioStream()
+                    DispatchQueue.global(qos: .userInteractive).async {
+                        self.sendTxAudioStream()
+                    }
                 }
             }
         } else{
@@ -422,7 +424,9 @@ internal class RadioManager: NSObject, ApiDelegate {
         self.txAudioStream = api.radio?.txAudioStreams[streamId!]
     
         if clearToTransmit(){
-            sendTxAudioStream()
+            DispatchQueue.global(qos: .userInteractive).async {
+                self.sendTxAudioStream()
+            }
         }
     }
     
@@ -496,7 +500,7 @@ internal class RadioManager: NSObject, ApiDelegate {
         txAudioStream.txGain = self.xmitGain
         
         // define the repeating timer for 24000 hz - why 5300, seems it should be 4160
-        self.audioStreamTimer = Repeater.every(.microseconds(5300), count: result.count) { _ in
+        self.audioStreamTimer = Repeater.every(.microseconds(5300), count: result.count, tolerance: .nanoseconds(1), queue: DispatchQueue(label: "com.w6op", qos: .userInteractive)) { _ in
             let _ = self.txAudioStream.sendTXAudio(left: result[frameCount], right: result[frameCount], samples: Int(result[frameCount].count))
             frameCount += 1
         }
