@@ -62,6 +62,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     
     private var availableRadios = [(model: String, nickname: String, ipAddress: String, default: String, serialNumber: String)]()
     private var defaultRadio = (model: "", nickname: "", ipAddress: "", default: "", serialNumber: "")
+    //private var currentParameters = (slice: "", mode: "", frequency: "")
     
     private var isRadioConnected = false
     private var isSliceActive = false
@@ -82,6 +83,9 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     @IBOutlet weak var buttonSendID: NSButton!
     @IBOutlet weak var buttonStop: NSButton!
     @IBOutlet weak var labelSendID: NSTextField!
+    @IBOutlet weak var labelSlice: NSTextField!
+    @IBOutlet weak var labelMode: NSTextField!
+    @IBOutlet weak var labelFrequency: NSTextField!
     
     // MARK: Actions
     // this handles all of the voice buttons - use the tag value to determine which audio file to load
@@ -481,6 +485,17 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         updateButtonTitles(view: self.view)
         if self.isRadioConnected && self.isSliceActive {
             enableVoiceButtons()
+        }
+    }
+    
+    /**
+     Update the staus labels when the radio notifies us of a change
+    */
+    func updateView(components: (slice: String, mode: String, frequency: String)) {
+        UI {
+            self.labelFrequency.stringValue = components.frequency
+            self.labelMode.stringValue = components.mode
+            self.labelSlice.stringValue = "Slice \(components.slice)"
         }
     }
     

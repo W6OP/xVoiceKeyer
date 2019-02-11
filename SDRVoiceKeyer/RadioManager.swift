@@ -94,6 +94,8 @@ protocol RadioManagerDelegate: class {
     func didDisconnectFromRadio()
     // send message to view controller
     func radioMessageReceived(messageKey: RadioManagerMessage)
+    // update slice, mode or frequency
+    func updateView(components: (slice: String, mode: String, frequency: String))
 }
 
 // MARK: Structs ------------------------------------------------------------------------------------------------
@@ -126,6 +128,9 @@ public enum RadioManagerMessage : String {
  */
 internal class RadioManager: NSObject, ApiDelegate {
     
+    // KVO
+    //private var __txEnabled                   = false
+    
     // setup logging for the RadioManager
     static let model_log = OSLog(subsystem: "com.w6op.RadioManager-Swift", category: "Model")
     
@@ -140,6 +145,7 @@ internal class RadioManager: NSObject, ApiDelegate {
     
     // list of avaiable slices - only one will be active
     var availableSlices: [xLib6000.Slice]
+    @objc var activeSlice: xLib6000.Slice!
     
     // MARK: - Internal Radio properties ----------------------------------------------------------------------------
     
@@ -167,6 +173,10 @@ internal class RadioManager: NSObject, ApiDelegate {
     private var audioBuffer = [Float]()
     private var audioStreamTimer :Repeater? // timer to meter audio chunks to radio at 24khz sample rate
     private var xmitGain = 35
+    
+    
+    //private var _observations = [NSKeyValueObservation]()
+    private var _observationList: Dictionary = [String: [NSKeyValueObservation]]()
     
     // MARK: - RadioManager Initialization ----------------------------------------------------------------------------
     
@@ -281,6 +291,8 @@ internal class RadioManager: NSObject, ApiDelegate {
         
         nc.addObserver(forName: Notification.Name(rawValue: "sliceWillBeRemoved"), object:nil, queue:nil,
                        using:sliceWillBeRemoved)
+        
+        //_observations.append( activeSlice.observe(\.txEnabled, options: [.initial, .new], changeHandler: txChange(_:_:)) )
     }
     
     // MARK: - Radio Methods ----------------------------------------------------------------------------
@@ -291,28 +303,28 @@ internal class RadioManager: NSObject, ApiDelegate {
      - note: a Notification instance
      */
     private func radiosAvailable(_ note: Notification) {
-            // receive the updated list of Radios
-            let availableRadios = (note.object as! [RadioParameters])
-            var newRadios: Int = 0
+        // receive the updated list of Radios
+        let availableRadios = (note.object as! [RadioParameters])
+        var newRadios: Int = 0
+        
+        if availableRadios.count > 0 {
+            os_log("Discovery process has completed.", log: RadioManager.model_log, type: .info)
             
-            if availableRadios.count > 0 {
-                os_log("Discovery process has completed.", log: RadioManager.model_log, type: .info)
-                
-                for radio in availableRadios {
-                    // only add new radios
-                    if !self.discoveredRadios.contains(where: { $0.nickname == radio.nickname! }) {
-                        newRadios += 1
-                        self.discoveredRadios.append((radio.model, radio.nickname!, radio.ipAddress, "No", radio.serialNumber))
-                    }
-                }
-                
-                if newRadios > 0 {
-                    // let the view controller know a radio was discovered
-                     UI() {
-                        self.radioManagerDelegate?.didDiscoverRadio(discoveredRadios: self.discoveredRadios)
-                    }
+            for radio in availableRadios {
+                // only add new radios
+                if !self.discoveredRadios.contains(where: { $0.nickname == radio.nickname! }) {
+                    newRadios += 1
+                    self.discoveredRadios.append((radio.model, radio.nickname!, radio.ipAddress, "No", radio.serialNumber))
                 }
             }
+            
+            if newRadios > 0 {
+                // let the view controller know a radio was discovered
+                UI() {
+                    self.radioManagerDelegate?.didDiscoverRadio(discoveredRadios: self.discoveredRadios)
+                }
+            }
+        }
     }
     
     /**
@@ -321,15 +333,96 @@ internal class RadioManager: NSObject, ApiDelegate {
      - note: a Notification instance
      */
     private func sliceHasBeenAdded(_ note: Notification){
-            let slice: xLib6000.Slice = (note.object as! xLib6000.Slice)
-            self.availableSlices.append(slice)
-            os_log("Slice has been addded.", log: RadioManager.model_log, type: .info)
         
+        var observations = [NSKeyValueObservation]()
+        let slice: xLib6000.Slice = (note.object as! xLib6000.Slice)
+        self.availableSlices.append(slice)
+        
+        os_log("Slice has been addded.", log: RadioManager.model_log, type: .info)
+        
+        observations.append(slice.observe(\.txEnabled, options: [.initial, .new], changeHandler: self.updateSliceStatus(_:_:)) )
+        observations.append(slice.observe(\.frequency, options: [.initial, .new], changeHandler: self.updateSliceStatus(_:_:)) )
+        observations.append(slice.observe(\.mode, options: [.initial, .new], changeHandler: self.updateSliceStatus(_:_:)) )
+        
+        _observationList[slice.id] = observations
+
         if (api.radio?.slices.count)! > 0 {
             UI() {
+                
                 let message = RadioManagerMessage.ACTIVE
                 self.radioManagerDelegate?.radioMessageReceived(messageKey: message)
+                
+                let components = self.findActiveSlice()
+                self.radioManagerDelegate?.updateView(components: components)
             }
+        } else {
+            print ("NO SLICES")
+        }
+    }
+    
+    internal func updateSliceStatus(_ slice: xLib6000.Slice, _ change: Any){
+
+        var components = (slice: "??", mode: "", frequency: "")
+        
+        if slice.txEnabled{
+            components = self.findActiveSlice()
+            self.radioManagerDelegate?.updateView(components: components)
+            return
+        }
+        print (components)
+    }
+    
+    /**
+     Find the slice configured to transmit
+     */
+    func findActiveSlice() -> ((slice: String, mode: String, frequency: String)) {
+       
+        var components = (slice: "??", mode: "", frequency: "")
+        
+        for slice in self.availableSlices {
+            
+            if slice.txEnabled {
+                activeSlice = slice
+                components.mode = slice.mode
+                components.frequency = convertFrequencyToDecimalString(frequency: slice.frequency)
+                components.slice = convertSliceNumberToLetter(sliceNumber: slice.id)
+            }
+        }
+        
+        return components
+    }
+    
+    /**
+     Convert the frequency (10136000) to a string with a decimal place (10136.000)
+     */
+    private func convertFrequencyToDecimalString (frequency: Int) -> String {
+        return String(Double(round(Double(frequency/1000))))
+    }
+    
+    /**
+     Convert the slice number to a slice leter
+     */
+    private func convertSliceNumberToLetter (sliceNumber: String) -> String {
+        
+        switch sliceNumber {
+        case "0":
+            return "A"
+        case "1":
+            return "B"
+        case "2":
+            return "C"
+        case "3":
+            return "D"
+        case "4":
+            return "E"
+        case "5":
+            return "F"
+        case "6":
+            return "G"
+        case "7":
+            return "H"
+        default:
+            return "??"
         }
     }
     
@@ -341,7 +434,14 @@ internal class RadioManager: NSObject, ApiDelegate {
      */
     private func sliceWillBeRemoved(_ note: Notification){
         var count: Int = 0
+        //var observations = [NSKeyValueObservation]()
+        
         let slice: xLib6000.Slice = (note.object as! xLib6000.Slice)
+        
+        
+        var observations = _observationList[slice.id]!
+        _observationList.removeValue(forKey: slice.id)
+        observations.removeAll()
         
         for _ in self.availableSlices {
             if slice.daxChannel == self.availableSlices[count].daxChannel {
@@ -359,6 +459,15 @@ internal class RadioManager: NSObject, ApiDelegate {
                 self.radioManagerDelegate?.radioMessageReceived(messageKey: message)
             }
         }
+    }
+    
+    func removeObservations() {
+        
+        // invalidate each observation
+       // _observations.forEach { $0.invalidate() }
+        
+        // remove the tokens
+        //_observations.removeAll()
     }
     
     // MARK: Transmit methods ----------------------------------------------------------------------------

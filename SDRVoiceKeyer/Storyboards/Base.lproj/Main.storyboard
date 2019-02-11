@@ -1024,6 +1024,33 @@ Gw
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Lwi-oo-ONC">
+                                <rect key="frame" x="20" y="9" width="57" height="17"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <textFieldCell key="cell" lineBreakMode="clipping" title="Slice" id="wp0-qb-0cv">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="A4T-lH-3mv">
+                                <rect key="frame" x="220" y="9" width="68" height="17"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <textFieldCell key="cell" lineBreakMode="clipping" title="Frequency" id="v5P-dZ-kcl">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="rUu-m4-gOc">
+                                <rect key="frame" x="126" y="9" width="39" height="17"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <textFieldCell key="cell" lineBreakMode="clipping" title="Mode" id="cKe-ie-RCY">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
                         </subviews>
                         <constraints>
                             <constraint firstItem="EgS-MA-qh5" firstAttribute="bottom" secondItem="sf7-82-7TM" secondAttribute="bottom" id="2oE-gP-VT5"/>
@@ -1065,13 +1092,16 @@ Gw
                         <outlet property="buttonStop" destination="EgS-MA-qh5" id="eQo-ge-huc"/>
                         <outlet property="gainLabel" destination="9Pb-ax-ETI" id="v47-aS-qOS"/>
                         <outlet property="gainSlider" destination="sf7-82-7TM" id="ikB-4Z-cOv"/>
+                        <outlet property="labelFrequency" destination="A4T-lH-3mv" id="37A-bj-kCq"/>
+                        <outlet property="labelMode" destination="rUu-m4-gOc" id="RJ3-h3-JC2"/>
                         <outlet property="labelSendID" destination="k9Y-hy-hrO" id="GBi-oG-n03"/>
+                        <outlet property="labelSlice" destination="Lwi-oo-ONC" id="MzR-Y9-JrS"/>
                         <outlet property="serialNumberLabel" destination="SiB-HI-Og7" id="t3d-J6-miG"/>
                     </connections>
                 </viewController>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-42.5" y="624"/>
+            <point key="canvasLocation" x="-42.5" y="623.5"/>
         </scene>
         <!--Radio Preferences-->
         <scene sceneID="zwc-lB-DSG">
