@@ -27,14 +27,14 @@
  */
 
 /**
-    FilePreferences.swift
-    SDRVoiceKeyer
-
-    Created by Peter Bourget on 2/2/19.
-    Copyright © 2019 Peter Bourget. All rights reserved.
-
-    Description: Loads and save the user defaults and settings.
-*/
+ FilePreferences.swift
+ SDRVoiceKeyer
+ 
+ Created by Peter Bourget on 2/2/19.
+ Copyright © 2019 Peter Bourget. All rights reserved.
+ 
+ Description: Loads and save the user defaults and settings.
+ */
 
 import Cocoa
 
@@ -56,17 +56,16 @@ extension NSOpenPanel {
 }
 
 class FilePreferences: NSViewController {
-   
+    
     // class variables
     var preferenceManager: PreferenceManager!
     
-    private var allTextFields: Dictionary = [Int: NSTextField]()
-    private var timerState: String = "ON"
+    var allTextFields: Dictionary = [Int: NSTextField]()
+    var timerState: String = "ON"
     
     @IBOutlet weak var timerInterval: NSTextField!
     @IBOutlet weak var fileSelector: NSButton!
     @IBOutlet weak var timerAudioFile: NSTextField!
-    @IBOutlet weak var minutesLabel: NSTextField!
     @IBOutlet weak var timerEnabler: NSButton!
     
     //
@@ -85,7 +84,7 @@ class FilePreferences: NSViewController {
     
     @IBAction func selectTimerFile(_ sender: NSButton) {
         let filePath = self.getFilePath()
-       
+        
         let textField: NSTextField = allTextFields[sender.tag]!
         
         if !filePath.isEmpty {
@@ -93,7 +92,7 @@ class FilePreferences: NSViewController {
         }
     }
     
-   
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -146,7 +145,7 @@ class FilePreferences: NSViewController {
      - parameter view: - the view to search
      */
     func findTextfieldByIndex(view: NSView) {
-
+        
         for subview in view.subviews as [NSView] {
             if let textField = subview as? NSTextField {
                 allTextFields[textField.tag] = textField
@@ -162,9 +161,9 @@ class FilePreferences: NSViewController {
      - returns: array of NSTextField
      */
     func findTextfield(view: NSView) -> [NSTextField] {
-
+        
         var results = [NSTextField]()
-
+        
         for subview in view.subviews as [NSView] {
             if let textField = subview as? NSTextField {
                 results += [textField]
@@ -179,7 +178,7 @@ class FilePreferences: NSViewController {
      Get the file path from the selected item.
      - returns: String
      */
-    internal func getFilePath() -> String {
+    func getFilePath() -> String {
         var filePath = ""
         
         if let url = NSOpenPanel().selectUrl {
@@ -188,26 +187,6 @@ class FilePreferences: NSViewController {
         
         return filePath
     }
-    
-//    func setControlStates(sender: NSButton) {
-//
-//        switch sender.state {
-//        case .on:
-//            timerInterval.isEnabled = true
-//            timerAudioFile.isEnabled = true
-//            fileSelector.isEnabled = true
-//            minutesLabel.isEnabled = true
-//            timerState = "ON"
-//        //preferenceManager.setTimer(true, timerInterval.stringValue)
-//        case .off:
-//            timerInterval.isEnabled = false
-//            timerAudioFile.isEnabled = false
-//            fileSelector.isEnabled = false
-//            minutesLabel.isEnabled = false
-//            timerState = "OFF"
-//        default: break
-//        }
-//    }
     
     /**
      Retrieve the user settings. File paths and the default radio.
@@ -221,7 +200,9 @@ class FilePreferences: NSViewController {
             
             // this takes care of timer interval too since it is duplicated as a tag and TimerInterval
             if let filePath = UserDefaults.standard.string(forKey: String(tag)) {
-                allTextFields[tag]!.stringValue = filePath
+                if tag != 0 { // skip labels
+                    allTextFields[tag]!.stringValue = filePath
+                }
             }
         }
     }
@@ -234,7 +215,11 @@ class FilePreferences: NSViewController {
         for item in allTextFields
         {
             let tag = item.key
-           
+            
+            if tag == 0 {
+                continue
+            }
+            
             if allTextFields[tag]!.stringValue.isEmpty
             {
                 UserDefaults.standard.set("", forKey: String(tag))

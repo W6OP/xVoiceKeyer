@@ -126,7 +126,7 @@ public enum RadioManagerMessage : String {
  This class will isolate other apps from the API implemenation allowing reuse by multiple
  programs.
  */
-internal class RadioManager: NSObject, ApiDelegate {
+class RadioManager: NSObject, ApiDelegate {
     
     // KVO
     var _observationList: Dictionary = [String: [NSKeyValueObservation]]()
@@ -376,8 +376,10 @@ internal class RadioManager: NSObject, ApiDelegate {
         checkSliceStatus ()
     }
     
-    // now see if any slices are txUpdated - this is necessary to update GUI
-    // when no slices are txEnabled and then one is enabled or disabled again
+    /**
+     Now see if any slices are txUpdated - this is necessary to update GUI
+     when no slices are txEnabled and then one is enabled or disabled again.
+     */
     func checkSliceStatus () {
         
         let results = api.radio?.slices.filter { $0.value.txEnabled == true }
@@ -475,16 +477,7 @@ internal class RadioManager: NSObject, ApiDelegate {
             }
         }
     }
-    
-    func removeObservations() {
-        
-        // invalidate each observation
-        // _observations.forEach { $0.invalidate() }
-        
-        // remove the tokens
-        //_observations.removeAll()
-    }
-    
+   
     // MARK: Transmit methods ----------------------------------------------------------------------------
     
     /**
@@ -555,7 +548,7 @@ internal class RadioManager: NSObject, ApiDelegate {
     }
     
     /**
-     Check to see if there is any reason we can't transmit
+     Check to see if there is any reason we can't transmit.
      */
     func clearToTransmit() -> Bool {
         //var message: RadioManagerMessage = RadioManagerMessage.INACTIVE
@@ -566,6 +559,7 @@ internal class RadioManager: NSObject, ApiDelegate {
                 self.radioManagerDelegate?.didDisconnectFromRadio()
             }
             
+            _observationList.removeAll()
             activeRadio = nil
             availableRadios.removeAll()
             self.txAudioStream = nil
@@ -591,6 +585,9 @@ internal class RadioManager: NSObject, ApiDelegate {
         }
     }
     
+    /**
+     Check to see if a valid mode for phone is selected.
+     */
     func checkForValidMode () -> Bool {
         
         for (_, slice) in (api.radio?.slices)! {

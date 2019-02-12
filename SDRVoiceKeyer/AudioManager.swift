@@ -61,7 +61,7 @@ public enum AudioMessage : String {
 }
 
 // Start of class definition.
-internal class AudioManager: NSObject {
+class AudioManager: NSObject {
     
     weak var audioManagerDelegate:AudioManagerDelegate?
     
@@ -73,7 +73,7 @@ internal class AudioManager: NSObject {
     var buffers = [Int: [Float]]() // cache for audio buffers to reduce disk reads
     
     override init() {
-       
+        
     }
     
     /**
@@ -82,7 +82,7 @@ internal class AudioManager: NSObject {
      - parameter buttonNumber: the tag associated with the button
      - returns: PCM encoded audio as an array of floats at 24khz bit rate
      */
-    internal func selectAudioFile(buttonNumber: Int) -> [Float] {
+    func selectAudioFile(buttonNumber: Int) -> [Float] {
         var floatArray = [Float]()
         let fileManager = FileManager.default
         
@@ -144,14 +144,14 @@ internal class AudioManager: NSObject {
         AudioFileGetProperty(sourceFileID!, kAudioFilePropertyDataFormat, &size, &sourceDescription)
         
         #if DEBUG
-            //print("Source File description:")
-            //self.printAudioStreamBasicDescription(sourceDescription)
+        //print("Source File description:")
+        //self.printAudioStreamBasicDescription(sourceDescription)
         #endif
         
         let sampleRate = stream.fileFormat.sampleRate
         let format = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: sampleRate, channels: 1, interleaved: false)
         var buffer = AVAudioPCMBuffer(pcmFormat: format!, frameCapacity: AVAudioFrameCount(stream.length))
-    
+        
         // if sample rate is less than 24khz, just notify user
         if sampleRate < AudioManager.Required_Sample_Rate {
             notifyViewController(key: AudioMessage.InvalidSampleRate, messageData: "\(audioURL)", "\(sampleRate)")
@@ -189,9 +189,9 @@ internal class AudioManager: NSObject {
      - parameter inBuffer: the PCM buffer to be coverted
      - parameter inputFormat: the format of the buffer to be converted
      - returns: AVAudioPCMBuffer converted to 24khz
-    */
+     */
     func convertPCMBufferSampleRate(inBuffer : AVAudioPCMBuffer, inputFormat: AVAudioFormat, inputSampleRate: Double) -> AVAudioPCMBuffer {
-
+        
         let outputFormat = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: AudioManager.Required_Sample_Rate, channels: 1, interleaved: false)
         let converter = AVAudioConverter(from: inputFormat, to: outputFormat!)
         
@@ -210,7 +210,7 @@ internal class AudioManager: NSObject {
         
         var error : NSError?
         _ = converter!.convert(to: convertedBuffer!, error: &error, withInputFrom: inputBlock)
-    
+        
         return convertedBuffer!
     }
     
@@ -236,9 +236,9 @@ internal class AudioManager: NSObject {
      - parameter messageData: String - data to be added to the message
      */
     func notifyViewController(key: AudioMessage, messageData: String...){
-    
+        
         var message: String
-     
+        
         switch key {
         case AudioMessage.FileMissing:
             message = "The file \(NSString(string: messageData[0]).removingPercentEncoding!) could not be found."
@@ -260,6 +260,6 @@ internal class AudioManager: NSObject {
     // TODO: if I ever want to add recording
     // https://stackoverflow.com/questions/26472747/recording-audio-in-swift
     // https://github.com/snyuryev/m4a-converter-swift/blob/master/ConverterTest/ViewController.swift
-   
+    
 } // end class
 

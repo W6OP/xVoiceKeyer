@@ -56,19 +56,18 @@ import Repeat
 
 class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerDelegate, AudioManagerDelegate {
     
-    private var radioManager: RadioManager!
-    private var audiomanager: AudioManager!
-    private var preferenceManager: PreferenceManager!
+    var radioManager: RadioManager!
+    var audiomanager: AudioManager!
+    var preferenceManager: PreferenceManager!
     
-    private var availableRadios = [(model: String, nickname: String, ipAddress: String, default: String, serialNumber: String)]()
-    private var defaultRadio = (model: "", nickname: "", ipAddress: "", default: "", serialNumber: "")
-    //private var currentParameters = (slice: "", mode: "", frequency: "")
+    var availableRadios = [(model: String, nickname: String, ipAddress: String, default: String, serialNumber: String)]()
+    var defaultRadio = (model: "", nickname: "", ipAddress: "", default: "", serialNumber: "")
     
-    private var isRadioConnected = false
-    private var isSliceActive = false
-    private var timerState: String = "ON"
-    private var idTimer :Repeater?
-    private var idlabelTimer :Repeater?
+    var isRadioConnected = false
+    var isSliceActive = false
+    var timerState: String = "ON"
+    var idTimer :Repeater?
+    var idlabelTimer :Repeater?
     
     lazy var window: NSWindow! = self.view.window
     
@@ -104,7 +103,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     }
     
     @IBAction func sendID(_ sender: NSButton) {
-
+        
         self.idlabelTimer = nil
         self.labelSendID.isHidden = true
         voiceButtonSelected(buttonNumber: sender.tag)
@@ -149,7 +148,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         audiomanager = AudioManager()
         audiomanager.audioManagerDelegate = self
         self.activeSliceLabel.stringValue = "Connecting"
-       
+        
         updateButtonTitles(view: self.view)
         self.labelSendID.backgroundColor = NSColor.green
         
@@ -168,14 +167,14 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     @objc func appMovedToBackground() {
         //print("App moved to background!")
         // inhibit the auto ID transmission
-       // preferenceManager.enableTimer(isEnabled: false, interval: 0 )
+        // preferenceManager.enableTimer(isEnabled: false, interval: 0 )
     }
     
     @objc func appMovedToForeround() {
         //print("App moved to foreground!")
         // enable the auto ID transmission
         //let timerInterval: Int = Int(UserDefaults.standard.string(forKey: "TimerInterval") ?? "10") ?? 10
-       // preferenceManager.enableTimer(isEnabled: false, interval: timerInterval )
+        // preferenceManager.enableTimer(isEnabled: false, interval: timerInterval )
     }
     
     // generated code
@@ -184,7 +183,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
             // Update the view, if already loaded.
         }
     }
-
+    
     // don't allow full screen
     override func viewDidAppear() {
         window.styleMask.remove(.resizable)
@@ -199,9 +198,9 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     // Radio Methods ---------------------------------------------------------------------------
     
     /**
-    Immediately stop transmitting
+     Immediately stop transmitting
      */
-    internal func stopTransmitting() {
+    func stopTransmitting() {
         let xmitGain = gainSlider.intValue
         radioManager.keyRadio(doTransmit: false, xmitGain: Int(xmitGain))
     }
@@ -212,7 +211,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      Handle button clicks etc. from any voice button
      - parameter buttonNumber: Int
      */
-    internal func voiceButtonSelected(buttonNumber: Int) {
+    func voiceButtonSelected(buttonNumber: Int) {
         
         //var floatArray = [Float]()
         var transmitGain: Int = 35
@@ -223,7 +222,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
             // IS THIS NEEDED?
             //self.serialNumberLabel.isEnabled = true
         }
-
+        
         if self.isRadioConnected {
             selectAudioFile(buttonNumber: buttonNumber, transmitGain: transmitGain)
         } else {
@@ -243,8 +242,8 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      of 32 bit floats
      - parameter buttonNumber: Int
      - parameter transmitGain: Int
-    */
-    internal func selectAudioFile(buttonNumber: Int, transmitGain: Int){
+     */
+    func selectAudioFile(buttonNumber: Int, transmitGain: Int){
         var floatArray = [Float]()
         
         floatArray = self.audiomanager.selectAudioFile(buttonNumber: buttonNumber)
@@ -322,7 +321,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         })
     }
     
-   
+    
     /**
      Load the information for the default radio if there is any.
      Check how many radios were discovered. If there is a default and it matches the discovered radio - connect
@@ -357,12 +356,12 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
             }
         }
         
-//        if  UserDefaults.standard.string(forKey: "TimerState") == "ON" {
-//            let interval: Int = Int(UserDefaults.standard.string(forKey: "TimerInterval") ?? "10") ?? 10
-//            doSetTimer(isEnabled: true, interval: interval)
-//        } else {
-//            //timerEnabler.state = .off
-//        }
+        //        if  UserDefaults.standard.string(forKey: "TimerState") == "ON" {
+        //            let interval: Int = Int(UserDefaults.standard.string(forKey: "TimerInterval") ?? "10") ?? 10
+        //            doSetTimer(isEnabled: true, interval: interval)
+        //        } else {
+        //            //timerEnabler.state = .off
+        //        }
         
         switch discoveredRadios.count {
         case 1:
@@ -452,7 +451,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      - parameter doConnect: Bool
      */
     func doConnectRadio(serialNumber: String, doConnect: Bool) {
-
+        
         if self.radioManager.connectToRadio(serialNumber: serialNumber, doConnect: doConnect) == true {
             self.view.window?.title = "SDR Voice Keyer - " + self.defaultRadio.nickname
             self.isRadioConnected = true
@@ -491,7 +490,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     
     /**
      Update the staus labels when the radio notifies us of a change
-    */
+     */
     func updateView(components: (slice: String, mode: String, frequency: String)) {
         UI {
             self.labelFrequency.stringValue = components.frequency
@@ -516,7 +515,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         self.idTimer!.start()
     }
     
-    private func startLabelTimer() {
+    func startLabelTimer() {
         
         self.idlabelTimer = Repeater(interval: .milliseconds(500), mode: .infinite) { _ in
             UI{
@@ -619,11 +618,11 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         let PVC: RadioPreferences = SB.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(rawValue: "radioSelection")) as! RadioPreferences
         PVC.availableRadios = self.availableRadios
         PVC.preferenceManager = self.preferenceManager
-       
+        
         presentViewControllerAsSheet(PVC)
         // presentAsModalWindow(PVC)
         // present(_ PVC: NSViewController, asPopoverRelativeTo positioningRect: NSRect, of positioningView: NSView, preferredEdge: NSRectEdge, behavior: NSPopover.Behavior)
-
+        
     }
     
 } // end class

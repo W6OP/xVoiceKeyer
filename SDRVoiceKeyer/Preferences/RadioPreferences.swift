@@ -93,22 +93,6 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
         }
     }
     
-    /**
-        Find the correct field using the tag value and populate it.
-     */
-//    @IBAction func loadFileNameClicked(_ sender: NSButton) {
-//
-//        let filePath = preferenceManager.getFilePath()
-//        let allTextField = findTextfield(view: self.view)
-//
-//        for txtField in allTextField
-//        {
-//            if txtField.tag == sender.tag && !filePath.isEmpty {
-//                txtField.stringValue = filePath
-//            }
-//        }
-//    }
-    
     // MARK: generated code
     
     /**
@@ -201,26 +185,6 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
             }
         }
     }
-    
-    
-    /**
-        Collect all the textfields from view and subviews
-        - parameter view: - the view to search
-     */
-//    func findTextfield(view: NSView) -> [NSTextField] {
-//        
-//        var results = [NSTextField]()
-//        
-//        for subview in view.subviews as [NSView] {
-//            if let textField = subview as? NSTextField {
-//                results += [textField]
-//            } else {
-//                results += findTextfield(view: subview)
-//            }
-//        }
-//        return results
-//    }
-    
    
     // ----------------------------------------------------------------------------
     // MARK: - NSTableView DataSource methods
