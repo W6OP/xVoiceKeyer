@@ -758,6 +758,7 @@
                                         <rect key="frame" x="-6" y="-7" width="117" height="32"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="105" id="AD9-dU-k4s"/>
+                                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="105" id="jXh-cQ-4ZX"/>
                                         </constraints>
                                         <buttonCell key="cell" type="push" title="unused" bezelStyle="rounded" alignment="center" scrollable="YES" lineBreakMode="clipping" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="oHM-Tc-mW7">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -772,6 +773,7 @@
                                     <button verticalHuggingPriority="750" tag="2" translatesAutoresizingMaskIntoConstraints="NO" id="jO2-V4-UMI">
                                         <rect key="frame" x="100" y="-7" width="117" height="32"/>
                                         <constraints>
+                                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="105" id="Wvq-s6-7Dh"/>
                                             <constraint firstAttribute="width" constant="105" id="jmv-NS-uZ9"/>
                                         </constraints>
                                         <buttonCell key="cell" type="push" title="unused" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Wbb-re-Xto">
@@ -786,6 +788,9 @@
                                     </button>
                                     <button verticalHuggingPriority="750" tag="3" translatesAutoresizingMaskIntoConstraints="NO" id="LrM-Yv-oNY">
                                         <rect key="frame" x="206" y="-7" width="117" height="32"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="105" id="jQW-qi-spy"/>
+                                        </constraints>
                                         <buttonCell key="cell" type="push" title="unused" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="tm8-FQ-wIl">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -799,6 +804,7 @@
                                     <button verticalHuggingPriority="750" tag="4" translatesAutoresizingMaskIntoConstraints="NO" id="1g3-9e-Wjy">
                                         <rect key="frame" x="312" y="-7" width="117" height="32"/>
                                         <constraints>
+                                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="105" id="OiY-r5-d0b"/>
                                             <constraint firstAttribute="width" constant="105" id="qtN-dy-uCd"/>
                                         </constraints>
                                         <buttonCell key="cell" type="push" title="unused" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Efn-Je-EDE">
@@ -813,6 +819,9 @@
                                     </button>
                                     <button verticalHuggingPriority="750" tag="5" translatesAutoresizingMaskIntoConstraints="NO" id="fMN-D9-kp9">
                                         <rect key="frame" x="418" y="-7" width="117" height="32"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="105" id="JP8-Hu-fGB"/>
+                                        </constraints>
                                         <buttonCell key="cell" type="push" title="unused" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="LwW-lF-Te8">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -859,7 +868,7 @@ Gw
                                     <action selector="stopButtonClicked:" target="XfG-lQ-9wD" id="4rg-Po-WGE"/>
                                 </connections>
                             </button>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="SiB-HI-Og7">
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="SiB-HI-Og7" userLabel="Xmit Gain Label">
                                 <rect key="frame" x="126" y="38" width="70" height="17"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="66" id="YAh-s2-YmN"/>
@@ -877,7 +886,7 @@ Gw
                                     <action selector="gainSliderChanged:" target="XfG-lQ-9wD" id="4VT-bO-ry9"/>
                                 </connections>
                             </slider>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="s4N-YB-pa1">
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="s4N-YB-pa1" userLabel="Radio Status Label">
                                 <rect key="frame" x="455" y="38" width="96" height="17"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" placeholderString="Status" id="S61-vg-UtS">
                                     <font key="font" metaFont="system"/>
@@ -892,6 +901,7 @@ Gw
                                         <rect key="frame" x="-6" y="-7" width="117" height="31"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="105" id="AfS-MK-soc"/>
+                                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="105" id="keh-2j-pvT"/>
                                         </constraints>
                                         <buttonCell key="cell" type="push" title="unused" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Yu9-1n-weZ">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -906,6 +916,7 @@ Gw
                                     <button verticalHuggingPriority="750" tag="7" translatesAutoresizingMaskIntoConstraints="NO" id="85k-UI-Gmr">
                                         <rect key="frame" x="100" y="-7" width="117" height="31"/>
                                         <constraints>
+                                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="105" id="KSa-Vg-7Xn"/>
                                             <constraint firstAttribute="width" constant="105" id="LFC-d6-fXC"/>
                                         </constraints>
                                         <buttonCell key="cell" type="push" title="unused" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Uxr-x2-zcY">
@@ -920,6 +931,9 @@ Gw
                                     </button>
                                     <button verticalHuggingPriority="750" tag="8" translatesAutoresizingMaskIntoConstraints="NO" id="bjk-8X-d2t">
                                         <rect key="frame" x="206" y="-7" width="117" height="31"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="105" id="QwZ-c1-iJF"/>
+                                        </constraints>
                                         <buttonCell key="cell" type="push" title="unused" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="hDQ-NJ-JXi">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -934,6 +948,7 @@ Gw
                                         <rect key="frame" x="312" y="-7" width="117" height="31"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="105" id="QNU-LJ-kbQ"/>
+                                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="105" id="oS4-f5-dnK"/>
                                         </constraints>
                                         <buttonCell key="cell" type="push" title="unused" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Jaf-Ao-QUf">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -947,6 +962,9 @@ Gw
                                     </button>
                                     <button verticalHuggingPriority="750" tag="10" translatesAutoresizingMaskIntoConstraints="NO" id="1oe-WH-WzE">
                                         <rect key="frame" x="418" y="-7" width="117" height="31"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="105" id="sce-n6-4gC"/>
+                                        </constraints>
                                         <buttonCell key="cell" type="push" title="unused" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="7BN-Ne-umF">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -1025,18 +1043,9 @@ Gw
                                 </textFieldCell>
                             </textField>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Lwi-oo-ONC">
-                                <rect key="frame" x="20" y="9" width="57" height="17"/>
+                                <rect key="frame" x="20" y="9" width="97" height="17"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <textFieldCell key="cell" lineBreakMode="clipping" title="Slice" id="wp0-qb-0cv">
-                                    <font key="font" metaFont="system"/>
-                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                </textFieldCell>
-                            </textField>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="A4T-lH-3mv">
-                                <rect key="frame" x="220" y="9" width="68" height="17"/>
-                                <autoresizingMask key="autoresizingMask"/>
-                                <textFieldCell key="cell" lineBreakMode="clipping" title="Frequency" id="v5P-dZ-kcl">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -1046,6 +1055,15 @@ Gw
                                 <rect key="frame" x="126" y="9" width="39" height="17"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <textFieldCell key="cell" lineBreakMode="clipping" title="Mode" id="cKe-ie-RCY">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="A4T-lH-3mv">
+                                <rect key="frame" x="221" y="9" width="68" height="17"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <textFieldCell key="cell" lineBreakMode="clipping" title="Frequency" id="v5P-dZ-kcl">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>

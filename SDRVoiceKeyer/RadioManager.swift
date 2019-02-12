@@ -29,16 +29,16 @@
  */
 
 /*
-    RadioManager.swift
-    SDRVoiceKeyer
-
-    Created by Peter Bourget on 7/11/17.
-    Copyright © 2019 Peter Bourget W6OP. All rights reserved.
-
-    Description: This is a wrapper for the xLib6000 framework written by Doug Adams K3TZR
-    The purpose is to simplify the interface into the API and allow the GUI to function
-    without a reference to the API or even knowledge of the API.
-*/
+ RadioManager.swift
+ SDRVoiceKeyer
+ 
+ Created by Peter Bourget on 7/11/17.
+ Copyright © 2019 Peter Bourget W6OP. All rights reserved.
+ 
+ Description: This is a wrapper for the xLib6000 framework written by Doug Adams K3TZR
+ The purpose is to simplify the interface into the API and allow the GUI to function
+ without a reference to the API or even knowledge of the API.
+ */
 
 import Foundation
 import xLib6000
@@ -50,7 +50,7 @@ import os
 /** breaks an array into chunks of a specific size, the last chunk may be smaller than the specified size
  this is used to split the audio buffer into 128 samples at a time to send to the vita parser
  via the rate timer
-*/
+ */
 extension Array {
     func chunked(into size: Int) -> [[Element]] {
         return stride(from: 0, to: count, by: size).map {
@@ -62,9 +62,9 @@ extension Array {
 // MARK: Helper Functions ------------------------------------------------------------------------------------------------
 
 /** utility functions to run a UI or background thread
-// USAGE:
+ // USAGE:
  BG() {
-    everything in here will execute in the background
+ everything in here will execute in the background
  }
  https://www.electrollama.net/blog/2017/1/6/updating-ui-from-background-threads-simple-threading-in-swift-3-for-ios
  */
@@ -74,7 +74,7 @@ func BG(_ block: @escaping ()->Void) {
 
 /**  USAGE:
  UI() {
-    everything in here will execute on the main thread
+ everything in here will execute on the main thread
  }
  */
 func UI(_ block: @escaping ()->Void) {
@@ -129,7 +129,7 @@ public enum RadioManagerMessage : String {
 internal class RadioManager: NSObject, ApiDelegate {
     
     // KVO
-    //private var __txEnabled                   = false
+    var _observationList: Dictionary = [String: [NSKeyValueObservation]]()
     
     // setup logging for the RadioManager
     static let model_log = OSLog(subsystem: "com.w6op.RadioManager-Swift", category: "Model")
@@ -143,40 +143,32 @@ internal class RadioManager: NSObject, ApiDelegate {
     // to abstract it from the radio
     var discoveredRadios: [(model: String, nickname: String, ipAddress: String, default: String, serialNumber: String)]
     
-    // list of avaiable slices - only one will be active
-    var availableSlices: [xLib6000.Slice]
-    @objc var activeSlice: xLib6000.Slice!
-    
     // MARK: - Internal Radio properties ----------------------------------------------------------------------------
     
     // Radio currently running
-    internal var activeRadio: RadioParameters?
+    var activeRadio: RadioParameters?
     
     // this starts the discovery process - Api to the Radio
-    private var api = Api.sharedInstance
+    var api = Api.sharedInstance
     
     // MARK: - Private properties ----------------------------------------------------------------------------
     
-    private var audiomanager: AudioManager!
+    var audiomanager: AudioManager!
     
     // Notification observers
-    private var notifications = [NSObjectProtocol]()
-    private let log = (NSApp.delegate as! AppDelegate)
-    private let clientName = "SDRVoiceKeyer"
+    var notifications = [NSObjectProtocol]()
+    let log = (NSApp.delegate as! AppDelegate)
+    let clientName = "SDRVoiceKeyer"
     
     // Array of available Radios
-    private var availableRadios = [RadioParameters]()
+    var availableRadios = [RadioParameters]()
     
-    private var txAudioStream: TxAudioStream!
-    private var txAudioStreamId: DaxStreamId
-    private var txAudioStreamRequested = false
-    private var audioBuffer = [Float]()
-    private var audioStreamTimer :Repeater? // timer to meter audio chunks to radio at 24khz sample rate
-    private var xmitGain = 35
-    
-    
-    //private var _observations = [NSKeyValueObservation]()
-    private var _observationList: Dictionary = [String: [NSKeyValueObservation]]()
+    var txAudioStream: TxAudioStream!
+    var txAudioStreamId: DaxStreamId
+    var txAudioStreamRequested = false
+    var audioBuffer = [Float]()
+    var audioStreamTimer :Repeater? // timer to meter audio chunks to radio at 24khz sample rate
+    var xmitGain = 35
     
     // MARK: - RadioManager Initialization ----------------------------------------------------------------------------
     
@@ -186,7 +178,6 @@ internal class RadioManager: NSObject, ApiDelegate {
     override init() {
         
         audiomanager = AudioManager()
-        availableSlices = [xLib6000.Slice]()
         availableRadios = [RadioParameters]()
         discoveredRadios = [(model: String, nickname: String, ipAddress: String, default: String, serialNumber: String)]()
         txAudioStreamId = DaxStreamId("0")!
@@ -213,7 +204,7 @@ internal class RadioManager: NSObject, ApiDelegate {
     }
     
     func addReplyHandler(_ sequenceId: SequenceId, replyTuple: ReplyTuple) {
-        // add the handler // unused in xVoiceKeyer
+        // unused in xVoiceKeyer
         //replyHandlers[sequenceId] = replyTuple
         os_log("addReplyHandler added.", log: RadioManager.model_log, type: .info)
     }
@@ -235,7 +226,7 @@ internal class RadioManager: NSObject, ApiDelegate {
      - parameters:
      - serialNumber: a string representing the serial number of the radio to connect
      */
-    internal func connectToRadio( serialNumber: String, doConnect: Bool) -> Bool {
+    func connectToRadio( serialNumber: String, doConnect: Bool) -> Bool {
         
         os_log("Connect to the Radio.", log: RadioManager.model_log, type: .info)
         
@@ -245,15 +236,15 @@ internal class RadioManager: NSObject, ApiDelegate {
         if (doConnect){
             for (_, foundRadio) in api.availableRadios.enumerated() where foundRadio.serialNumber == serialNumber {
                 activeRadio = foundRadio
-   
+                
                 if api.connect(activeRadio!, clientName: self.clientName, isGui: false) {
                     // notify viewcontroller if no slices (or GUI) on connect
                     if api.radio?.sliceList.count == 0 {
                         UI() {
-                            let message = RadioManagerMessage.INACTIVE
-                            self.radioManagerDelegate?.radioMessageReceived(messageKey: message)
+                            self.radioManagerDelegate?.radioMessageReceived(messageKey: RadioManagerMessage.INACTIVE)
                         }
                     }
+                    
                     return true
                 }
             }
@@ -268,7 +259,7 @@ internal class RadioManager: NSObject, ApiDelegate {
      Stop the active radio. Remove observations of Radio properties.
      Perform an orderly close of the Radio resources.
      */
-    internal func closeRadio() {
+    func closeRadio() {
         api.disconnect()
         activeRadio = nil
     }
@@ -278,7 +269,7 @@ internal class RadioManager: NSObject, ApiDelegate {
     /**
      Add subscriptions to Notifications from the xLib6000 API
      */
-    private func addNotificationListeners() {
+    func addNotificationListeners() {
         let nc = NotificationCenter.default
         
         // Available Radios changed
@@ -291,8 +282,6 @@ internal class RadioManager: NSObject, ApiDelegate {
         
         nc.addObserver(forName: Notification.Name(rawValue: "sliceWillBeRemoved"), object:nil, queue:nil,
                        using:sliceWillBeRemoved)
-        
-        //_observations.append( activeSlice.observe(\.txEnabled, options: [.initial, .new], changeHandler: txChange(_:_:)) )
     }
     
     // MARK: - Radio Methods ----------------------------------------------------------------------------
@@ -302,7 +291,7 @@ internal class RadioManager: NSObject, ApiDelegate {
      - parameters:
      - note: a Notification instance
      */
-    private func radiosAvailable(_ note: Notification) {
+    func radiosAvailable(_ note: Notification) {
         // receive the updated list of Radios
         let availableRadios = (note.object as! [RadioParameters])
         var newRadios: Int = 0
@@ -332,57 +321,88 @@ internal class RadioManager: NSObject, ApiDelegate {
      - parameters:
      - note: a Notification instance
      */
-    private func sliceHasBeenAdded(_ note: Notification){
+    func sliceHasBeenAdded(_ note: Notification){
         
         var observations = [NSKeyValueObservation]()
         let slice: xLib6000.Slice = (note.object as! xLib6000.Slice)
-        self.availableSlices.append(slice)
         
         os_log("Slice has been addded.", log: RadioManager.model_log, type: .info)
+        #if DEBUG
+        print ("Slice \(convertSliceNumberToLetter(sliceNumber: slice.id)) has been added.")
+        #endif
         
+        // add the observations so we can update the GUI
         observations.append(slice.observe(\.txEnabled, options: [.initial, .new], changeHandler: self.updateSliceStatus(_:_:)) )
         observations.append(slice.observe(\.frequency, options: [.initial, .new], changeHandler: self.updateSliceStatus(_:_:)) )
         observations.append(slice.observe(\.mode, options: [.initial, .new], changeHandler: self.updateSliceStatus(_:_:)) )
         
         _observationList[slice.id] = observations
-
-        if (api.radio?.slices.count)! > 0 {
-            UI() {
-                
-                let message = RadioManagerMessage.ACTIVE
-                self.radioManagerDelegate?.radioMessageReceived(messageKey: message)
-                
-                let components = self.findActiveSlice()
-                self.radioManagerDelegate?.updateView(components: components)
-            }
-        } else {
-            print ("NO SLICES")
-        }
-    }
-    
-    internal func updateSliceStatus(_ slice: xLib6000.Slice, _ change: Any){
-
-        var components = (slice: "??", mode: "", frequency: "")
         
-        if slice.txEnabled{
-            components = self.findActiveSlice()
+        UI() {
+            self.radioManagerDelegate?.radioMessageReceived(messageKey: RadioManagerMessage.ACTIVE)
+            
+            let components = self.findActiveSlice()
             self.radioManagerDelegate?.updateView(components: components)
-            return
         }
-        print (components)
+        
+        checkSliceStatus ()
     }
     
     /**
-     Find the slice configured to transmit
+     Observer handler to update the slice information for the labels on the GUI
+     when a new slice is added.
+     - parameters:
+     - slice:
+     */
+    func updateSliceStatus(_ slice: xLib6000.Slice, _ change: Any){
+        
+        #if DEBUG
+        print ("Slice \(convertSliceNumberToLetter(sliceNumber: slice.id)) has been updated.")
+        #endif
+        
+        // we only care if txEnabled has changed
+        if slice.txEnabled{
+            #if DEBUG
+            print ("Slice \(convertSliceNumberToLetter(sliceNumber: slice.id)) is txEnabled.")
+            #endif
+            UI() {
+                self.radioManagerDelegate?.updateView(components: self.findActiveSlice())
+                self.radioManagerDelegate?.radioMessageReceived(messageKey: RadioManagerMessage.ACTIVE)
+            }
+            
+            return
+        }
+        
+        checkSliceStatus ()
+    }
+    
+    // now see if any slices are txUpdated - this is necessary to update GUI
+    // when no slices are txEnabled and then one is enabled or disabled again
+    func checkSliceStatus () {
+        
+        let results = api.radio?.slices.filter { $0.value.txEnabled == true }
+        if results?.count == 1 {
+            UI() {
+                self.radioManagerDelegate?.radioMessageReceived(messageKey: RadioManagerMessage.ACTIVE)
+            }
+        } else {
+            UI() {
+                self.radioManagerDelegate?.radioMessageReceived(messageKey: RadioManagerMessage.INACTIVE)
+            }
+        }
+    }
+    
+    /**
+     Find the slice configured to transmit.
+     - parameters:
+     - components: tuple with slice information for the GUI
      */
     func findActiveSlice() -> ((slice: String, mode: String, frequency: String)) {
-       
-        var components = (slice: "??", mode: "", frequency: "")
         
-        for slice in self.availableSlices {
-            
+        var components = (slice: "No TX", mode: "", frequency: "")
+        
+        for (_, slice) in (api.radio?.slices)! {
             if slice.txEnabled {
-                activeSlice = slice
                 components.mode = slice.mode
                 components.frequency = convertFrequencyToDecimalString(frequency: slice.frequency)
                 components.slice = convertSliceNumberToLetter(sliceNumber: slice.id)
@@ -395,7 +415,7 @@ internal class RadioManager: NSObject, ApiDelegate {
     /**
      Convert the frequency (10136000) to a string with a decimal place (10136.000)
      */
-    private func convertFrequencyToDecimalString (frequency: Int) -> String {
+    func convertFrequencyToDecimalString (frequency: Int) -> String {
         return String(Double(round(Double(frequency/1000))))
     }
     
@@ -432,31 +452,26 @@ internal class RadioManager: NSObject, ApiDelegate {
      - parameters:
      - note: a Notification instance
      */
-    private func sliceWillBeRemoved(_ note: Notification){
-        var count: Int = 0
-        //var observations = [NSKeyValueObservation]()
+    func sliceWillBeRemoved(_ note: Notification){
+        //var count: Int = 0
         
         let slice: xLib6000.Slice = (note.object as! xLib6000.Slice)
-        
-        
         var observations = _observationList[slice.id]!
+        
         _observationList.removeValue(forKey: slice.id)
         observations.removeAll()
         
-        for _ in self.availableSlices {
-            if slice.daxChannel == self.availableSlices[count].daxChannel {
-                self.availableSlices.remove(at: count)
-                os_log("Slice has been removed.", log: RadioManager.model_log, type: .info)
-                break
-            }
-            count += 1
-        }
+        os_log("Slice has been removed.", log: RadioManager.model_log, type: .info)
+        #if DEBUG
+        print ("Slice \(convertSliceNumberToLetter(sliceNumber: slice.id)) has been removed.")
+        #endif
         
         // notify viewcontroller if no slices
         if api.radio?.sliceList.count == 0 {
+            os_log("All slices have been removed.", log: RadioManager.model_log, type: .info)
             UI() {
-                let message = RadioManagerMessage.INACTIVE
-                self.radioManagerDelegate?.radioMessageReceived(messageKey: message)
+                self.radioManagerDelegate?.radioMessageReceived(messageKey: RadioManagerMessage.INACTIVE)
+                self.radioManagerDelegate?.updateView(components: (slice: "??", mode: "", frequency: ""))
             }
         }
     }
@@ -464,7 +479,7 @@ internal class RadioManager: NSObject, ApiDelegate {
     func removeObservations() {
         
         // invalidate each observation
-       // _observations.forEach { $0.invalidate() }
+        // _observations.forEach { $0.invalidate() }
         
         // remove the tokens
         //_observations.removeAll()
@@ -482,7 +497,7 @@ internal class RadioManager: NSObject, ApiDelegate {
     func keyRadio(doTransmit: Bool, buffer: [Float]? = nil, xmitGain: Int) {
         
         self.xmitGain = xmitGain
-    
+        
         if doTransmit  {
             self.audioBuffer = buffer!
             if txAudioStreamRequested == false {
@@ -512,7 +527,7 @@ internal class RadioManager: NSObject, ApiDelegate {
      - responseValue:  the response value
      - reply:          the reply
      */
-    private func updateTxStreamId(_ command: String, seqNum: String, responseValue: String, reply: String) {
+    func updateTxStreamId(_ command: String, seqNum: String, responseValue: String, reply: String) {
         
         guard responseValue == "0" else {
             // Anything other than 0 is an error, log it and ignore the Reply
@@ -529,9 +544,9 @@ internal class RadioManager: NSObject, ApiDelegate {
         
         // "reply" is the streamId in hex //84000001 2214592513
         let streamId = UInt32(reply, radix:16)
-
+        
         self.txAudioStream = api.radio?.txAudioStreams[streamId!]
-    
+        
         if clearToTransmit(){
             DispatchQueue.global(qos: .userInteractive).async {
                 self.sendTxAudioStream()
@@ -543,7 +558,7 @@ internal class RadioManager: NSObject, ApiDelegate {
      Check to see if there is any reason we can't transmit
      */
     func clearToTransmit() -> Bool {
-        var message: RadioManagerMessage = RadioManagerMessage.INACTIVE
+        //var message: RadioManagerMessage = RadioManagerMessage.INACTIVE
         
         // see if the GUI has gone away and cleanup if it has
         if api.activeRadio == nil {
@@ -551,7 +566,6 @@ internal class RadioManager: NSObject, ApiDelegate {
                 self.radioManagerDelegate?.didDisconnectFromRadio()
             }
             
-            self.availableSlices.removeAll()
             activeRadio = nil
             availableRadios.removeAll()
             self.txAudioStream = nil
@@ -560,35 +574,41 @@ internal class RadioManager: NSObject, ApiDelegate {
         }
         
         if api.radio?.transmit.daxEnabled != true{
-            message = RadioManagerMessage.DAX
             UI() {
-               self.radioManagerDelegate?.radioMessageReceived(messageKey: message)
+                self.radioManagerDelegate?.radioMessageReceived(messageKey: RadioManagerMessage.DAX)
             }
             return false
         }
         
-        if availableSlices.count > 0 {
-            for slice in availableSlices {
-                if slice.active {
-                    let modeEnum = Slice.Mode(rawValue: slice.mode)!
-                    switch (modeEnum){
-                    case .USB, .LSB, .AM, .FM:
-                        break;
-                    default:
-                        message = RadioManagerMessage.MODE
-                        UI() {
-                            self.radioManagerDelegate?.radioMessageReceived(messageKey: message)
-                        }
-                        return false
-                    }
-                }
-            }
-        } else { // can't do anything without an active slice
+        if (api.radio?.slices.count)! > 0 {
+            return checkForValidMode ()
+        } else {
+            // can't do anything without an active slice
             UI() {
-                message = RadioManagerMessage.INACTIVE
-                self.radioManagerDelegate?.radioMessageReceived(messageKey: message)
+                self.radioManagerDelegate?.radioMessageReceived(messageKey: RadioManagerMessage.INACTIVE)
             }
             return false
+        }
+    }
+    
+    func checkForValidMode () -> Bool {
+        
+        for (_, slice) in (api.radio?.slices)! {
+            if slice.txEnabled {
+                let modeEnum = Slice.Mode(rawValue: slice.mode)!
+                switch (modeEnum){
+                case .USB, .LSB, .AM, .FM:
+                    UI() {
+                        self.radioManagerDelegate?.radioMessageReceived(messageKey: RadioManagerMessage.ACTIVE)
+                    }
+                    break;
+                default:
+                    UI() {
+                        self.radioManagerDelegate?.radioMessageReceived(messageKey: RadioManagerMessage.MODE)
+                    }
+                    return false
+                }
+            }
         }
         
         return true
@@ -622,7 +642,7 @@ internal class RadioManager: NSObject, ApiDelegate {
             }
         }
         // start the timer
-            self.audioStreamTimer?.start()
+        self.audioStreamTimer?.start()
     }
-
+    
 } // end class

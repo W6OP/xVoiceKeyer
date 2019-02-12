@@ -120,6 +120,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         showFilePreferences(sender)
     }
     
+    // enable the id timer
     @IBAction func enableIDTimer(_ sender: NSButton) {
         
         let timerInterval: Int = Int(UserDefaults.standard.string(forKey: "TimerInterval") ?? "10") ?? 10
@@ -166,7 +167,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     
     @objc func appMovedToBackground() {
         //print("App moved to background!")
-        // inhibit the aut ID transmission
+        // inhibit the auto ID transmission
        // preferenceManager.enableTimer(isEnabled: false, interval: 0 )
     }
     
@@ -269,9 +270,9 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
             heading = "Invalid Mode"
             message = "The mode must be a voice mode."
         case RadioManagerMessage.INACTIVE:
-            disableVoiceButtons()
-            self.activeSliceLabel.stringValue = "No Active Slice"
             isSliceActive = false
+            disableVoiceButtons()
+            self.labelSlice.stringValue = "No TX Slice"
             return
         case RadioManagerMessage.ACTIVE:
             self.isSliceActive = true
@@ -356,12 +357,12 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
             }
         }
         
-        if  UserDefaults.standard.string(forKey: "TimerState") == "ON" {
-            let interval: Int = Int(UserDefaults.standard.string(forKey: "TimerInterval") ?? "10") ?? 10
-            doSetTimer(isEnabled: true, interval: interval)
-        } else {
-            //timerEnabler.state = .off
-        }
+//        if  UserDefaults.standard.string(forKey: "TimerState") == "ON" {
+//            let interval: Int = Int(UserDefaults.standard.string(forKey: "TimerInterval") ?? "10") ?? 10
+//            doSetTimer(isEnabled: true, interval: interval)
+//        } else {
+//            //timerEnabler.state = .off
+//        }
         
         switch discoveredRadios.count {
         case 1:
@@ -570,6 +571,8 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         for case let button as NSButton in self.buttonStackViewTwo.subviews {
             button.isEnabled = false
         }
+        
+        buttonSendID.isEnabled = false
     }
     
     /**
