@@ -162,6 +162,9 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         
         let notificationCenter2 = NotificationCenter.default
         notificationCenter2.addObserver(self, selector: #selector(appMovedToForeround), name: NSApplication.didBecomeActiveNotification, object: nil)
+        
+        // FOR DEBUG: delete user defaults
+        //deleteUserDefaults()
     }
     
     @objc func appMovedToBackground() {
@@ -335,10 +338,6 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         
         var found: Bool = false
         self.availableRadios = discoveredRadios
-        
-        // FOR DEBUG: delete user defaults
-        //deleteUserDefaults()
-        //return
         
         if let def = UserDefaults.standard.dictionary(forKey: "defaultRadio") {
             self.defaultRadio.model = def["model"] as! String
