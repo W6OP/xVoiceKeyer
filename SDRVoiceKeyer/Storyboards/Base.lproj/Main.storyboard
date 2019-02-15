@@ -757,6 +757,7 @@
                                     <button verticalHuggingPriority="750" tag="1" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="IbK-12-Q7U">
                                         <rect key="frame" x="-6" y="-7" width="117" height="32"/>
                                         <constraints>
+                                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="105" id="Vq7-8a-q0f"/>
                                             <constraint firstAttribute="width" constant="105" id="lks-ju-GYI"/>
                                         </constraints>
                                         <buttonCell key="cell" type="push" title="unused" bezelStyle="rounded" alignment="center" scrollable="YES" lineBreakMode="clipping" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="oHM-Tc-mW7">
@@ -773,6 +774,7 @@
                                         <rect key="frame" x="100" y="-7" width="117" height="32"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="105" id="QZW-IE-Kfo"/>
+                                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="105" id="jEN-kU-Rnj"/>
                                         </constraints>
                                         <buttonCell key="cell" type="push" title="unused" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Wbb-re-Xto">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -785,7 +787,10 @@
                                         </connections>
                                     </button>
                                     <button verticalHuggingPriority="750" tag="3" translatesAutoresizingMaskIntoConstraints="NO" id="LrM-Yv-oNY">
-                                        <rect key="frame" x="206" y="-7" width="120" height="32"/>
+                                        <rect key="frame" x="208" y="-7" width="117" height="32"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="105" id="DTM-4J-WoD"/>
+                                        </constraints>
                                         <buttonCell key="cell" type="push" title="unused" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="tm8-FQ-wIl">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -797,8 +802,9 @@
                                         </connections>
                                     </button>
                                     <button verticalHuggingPriority="750" tag="4" translatesAutoresizingMaskIntoConstraints="NO" id="1g3-9e-Wjy">
-                                        <rect key="frame" x="315" y="-7" width="117" height="32"/>
+                                        <rect key="frame" x="314" y="-7" width="117" height="32"/>
                                         <constraints>
+                                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="105" id="AGR-rn-UNw"/>
                                             <constraint firstAttribute="width" constant="105" id="q1d-dS-mzP"/>
                                         </constraints>
                                         <buttonCell key="cell" type="push" title="unused" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Efn-Je-EDE">
@@ -813,6 +819,9 @@
                                     </button>
                                     <button verticalHuggingPriority="750" tag="5" translatesAutoresizingMaskIntoConstraints="NO" id="fMN-D9-kp9">
                                         <rect key="frame" x="421" y="-7" width="117" height="32"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="105" id="iWE-fT-07w"/>
+                                        </constraints>
                                         <buttonCell key="cell" type="push" title="unused" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="LwW-lF-Te8">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -889,6 +898,7 @@ Gw
                                         <rect key="frame" x="-6" y="-7" width="117" height="32"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="105" id="L3I-hh-eJZ"/>
+                                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="105" id="rXx-pK-bXh"/>
                                         </constraints>
                                         <buttonCell key="cell" type="push" title="unused" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Yu9-1n-weZ">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -904,6 +914,7 @@ Gw
                                         <rect key="frame" x="100" y="-7" width="117" height="32"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="105" id="Hkd-9u-ka8"/>
+                                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="105" id="Kne-Dr-gZi"/>
                                         </constraints>
                                         <buttonCell key="cell" type="push" title="unused" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Uxr-x2-zcY">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -916,7 +927,10 @@ Gw
                                         </connections>
                                     </button>
                                     <button verticalHuggingPriority="750" tag="8" translatesAutoresizingMaskIntoConstraints="NO" id="bjk-8X-d2t">
-                                        <rect key="frame" x="206" y="-7" width="120" height="32"/>
+                                        <rect key="frame" x="208" y="-7" width="117" height="32"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="105" id="DIE-uB-lM3"/>
+                                        </constraints>
                                         <buttonCell key="cell" type="push" title="unused" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="hDQ-NJ-JXi">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -928,9 +942,10 @@ Gw
                                         </connections>
                                     </button>
                                     <button verticalHuggingPriority="750" tag="9" translatesAutoresizingMaskIntoConstraints="NO" id="XO0-hV-nbC">
-                                        <rect key="frame" x="315" y="-7" width="117" height="32"/>
+                                        <rect key="frame" x="314" y="-7" width="117" height="32"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="105" id="Qs7-Cf-Skg"/>
+                                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="105" id="iUc-mX-0Q2"/>
                                         </constraints>
                                         <buttonCell key="cell" type="push" title="unused" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Jaf-Ao-QUf">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -944,6 +959,9 @@ Gw
                                     </button>
                                     <button verticalHuggingPriority="750" tag="10" translatesAutoresizingMaskIntoConstraints="NO" id="1oe-WH-WzE">
                                         <rect key="frame" x="421" y="-7" width="117" height="32"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="105" id="Udi-O1-M2i"/>
+                                        </constraints>
                                         <buttonCell key="cell" type="push" title="unused" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="7BN-Ne-umF">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -1102,7 +1120,7 @@ Gw
                 </viewController>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-41" y="621.5"/>
+            <point key="canvasLocation" x="131" y="584"/>
         </scene>
         <!--Radio Preferences-->
         <scene sceneID="zwc-lB-DSG">
@@ -1690,7 +1708,6 @@ Gw
                     </view>
                     <connections>
                         <outlet property="fileSelector" destination="LAX-Gc-ePH" id="MU4-IA-Ab3"/>
-                        <outlet property="minutesLabel" destination="hzF-kv-Aqx" id="gOQ-ev-6uP"/>
                         <outlet property="timerAudioFile" destination="lph-R3-O9D" id="cUP-21-O7P"/>
                         <outlet property="timerInterval" destination="5Qh-s6-orH" id="JLU-h5-BKc"/>
                     </connections>

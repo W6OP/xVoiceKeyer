@@ -145,12 +145,12 @@ class AudioManager: NSObject {
         
         #if DEBUG
         //print("Source File description:")
-        //self.printAudioStreamBasicDescription(sourceDescription)
+        self.printAudioStreamBasicDescription(sourceDescription)
         #endif
         
         let sampleRate = stream.fileFormat.sampleRate
-        let format = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: sampleRate, channels: 1, interleaved: false)
-        var buffer = AVAudioPCMBuffer(pcmFormat: format!, frameCapacity: AVAudioFrameCount(stream.length))
+        let format = stream.processingFormat
+        var buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: AVAudioFrameCount(stream.length))
         
         // if sample rate is less than 24khz, just notify user
         if sampleRate < AudioManager.Required_Sample_Rate {
@@ -165,19 +165,38 @@ class AudioManager: NSObject {
             return floatArray
         }
         
+        var isConverted: Bool = false
         // convert to 24khz if necessary
         if sampleRate > AudioManager.Required_Sample_Rate {
-            if Int32(sampleRate.truncatingRemainder(dividingBy: AudioManager.Required_Sample_Rate)) == 0 {
-                buffer = convertPCMBufferSampleRate(inBuffer: buffer!, inputFormat: format!, inputSampleRate: sampleRate)
-            } else {
-                notifyViewController(key: AudioMessage.InvalidSampleRate, messageData: "\(audioURL)", "\(sampleRate)")
-                
-                return floatArray
-            }
+            //if Int32(sampleRate.truncatingRemainder(dividingBy: AudioManager.Required_Sample_Rate)) == 0 {
+            buffer = convertPCMBufferSampleRate(inBuffer: buffer!, inputFormat: format, inputSampleRate: sampleRate)
+            isConverted = true
+            
+            //            } else {
+            //                notifyViewController(key: AudioMessage.InvalidSampleRate, messageData: "\(audioURL)", "\(sampleRate)")
+            //
+            //                return floatArray
+            //            }
         }
         
         // swift 4
+        //floatArray = Array(UnsafeBufferPointer(start: buffer?.floatChannelData?[0], count: Int(buffer!.frameLength / 2)))
         floatArray = Array(UnsafeBufferPointer(start: buffer?.floatChannelData?[0], count: Int(buffer!.frameLength)))
+        //handle mono or stereo - divided by 2 because we only need one channel
+        switch sourceDescription.mChannelsPerFrame {
+        case 1:
+            //floatArray = Array(UnsafeBufferPointer(start: buffer?.floatChannelData?[0], count: Int(buffer!.frameLength)))
+            break
+        case 2:
+            // not needed if conversion happened
+//            if !isConverted {
+//                floatArray = Array(UnsafeBufferPointer(start: buffer?.floatChannelData?[0], count: Int(buffer!.frameLength))) // / 2
+//                print ("Stereo")
+//            }
+            break
+        default:
+            break
+        }
         
         return (floatArray)
     }
@@ -198,20 +217,39 @@ class AudioManager: NSObject {
         os_log("Sample rate conversion requested.", log: AudioManager.model_log, type: .info)
         
         // need to reduce the frame capacity or you get multiple replays
-        let divisor: UInt32 = UInt32(inputSampleRate/AudioManager.Required_Sample_Rate)
+        // this divisor works for multiples of 24000 but not 44100
+        let modulo = inputSampleRate.truncatingRemainder(dividingBy: AudioManager.Required_Sample_Rate)
         
-        let convertedBuffer = AVAudioPCMBuffer(pcmFormat: outputFormat!, frameCapacity: AVAudioFrameCount(inBuffer.frameCapacity/divisor))
+        let divisor: UInt32 = UInt32(inputSampleRate/AudioManager.Required_Sample_Rate)
+        // this works for most 44100
+        let sampleRateConversionRatio: Double = inputSampleRate/AudioManager.Required_Sample_Rate
+//        print (sampleRateConversionRatio)
+        
+        
+        var convertedBuffer: AVAudioPCMBuffer //(pcmFormat: outputFormat!, frameCapacity: AVAudioFrameCount(inBuffer.frameCapacity)/divisor) // :/divisor
+        if modulo != 0 {
+            let framelength = Double(inBuffer.frameCapacity)
+            let newDivisor = framelength / sampleRateConversionRatio
+            print (newDivisor)
+            print("modulo: \(modulo)  divisor: \(sampleRateConversionRatio) new divisor: \(newDivisor) inbuffer length: \(inBuffer.frameCapacity)")
+            convertedBuffer = AVAudioPCMBuffer(pcmFormat: outputFormat!, frameCapacity: AVAudioFrameCount(newDivisor))! // THIS WORKS FOR A LONG FILE BUT NOT A SHORT ONE
+        } else {
+            print("divisor: \(sampleRateConversionRatio) inbuffer length: \(inBuffer.frameCapacity)")
+            convertedBuffer = AVAudioPCMBuffer(pcmFormat: outputFormat!, frameCapacity: AVAudioFrameCount(inBuffer.frameCapacity)/divisor)! // /divisor
+        }
+//        let convertedBuffer = AVAudioPCMBuffer(pcmFormat: outputFormat!, frameCapacity: AVAudioFrameCount(inBuffer.frameLength / UInt32(modulo))) // 230000
+        print (modulo)
         
         let inputBlock : AVAudioConverterInputBlock = {
             inNumPackets, outStatus in
             outStatus.pointee = AVAudioConverterInputStatus.haveData
             return inBuffer
         }
-        
+
         var error : NSError?
-        _ = converter!.convert(to: convertedBuffer!, error: &error, withInputFrom: inputBlock)
+        _ = converter!.convert(to: convertedBuffer, error: &error, withInputFrom: inputBlock)
         
-        return convertedBuffer!
+        return convertedBuffer
     }
     
     /**

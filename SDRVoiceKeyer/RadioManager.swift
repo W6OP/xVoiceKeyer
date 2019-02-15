@@ -328,7 +328,7 @@ class RadioManager: NSObject, ApiDelegate {
         
         os_log("Slice has been addded.", log: RadioManager.model_log, type: .info)
         #if DEBUG
-        print ("Slice \(convertSliceNumberToLetter(sliceNumber: slice.id)) has been added.")
+        //print ("Slice \(convertSliceNumberToLetter(sliceNumber: slice.id)) has been added.")
         #endif
         
         // add the observations so we can update the GUI
@@ -357,7 +357,7 @@ class RadioManager: NSObject, ApiDelegate {
     func updateSliceStatus(_ slice: xLib6000.Slice, _ change: Any){
         
         #if DEBUG
-        print ("Slice \(convertSliceNumberToLetter(sliceNumber: slice.id)) has been updated.")
+        //print ("Slice \(convertSliceNumberToLetter(sliceNumber: slice.id)) has been updated.")
         #endif
         
         // we only care if txEnabled has changed
