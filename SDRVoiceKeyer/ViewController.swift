@@ -482,6 +482,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      */
     func doUpdateButtonLabels() {
         updateButtonTitles(view: self.view)
+        audiomanager.clearFileCache()
         if self.isRadioConnected && self.isSliceActive {
             enableVoiceButtons()
         }

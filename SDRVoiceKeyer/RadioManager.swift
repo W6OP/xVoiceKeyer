@@ -59,6 +59,14 @@ extension Array {
     }
 }
 
+extension String {
+    subscript(_ range: CountableRange<Int>) -> String {
+        let idx1 = index(startIndex, offsetBy: max(0, range.lowerBound))
+        let idx2 = index(startIndex, offsetBy: min(self.count, range.upperBound))
+        return String(self[idx1..<idx2])
+    }
+}
+
 // MARK: Helper Functions ------------------------------------------------------------------------------------------------
 
 /** utility functions to run a UI or background thread
@@ -363,7 +371,7 @@ class RadioManager: NSObject, ApiDelegate {
         // we only care if txEnabled has changed
         if slice.txEnabled{
             #if DEBUG
-            print ("Slice \(convertSliceNumberToLetter(sliceNumber: slice.id)) is txEnabled.")
+            //print ("Slice \(convertSliceNumberToLetter(sliceNumber: slice.id)) is txEnabled.")
             #endif
             UI() {
                 self.radioManagerDelegate?.updateView(components: self.findActiveSlice())
@@ -416,9 +424,28 @@ class RadioManager: NSObject, ApiDelegate {
     
     /**
      Convert the frequency (10136000) to a string with a decimal place (10136.000)
+     Use an extension to String to format frequency correctly
      */
     func convertFrequencyToDecimalString (frequency: Int) -> String {
-        return String(Double(round(Double(frequency/1000))))
+
+        // 160M = 7 digits - 80M - 40
+        // 30 M = 8
+        let frequencyString = String(frequency)
+        
+        switch frequencyString.count {
+        case 7:
+            let start = frequencyString[0..<1]
+            let end = frequencyString[1..<4]
+            let extend = frequencyString[4..<6]
+            //print ("\(start).\(end)")
+            return ("\(start).\(end).\(extend)")
+        default:
+            let start = frequencyString[0..<2]
+            let end = frequencyString[2..<5]
+            let extend = frequencyString[5..<7]
+            //print ("\(start).\(end).\(extend)")
+            return ("\(start).\(end).\(extend)")
+        }
     }
     
     /**

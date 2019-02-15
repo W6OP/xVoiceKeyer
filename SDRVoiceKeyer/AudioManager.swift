@@ -72,10 +72,18 @@ class AudioManager: NSObject {
     var audioPlayer: AVAudioPlayer!
     var buffers = [Int: [Float]]() // cache for audio buffers to reduce disk reads
     
+    //
     override init() {
         
     }
     
+    /**
+     Clear the file cache when the file preferences were changed
+     in case a new file with the same label was loaded.
+     */
+    func clearFileCache() {
+        buffers.removeAll()
+    }
     /**
      Retrieve the file from the user preferences that matches this buttonNumber (tag).
      Pass it on the the method that will load the file and send it to the radio
@@ -165,13 +173,10 @@ class AudioManager: NSObject {
             return floatArray
         }
         
-        var isConverted: Bool = false
         // convert to 24khz if necessary
         if sampleRate > AudioManager.Required_Sample_Rate {
             //if Int32(sampleRate.truncatingRemainder(dividingBy: AudioManager.Required_Sample_Rate)) == 0 {
             buffer = convertPCMBufferSampleRate(inBuffer: buffer!, inputFormat: format, inputSampleRate: sampleRate)
-            isConverted = true
-            
             //            } else {
             //                notifyViewController(key: AudioMessage.InvalidSampleRate, messageData: "\(audioURL)", "\(sampleRate)")
             //
@@ -180,23 +185,22 @@ class AudioManager: NSObject {
         }
         
         // swift 4
-        //floatArray = Array(UnsafeBufferPointer(start: buffer?.floatChannelData?[0], count: Int(buffer!.frameLength / 2)))
         floatArray = Array(UnsafeBufferPointer(start: buffer?.floatChannelData?[0], count: Int(buffer!.frameLength)))
         //handle mono or stereo - divided by 2 because we only need one channel
-        switch sourceDescription.mChannelsPerFrame {
-        case 1:
-            //floatArray = Array(UnsafeBufferPointer(start: buffer?.floatChannelData?[0], count: Int(buffer!.frameLength)))
-            break
-        case 2:
-            // not needed if conversion happened
-//            if !isConverted {
-//                floatArray = Array(UnsafeBufferPointer(start: buffer?.floatChannelData?[0], count: Int(buffer!.frameLength))) // / 2
-//                print ("Stereo")
-//            }
-            break
-        default:
-            break
-        }
+//        switch sourceDescription.mChannelsPerFrame {
+//        case 1:
+//            //floatArray = Array(UnsafeBufferPointer(start: buffer?.floatChannelData?[0], count: Int(buffer!.frameLength)))
+//            break
+//        case 2:
+//            // not needed if conversion happened
+////            if !isConverted {
+////                floatArray = Array(UnsafeBufferPointer(start: buffer?.floatChannelData?[0], count: Int(buffer!.frameLength))) // / 2
+////                print ("Stereo")
+////            }
+//            break
+//        default:
+//            break
+//        }
         
         return (floatArray)
     }
@@ -230,15 +234,15 @@ class AudioManager: NSObject {
         if modulo != 0 {
             let framelength = Double(inBuffer.frameCapacity)
             let newDivisor = framelength / sampleRateConversionRatio
-            print (newDivisor)
-            print("modulo: \(modulo)  divisor: \(sampleRateConversionRatio) new divisor: \(newDivisor) inbuffer length: \(inBuffer.frameCapacity)")
+            //print (newDivisor)
+            //print("modulo: \(modulo)  divisor: \(sampleRateConversionRatio) new divisor: \(newDivisor) inbuffer length: \(inBuffer.frameCapacity)")
             convertedBuffer = AVAudioPCMBuffer(pcmFormat: outputFormat!, frameCapacity: AVAudioFrameCount(newDivisor))! // THIS WORKS FOR A LONG FILE BUT NOT A SHORT ONE
         } else {
             print("divisor: \(sampleRateConversionRatio) inbuffer length: \(inBuffer.frameCapacity)")
             convertedBuffer = AVAudioPCMBuffer(pcmFormat: outputFormat!, frameCapacity: AVAudioFrameCount(inBuffer.frameCapacity)/divisor)! // /divisor
         }
 //        let convertedBuffer = AVAudioPCMBuffer(pcmFormat: outputFormat!, frameCapacity: AVAudioFrameCount(inBuffer.frameLength / UInt32(modulo))) // 230000
-        print (modulo)
+        //print (modulo)
         
         let inputBlock : AVAudioConverterInputBlock = {
             inNumPackets, outStatus in
