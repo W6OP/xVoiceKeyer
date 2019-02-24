@@ -68,10 +68,12 @@ class FilePreferences: NSViewController {
     @IBOutlet weak var timerAudioFile: NSTextField!
     @IBOutlet weak var timerEnabler: NSButton!
     
-    //
+    /**
+     Enable call ID reminder timer.
+     - parameters:
+     - button: Handle to the button clicked.
+     */
     @IBAction func setTimerState(_ sender: NSButton) {
-        
-        //setControlStates(sender: sender)
         
         switch sender.state {
         case .on:
@@ -82,6 +84,11 @@ class FilePreferences: NSViewController {
         }
     }
     
+    /**
+     Select the file to be used for the ID timer.
+     - parameters:
+     - button: Handle to the button clicked.
+     */
     @IBAction func selectTimerFile(_ sender: NSButton) {
         let filePath = self.getFilePath()
         
@@ -93,14 +100,23 @@ class FilePreferences: NSViewController {
     }
     
     
-    
+    /**
+     View loaded.
+     */
     override func viewDidLoad() {
         super.viewDidLoad()
         
         findTextfieldByIndex(view: self.view)
         retrieveUserDefaults()
+        
+        #if DEBUG
+        print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
+        #endif
     }
     
+    /**
+     EView will appear.
+     */
     override   func viewWillAppear() {
         self.view.window?.titleVisibility = .hidden
         self.view.window?.titlebarAppearsTransparent = true
@@ -116,6 +132,10 @@ class FilePreferences: NSViewController {
     override func viewWillDisappear() {
         saveUserDefaults()
         preferenceManager.updateButtonLables()
+        
+            #if DEBUG
+            print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
+            #endif
     }
     
     /**
@@ -234,4 +254,5 @@ class FilePreferences: NSViewController {
             }
         }
     }
-}
+    
+} // end class

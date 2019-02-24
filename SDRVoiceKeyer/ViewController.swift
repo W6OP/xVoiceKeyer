@@ -157,28 +157,28 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
             buttonStop.attributedTitle = mutableAttributedTitle
         }
         
-        let notificationCenter = NotificationCenter.default
-        notificationCenter.addObserver(self, selector: #selector(appMovedToBackground), name: NSApplication.willResignActiveNotification, object: nil)
-        
-        let notificationCenter2 = NotificationCenter.default
-        notificationCenter2.addObserver(self, selector: #selector(appMovedToForeround), name: NSApplication.didBecomeActiveNotification, object: nil)
+//        let notificationCenter = NotificationCenter.default
+//        notificationCenter.addObserver(self, selector: #selector(appMovedToBackground), name: NSApplication.willResignActiveNotification, object: nil)
+//
+//        let notificationCenter2 = NotificationCenter.default
+//        notificationCenter2.addObserver(self, selector: #selector(appMovedToForeround), name: NSApplication.didBecomeActiveNotification, object: nil)
         
         // FOR DEBUG: delete user defaults
         //deleteUserDefaults()
     }
     
-    @objc func appMovedToBackground() {
-        //print("App moved to background!")
-        // inhibit the auto ID transmission
-        // preferenceManager.enableTimer(isEnabled: false, interval: 0 )
-    }
-    
-    @objc func appMovedToForeround() {
-        //print("App moved to foreground!")
-        // enable the auto ID transmission
-        //let timerInterval: Int = Int(UserDefaults.standard.string(forKey: "TimerInterval") ?? "10") ?? 10
-        // preferenceManager.enableTimer(isEnabled: false, interval: timerInterval )
-    }
+//    @objc func appMovedToBackground() {
+//        //print("App moved to background!")
+//        // inhibit the auto ID transmission
+//        // preferenceManager.enableTimer(isEnabled: false, interval: 0 )
+//    }
+//    
+//    @objc func appMovedToForeround() {
+//        //print("App moved to foreground!")
+//        // enable the auto ID transmission
+//        //let timerInterval: Int = Int(UserDefaults.standard.string(forKey: "TimerInterval") ?? "10") ?? 10
+//        // preferenceManager.enableTimer(isEnabled: false, interval: timerInterval )
+//    }
     
     // generated code
     override var representedObject: Any? {
@@ -489,7 +489,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     }
     
     /**
-     Update the staus labels when the radio notifies us of a change
+     Update the status labels when the radio notifies us of a change
      */
     func updateView(components: (slice: String, mode: String, frequency: String)) {
         UI {
