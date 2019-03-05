@@ -40,20 +40,14 @@
 import Cocoa
 import Repeat
 
-// creates image for button background
-// https://stackoverflow.com/questions/29418310/set-color-of-nsbutton-programmatically-swift
-//extension NSImage {
-//    class func swatchWithColor(color: NSColor, size: NSSize) -> NSImage {
-//        let image = NSImage(size: size)
-//        image.lockFocus()
-//        color.drawSwatch(in: NSMakeRect(0, 0, size.width, size.height))
-//        image.unlockFocus()
-//        return image
-//    }
-//}
-// USAGE:
-// self.buttonSendID.image = NSImage.swatchWithColor( color: NSColor.green, size: NSMakeSize(100, 100) )
-
+/*
+ MainViewController.swift
+ SDRVoiceKeyer
+ 
+ Created by Peter Bourget on 2/10/17.
+ Copyright © 2019 Peter Bourget W6OP. All rights reserved.
+ Description: Main View Controller for the SDR Voice Keyer
+ */
 class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerDelegate, AudioManagerDelegate {
     
     var radioManager: RadioManager!
@@ -222,8 +216,6 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         DispatchQueue.main.async {
             let xmitGain = self.gainSlider.intValue
             transmitGain = Int(xmitGain)
-            // IS THIS NEEDED?
-            //self.serialNumberLabel.isEnabled = true
         }
         
         if self.isRadioConnected {
@@ -354,13 +346,6 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
                 self.gainLabel.stringValue = "35"
             }
         }
-        
-        //        if  UserDefaults.standard.string(forKey: "TimerState") == "ON" {
-        //            let interval: Int = Int(UserDefaults.standard.string(forKey: "TimerInterval") ?? "10") ?? 10
-        //            doSetTimer(isEnabled: true, interval: interval)
-        //        } else {
-        //            //timerEnabler.state = .off
-        //        }
         
         switch discoveredRadios.count {
         case 1:
