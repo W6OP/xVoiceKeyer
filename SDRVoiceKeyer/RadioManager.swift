@@ -669,4 +669,10 @@ class RadioManager: NSObject, ApiDelegate {
         self.audioStreamTimer?.start()
     }
     
+   func sendCWMessage(message: String)
+    {
+        
+        api.radio?.cwx.send("w6op")
+    
+    }
 } // end class
