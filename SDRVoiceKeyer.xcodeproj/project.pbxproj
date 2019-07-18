@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		99217D521E5D02A50042C787 /* RadioPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99217D511E5D02A50042C787 /* RadioPreferences.swift */; };
 		993D1E691E5F811D00BB5236 /* PreferenceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 993D1E681E5F811D00BB5236 /* PreferenceManager.swift */; };
+		994AC73B22D3DFD80039FB3D /* xLib6000.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 994AC73A22D3DFD80039FB3D /* xLib6000.framework */; };
+		994AC73C22D3DFD80039FB3D /* xLib6000.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 994AC73A22D3DFD80039FB3D /* xLib6000.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		996AC07C1E4E3D4800C20AA8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 996AC07B1E4E3D4800C20AA8 /* AppDelegate.swift */; };
 		996AC07E1E4E3D4800C20AA8 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 996AC07D1E4E3D4800C20AA8 /* ViewController.swift */; };
 		996AC0801E4E3D4800C20AA8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 996AC07F1E4E3D4800C20AA8 /* Assets.xcassets */; };
@@ -16,8 +18,6 @@
 		996B9D732206364B0055D0F4 /* FilePreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 996B9D722206364B0055D0F4 /* FilePreferences.swift */; };
 		99931585220243F30017C05A /* WindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99931584220243F30017C05A /* WindowController.swift */; };
 		99C211031F297279003B47F1 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 99C211021F297279003B47F1 /* LICENSE */; };
-		99CEBF7E21F7724400C7ED74 /* xLib6000.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 999EED2F208675230000F9D6 /* xLib6000.framework */; };
-		99CEBF7F21F7724400C7ED74 /* xLib6000.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 999EED2F208675230000F9D6 /* xLib6000.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		99CEBF8121F7724A00C7ED74 /* Repeat.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 99BCEC3A21261EED0040C101 /* Repeat.framework */; };
 		99CEBF8221F7724A00C7ED74 /* Repeat.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 99BCEC3A21261EED0040C101 /* Repeat.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		99D64A2F1E5B9BEB0053ED1F /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D64A2E1E5B9BEB0053ED1F /* AudioManager.swift */; };
@@ -31,8 +31,8 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				99CEBF7F21F7724400C7ED74 /* xLib6000.framework in Embed Frameworks */,
 				99CEBF8221F7724A00C7ED74 /* Repeat.framework in Embed Frameworks */,
+				994AC73C22D3DFD80039FB3D /* xLib6000.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -42,6 +42,7 @@
 /* Begin PBXFileReference section */
 		99217D511E5D02A50042C787 /* RadioPreferences.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadioPreferences.swift; sourceTree = "<group>"; };
 		993D1E681E5F811D00BB5236 /* PreferenceManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreferenceManager.swift; sourceTree = "<group>"; };
+		994AC73A22D3DFD80039FB3D /* xLib6000.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = xLib6000.framework; sourceTree = "<group>"; };
 		9966F71721FCD878005D8949 /* SDRVoiceKeyer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SDRVoiceKeyer.entitlements; sourceTree = "<group>"; };
 		996AC0781E4E3D4800C20AA8 /* SDRVoiceKeyer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SDRVoiceKeyer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		996AC07B1E4E3D4800C20AA8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -63,8 +64,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				99CEBF7E21F7724400C7ED74 /* xLib6000.framework in Frameworks */,
 				99CEBF8121F7724A00C7ED74 /* Repeat.framework in Frameworks */,
+				994AC73B22D3DFD80039FB3D /* xLib6000.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -74,6 +75,7 @@
 		996AC06F1E4E3D4800C20AA8 = {
 			isa = PBXGroup;
 			children = (
+				994AC73A22D3DFD80039FB3D /* xLib6000.framework */,
 				996AC07A1E4E3D4800C20AA8 /* SDRVoiceKeyer */,
 				996AC0791E4E3D4800C20AA8 /* Products */,
 				99E84E6A1F1144A500C8660C /* Frameworks */,
@@ -161,13 +163,13 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0820;
-				LastUpgradeCheck = 1010;
+				LastUpgradeCheck = 1020;
 				ORGANIZATIONNAME = "Peter Bourget";
 				TargetAttributes = {
 					996AC0771E4E3D4800C20AA8 = {
 						CreatedOnToolsVersion = 8.2.1;
 						DevelopmentTeam = JE278GX57V;
-						LastSwiftMigration = 0920;
+						LastSwiftMigration = 1020;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.HardenedRuntime = {
@@ -185,6 +187,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 			);
@@ -245,6 +248,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -302,6 +306,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -360,6 +365,7 @@
 					"$(inherited)",
 					"$(USER_LIBRARY_DIR)/Frameworks",
 					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+					"$(PROJECT_DIR)",
 				);
 				HEADER_SEARCH_PATHS = "";
 				"HEADER_SEARCH_PATHS[arch=*]" = "";
@@ -370,8 +376,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.w6op.SDRVoiceKeyer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/SDRVoiceKeyer/SDRVoiceKeyer-Bridging-Header.h";
-				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
@@ -388,6 +393,7 @@
 					"$(inherited)",
 					"$(USER_LIBRARY_DIR)/Frameworks",
 					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+					"$(PROJECT_DIR)",
 				);
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = SDRVoiceKeyer/Info.plist;
@@ -396,8 +402,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.w6op.SDRVoiceKeyer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/SDRVoiceKeyer/SDRVoiceKeyer-Bridging-Header.h";
-				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};

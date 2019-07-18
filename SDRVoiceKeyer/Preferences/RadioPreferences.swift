@@ -47,8 +47,8 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
     var preferenceManager: PreferenceManager!
    
     // Array of available Radios
-    var availableRadios = [(model: String, nickname: String, ipAddress: String, default: String, serialNumber: String)]()
-    private var defaultRadio = (model: "", nickname: "", ipAddress: "", default: "", serialNumber: "")
+    var availableRadios = [(model: String, nickname: String, clientId: String, clientName: String, ipAddress: String, default: String, serialNumber: String)]()
+    private var defaultRadio = (model: "", nickname: "", clientId: "", clientName: "", ipAddress: "", default: "", serialNumber: "")
     private let radioKey = "defaultRadio"
     private var isDefaultSet = false
     
@@ -108,13 +108,13 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
         tableViewRadioPicker.delegate = self
     }
     
+    // View Will Appear
     override   func viewWillAppear() {
         self.view.window?.titleVisibility = .hidden
         self.view.window?.titlebarAppearsTransparent = true
         
         self.view.window?.styleMask.insert(.fullSizeContentView)
         
-        //self.view.window?.styleMask.remove(.closable)
         self.view.window?.styleMask.remove(.fullScreen)
         self.view.window?.styleMask.remove(.miniaturizable)
         self.view.window?.styleMask.remove(.resizable)
@@ -138,6 +138,8 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
         if let def = UserDefaults.standard.dictionary(forKey: radioKey) {
             self.defaultRadio.model = def["model"] as! String
             self.defaultRadio.nickname = def["nickname"] as! String
+            self.defaultRadio.clientId = (def["clientId"] as? String) ?? ""
+            self.defaultRadio.clientName = def["clientName"] as! String
             self.defaultRadio.ipAddress = def["ipAddress"] as! String
             self.defaultRadio.default = def["default"] as! String
             self.defaultRadio.default = def["serialNumber"] as! String
@@ -167,6 +169,8 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
                 var def = [String : String]()
                 def["model"] = defaultRadio.model
                 def["nickname"] = defaultRadio.nickname
+                def["clientId"] = defaultRadio.clientId
+                def["clientName"] = defaultRadio.clientName
                 def["ipAddress"] = defaultRadio.ipAddress
                 def["default"] = YesNo.Yes.rawValue
                 def["serialNumber"] = defaultRadio.serialNumber
@@ -185,7 +189,25 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
             }
         }
     }
-   
+    
+    /// Produce a Client Id (UUID)
+    ///
+    /// - Returns:                a UUID
+    ///
+//    private func clientId() -> String {
+//        var uuid : UUID
+//        if self.defaultRadio.clientId != "" {
+//            // use the stored string to create a UUID (if possible) else create a new UUID
+//            uuid = UUID(uuidString: self.defaultRadio.clientId) ?? UUID()
+//        } else {
+//            // none stored, create a new UUID
+//            uuid = UUID()
+//        }
+//
+//        // store the string for later use
+//        return uuid.uuidString
+//    }
+//
     // ----------------------------------------------------------------------------
     // MARK: - NSTableView DataSource methods
     

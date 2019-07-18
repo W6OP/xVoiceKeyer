@@ -54,8 +54,8 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     var audiomanager: AudioManager!
     var preferenceManager: PreferenceManager!
     
-    var availableRadios = [(model: String, nickname: String, ipAddress: String, default: String, serialNumber: String)]()
-    var defaultRadio = (model: "", nickname: "", ipAddress: "", default: "", serialNumber: "")
+    var availableRadios = [(model: String, nickname: String, clientId: String, clientName: String, ipAddress: String, default: String, serialNumber: String)]()
+    private var defaultRadio = (model: "", nickname: "", clientId: "", clientName: "", ipAddress: "", default: "", serialNumber: "")
     
     var isRadioConnected = false
     var isSliceActive = false
@@ -326,7 +326,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      
      This is the normal flow. When the Connect button is clicked it goes straight to doConnectToradio()
      */
-    func didDiscoverRadio(discoveredRadios: [(model: String, nickname: String, ipAddress: String, default: String, serialNumber: String)]) {
+    func didDiscoverRadio(discoveredRadios: [(model: String, nickname: String, clientId: String, clientName: String, ipAddress: String, default: String, serialNumber: String)]) {
         
         var found: Bool = false
         self.availableRadios = discoveredRadios
@@ -334,6 +334,8 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         if let def = UserDefaults.standard.dictionary(forKey: "defaultRadio") {
             self.defaultRadio.model = def["model"] as! String
             self.defaultRadio.nickname = def["nickname"] as! String
+            self.defaultRadio.clientName = def["clientName"] as! String
+            self.defaultRadio.clientName = def["clientId"] as! String
             self.defaultRadio.ipAddress = def["ipAddress"] as! String
             self.defaultRadio.default = def["default"] as! String
             self.defaultRadio.serialNumber = def["serialNumber"] as! String
@@ -402,6 +404,8 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         
         defaults["model"] = defaultRadio.model
         defaults["nickname"] = defaultRadio.nickname
+        defaults["clientName"] = defaultRadio.clientName
+        defaults["clientId"] = defaultRadio.clientId
         defaults["ipAddress"] = defaultRadio.ipAddress
         defaults["default"] = defaultRadio.default
         defaults["serialNumber"] = defaultRadio.serialNumber
@@ -584,12 +588,12 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      Show the file preferences panel and populate it
      */
     func showFilePreferences(_ sender: AnyObject) {
-        let SB = NSStoryboard(name: NSStoryboard.Name(rawValue: "Main"), bundle: nil)
-        let PVC: FilePreferences = SB.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(rawValue: "filePreferences")) as! FilePreferences
+        let SB = NSStoryboard(name: "Main", bundle: nil)
+        let PVC: FilePreferences = SB.instantiateController(withIdentifier: "filePreferences") as! FilePreferences
         PVC.preferenceManager = self.preferenceManager
         
         //presentViewControllerAsSheet(PVC)
-        presentViewControllerAsModalWindow(PVC)
+        presentAsModalWindow(PVC)
         // present(_ PVC: NSViewController, asPopoverRelativeTo positioningRect: NSRect, of positioningView: NSView, preferredEdge: NSRectEdge, behavior: NSPopover.Behavior)
         
     }
@@ -599,12 +603,12 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      Show the radio selector panel and populate it
      */
     func showPreferences(_ sender: AnyObject) {
-        let SB = NSStoryboard(name: NSStoryboard.Name(rawValue: "Main"), bundle: nil)
-        let PVC: RadioPreferences = SB.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(rawValue: "radioSelection")) as! RadioPreferences
+        let SB = NSStoryboard(name: "Main", bundle: nil)
+        let PVC: RadioPreferences = SB.instantiateController(withIdentifier: "radioSelection") as! RadioPreferences
         PVC.availableRadios = self.availableRadios
         PVC.preferenceManager = self.preferenceManager
         
-        presentViewControllerAsSheet(PVC)
+        presentAsSheet(PVC)
         // presentAsModalWindow(PVC)
         // present(_ PVC: NSViewController, asPopoverRelativeTo positioningRect: NSRect, of positioningView: NSView, preferredEdge: NSRectEdge, behavior: NSPopover.Behavior)
         

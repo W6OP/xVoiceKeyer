@@ -97,7 +97,7 @@ func UI(_ block: @escaping ()->Void) {
 protocol RadioManagerDelegate: class {
     
     // radio was discovered - notify GUI
-    func didDiscoverRadio(discoveredRadios: [(model: String, nickname: String, ipAddress: String, default: String, serialNumber: String)])
+    func didDiscoverRadio(discoveredRadios: [(model: String, nickname: String, clientId: String, clientName: String,  ipAddress: String, default: String, serialNumber: String)])
     // notify the GUI the tcp connection to the radio was closed
     func didDisconnectFromRadio()
     // send message to view controller
@@ -149,12 +149,12 @@ class RadioManager: NSObject, ApiDelegate {
     
     // list of serial numbers of discovered radios - passed to the view controller
     // to abstract it from the radio
-    var discoveredRadios: [(model: String, nickname: String, ipAddress: String, default: String, serialNumber: String)]
+    var discoveredRadiosLocal: [(model: String, nickname: String, clientId: String, clientName: String, ipAddress: String, default: String, serialNumber: String)]
     
     // MARK: - Internal Radio properties ----------------------------------------------------------------------------
     
     // Radio currently running
-    var activeRadio: RadioParameters?
+    var activeRadio: DiscoveredRadio?
     
     // this starts the discovery process - Api to the Radio
     var api = Api.sharedInstance
@@ -166,13 +166,14 @@ class RadioManager: NSObject, ApiDelegate {
     // Notification observers
     var notifications = [NSObjectProtocol]()
     let log = (NSApp.delegate as! AppDelegate)
-    let clientName = "SDRVoiceKeyer"
+    let clientProgram = "SDRVoiceKeyer"
+    let clientStation = "W6OP" // TODO: get from preferences after form is updated
     
     // Array of available Radios
-    var availableRadios = [RadioParameters]()
+    var availableRadios = [DiscoveredRadio]()
     
-    var txAudioStream: TxAudioStream!
-    var txAudioStreamId: DaxStreamId
+    var txAudioStream: DaxTxAudioStream! // TxAudioStream!
+    var txAudioStreamId: StreamId //DaxStreamId
     var txAudioStreamRequested = false
     var audioBuffer = [Float]()
     var audioStreamTimer :Repeater? // timer to meter audio chunks to radio at 24khz sample rate
@@ -186,9 +187,9 @@ class RadioManager: NSObject, ApiDelegate {
     override init() {
         
         audiomanager = AudioManager()
-        availableRadios = [RadioParameters]()
-        discoveredRadios = [(model: String, nickname: String, ipAddress: String, default: String, serialNumber: String)]()
-        txAudioStreamId = DaxStreamId("0")!
+        availableRadios = [DiscoveredRadio]()
+        discoveredRadiosLocal = [(model: String, nickname: String, clientId: String, clientName: String, ipAddress: String, default: String, serialNumber: String)]()
+        txAudioStreamId = StreamId("0") //DaxStreamId("0")!
         
         super.init()
         
@@ -242,10 +243,10 @@ class RadioManager: NSObject, ApiDelegate {
         usleep(1500)
         
         if (doConnect){
-            for (_, foundRadio) in api.availableRadios.enumerated() where foundRadio.serialNumber == serialNumber {
+            for (_, foundRadio) in api.discoveredRadios.enumerated() where foundRadio.serialNumber == serialNumber {
                 activeRadio = foundRadio
                 
-                if api.connect(activeRadio!, clientName: self.clientName, isGui: false) {
+                if api.connect(activeRadio!, clientStation: clientStation, clientProgram: self.clientProgram, clientId: nil, isGui: false) {
                     // notify viewcontroller if no slices (or GUI) on connect
                     if api.radio?.sliceList.count == 0 {
                         UI() {
@@ -257,7 +258,8 @@ class RadioManager: NSObject, ApiDelegate {
                 }
             }
         } else {
-            api.disconnect()
+            // TODO:
+            //api.disconnect()
         }
         
         return false
@@ -268,7 +270,8 @@ class RadioManager: NSObject, ApiDelegate {
      Perform an orderly close of the Radio resources.
      */
     func closeRadio() {
-        api.disconnect()
+        // TODO:
+        //api.disconnect()
         activeRadio = nil
     }
     
@@ -301,7 +304,7 @@ class RadioManager: NSObject, ApiDelegate {
      */
     func radiosAvailable(_ note: Notification) {
         // receive the updated list of Radios
-        let availableRadios = (note.object as! [RadioParameters])
+        let availableRadios = (note.object as! [DiscoveredRadio])
         var newRadios: Int = 0
         
         if availableRadios.count > 0 {
@@ -309,16 +312,17 @@ class RadioManager: NSObject, ApiDelegate {
             
             for radio in availableRadios {
                 // only add new radios
-                if !self.discoveredRadios.contains(where: { $0.nickname == radio.nickname! }) {
+                if !self.discoveredRadiosLocal.contains(where: { $0.nickname == radio.nickname }) {
                     newRadios += 1
-                    self.discoveredRadios.append((radio.model, radio.nickname!, radio.ipAddress, "No", radio.serialNumber))
+                    // TODO: THIS MAY NEED FIXING
+                    self.discoveredRadiosLocal.append((radio.model, radio.nickname, "radio.clientID", "radio.StaionName", radio.publicIp, "No", radio.serialNumber)) // IS radio.publicIp CORRECT???
                 }
             }
             
             if newRadios > 0 {
                 // let the view controller know a radio was discovered
                 UI() {
-                    self.radioManagerDelegate?.didDiscoverRadio(discoveredRadios: self.discoveredRadios)
+                    self.radioManagerDelegate?.didDiscoverRadio(discoveredRadios: self.discoveredRadiosLocal)
                 }
             }
         }
@@ -521,7 +525,7 @@ class RadioManager: NSObject, ApiDelegate {
         if doTransmit  {
             self.audioBuffer = buffer!
             if txAudioStreamRequested == false {
-                if TxAudioStream.create(callback: updateTxStreamId) {
+                if DaxTxAudioStream.create(callback: updateTxStreamId) {
                     txAudioStreamRequested = true
                 }
             }
@@ -563,13 +567,15 @@ class RadioManager: NSObject, ApiDelegate {
         }
         
         // "reply" is the streamId in hex //84000001 2214592513
-        let streamId = UInt32(reply, radix:16)
+        // can be optional
+        if let streamId = reply.streamId { //UInt32(reply, radix:16)
         
-        self.txAudioStream = api.radio?.txAudioStreams[streamId!]
-        
-        if clearToTransmit(){
-            DispatchQueue.global(qos: .userInteractive).async {
-                self.sendTxAudioStream()
+            self.txAudioStream = api.radio?.daxTxAudioStreams[streamId] //api.radio?.txAudioStreams[streamId!]
+            
+            if clearToTransmit(){
+                DispatchQueue.global(qos: .userInteractive).async {
+                    self.sendTxAudioStream()
+                }
             }
         }
     }
@@ -578,7 +584,6 @@ class RadioManager: NSObject, ApiDelegate {
      Check to see if there is any reason we can't transmit.
      */
     func clearToTransmit() -> Bool {
-        //var message: RadioManagerMessage = RadioManagerMessage.INACTIVE
         
         // see if the GUI has gone away and cleanup if it has
         if api.activeRadio == nil {
@@ -594,12 +599,14 @@ class RadioManager: NSObject, ApiDelegate {
             return false
         }
         
-        if api.radio?.transmit.daxEnabled != true{
-            UI() {
-                self.radioManagerDelegate?.radioMessageReceived(messageKey: RadioManagerMessage.DAX)
-            }
-            return false
-        }
+        // this is new and turns on button - can't get status
+//        api.radio?.transmit.daxEnabled = true
+//        if api.radio?.transmit.daxEnabled != true{
+//            UI() {
+//                self.radioManagerDelegate?.radioMessageReceived(messageKey: RadioManagerMessage.DAX)
+//            }
+//            return false
+//        }
         
         if (api.radio?.slices.count)! > 0 {
             return checkForValidMode ()
@@ -648,8 +655,12 @@ class RadioManager: NSObject, ApiDelegate {
         
         //print("Chunks: \(result.count)")
         
+        
+        //api.radio?.localPttEnabled = true // set to true and then check if true - how do I know it worked - look to see if enabled
+        // this is new and turns on button - can't get status
+        api.radio?.transmit.daxEnabled = true
         api.radio?.mox = true
-        txAudioStream.transmit = true
+        txAudioStream.isTransmitChannel = true // WAS .transmit
         txAudioStream.txGain = self.xmitGain
         
         // define the repeating timer for 24000 hz - why 5300, seems it should be 4160
@@ -662,6 +673,8 @@ class RadioManager: NSObject, ApiDelegate {
         self.audioStreamTimer!.onStateChanged = { (_ timer: Repeater, _ state: Repeater.State) in
             if self.audioStreamTimer!.state.isFinished {
                 self.api.radio?.mox = false
+                // this is new and turns on button - can't get status
+                self.api.radio?.transmit.daxEnabled = false
                 self.audioStreamTimer = nil
             }
         }
