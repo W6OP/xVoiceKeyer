@@ -115,7 +115,7 @@ class FilePreferences: NSViewController {
     }
     
     /**
-     EView will appear.
+     View will appear.
      */
     override   func viewWillAppear() {
         self.view.window?.titleVisibility = .hidden

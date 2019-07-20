@@ -46,9 +46,11 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
     // class variables
     var preferenceManager: PreferenceManager!
    
-    // Array of available Radios
-    var availableRadios = [(model: String, nickname: String, clientId: String, clientName: String, ipAddress: String, default: String, serialNumber: String)]()
-    private var defaultRadio = (model: "", nickname: "", clientId: "", clientName: "", ipAddress: "", default: "", serialNumber: "")
+    // Array of available Radios from view controller
+//    var radios = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String)]()
+    // Array of available radios per station name
+    var station = [(model: "", nickname: "", stationName: "", default: "", serialNumber: "", clientId: "")]
+    private var defaultStation = (model: "", nickname: "", stationName: "", default: "", serialNumber: "", clientId: "")
     private let radioKey = "defaultRadio"
     private var isDefaultSet = false
     
@@ -86,10 +88,10 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
         Connect the radio in the main view controller by calling delegate in preference manager.
      */
     @IBAction func buttonConnect(_ sender: NSButton) {
-        if defaultRadio.default == YesNo.Yes.rawValue {
+        if defaultStation.default == YesNo.Yes.rawValue {
             saveUserDefaults()
             self.dismiss(self)
-            preferenceManager.connectToRadio(serialNumber: defaultRadio.serialNumber)
+            preferenceManager.connectToRadio(serialNumber: defaultStation.serialNumber)
         }
     }
     
@@ -130,26 +132,36 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
     }
     
     /**
+     
+     */
+    func buildStationList(radios: [(model: String, nickname: String, stationNames: [String], default: String, serialNumber: String)]) {
+
+        //for radio in radios {
+            //for client in radio.stationNames {
+               //station.append((model: radio.model, nickname: radio.nickname, stationName: client, default: radio.default, serialNumber: radio.serialNumber))
+            //}
+        //}
+    }
+    
+    /**
         Retrieve the user settings. File paths and the default radio.
         Populate the fields and the tableview
      */
     func retrieveUserDefaults() {
         
-        if let def = UserDefaults.standard.dictionary(forKey: radioKey) {
-            self.defaultRadio.model = def["model"] as! String
-            self.defaultRadio.nickname = def["nickname"] as! String
-            self.defaultRadio.clientId = (def["clientId"] as? String) ?? ""
-            self.defaultRadio.clientName = def["clientName"] as! String
-            self.defaultRadio.ipAddress = def["ipAddress"] as! String
-            self.defaultRadio.default = def["default"] as! String
-            self.defaultRadio.default = def["serialNumber"] as! String
+        if let defaults = UserDefaults.standard.dictionary(forKey: radioKey) {
+            self.defaultStation.model = defaults["model"] as! String
+            self.defaultStation.nickname = defaults["nickname"] as! String
+            self.defaultStation.stationName = defaults["stationName"] as! String
+            self.defaultStation.default = defaults["default"] as! String
+            self.defaultStation.default = defaults["serialNumber"] as! String
         }
         
-        for i in 0..<availableRadios.count {
-            if availableRadios[i].nickname == defaultRadio.nickname && availableRadios[i].model == defaultRadio.model {
-                availableRadios[i].default = YesNo.Yes.rawValue  //YES
+        for i in 0..<station.count {
+            if station[i].nickname == defaultStation.nickname && station[i].model == defaultStation.model && station[i].stationName == defaultStation.stationName {
+                station[i].default = YesNo.Yes.rawValue  //YES
             } else {
-                availableRadios[i].default = YesNo.No.rawValue //NO
+                station[i].default = YesNo.No.rawValue //NO
             }
         }
         
@@ -162,52 +174,33 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
      */
     func saveUserDefaults() {
     
-        if (availableRadios.count > 0) {
-            defaultRadio = availableRadios[tableViewRadioPicker.selectedRow]
-            
+        if (station.count > 0) {
+            //for client in radios
+            defaultStation = station[tableViewRadioPicker.selectedRow]
+
             if isDefaultSet == true {
-                var def = [String : String]()
-                def["model"] = defaultRadio.model
-                def["nickname"] = defaultRadio.nickname
-                def["clientId"] = defaultRadio.clientId
-                def["clientName"] = defaultRadio.clientName
-                def["ipAddress"] = defaultRadio.ipAddress
-                def["default"] = YesNo.Yes.rawValue
-                def["serialNumber"] = defaultRadio.serialNumber
-                
-                UserDefaults.standard.set(def, forKey: radioKey)
-                
-                defaultRadio.default = YesNo.Yes.rawValue
-                
-                for i in 0..<availableRadios.count {
-                    if availableRadios[i].nickname == defaultRadio.nickname && availableRadios[i].model == defaultRadio.model {
-                        availableRadios[i].default = YesNo.Yes.rawValue
+                var defaults = [String : String]()
+                defaults["model"] = defaultStation.model
+                defaults["nickname"] = defaultStation.nickname
+                defaults["stationName"] = defaultStation.stationName
+                defaults["default"] = YesNo.Yes.rawValue
+                defaults["serialNumber"] = defaultStation.serialNumber
+
+                UserDefaults.standard.set(defaults, forKey: radioKey)
+
+                defaultStation.default = YesNo.Yes.rawValue
+
+                for i in 0..<station.count {
+                    if station[i].nickname == defaultStation.nickname && station[i].model == defaultStation.model && station[i].stationName == defaultStation.stationName {
+                        station[i].default = YesNo.Yes.rawValue
                     } else {
-                        availableRadios[i].default = YesNo.No.rawValue
+                        station[i].default = YesNo.No.rawValue
                     }
                 }
             }
         }
     }
-    
-    /// Produce a Client Id (UUID)
-    ///
-    /// - Returns:                a UUID
-    ///
-//    private func clientId() -> String {
-//        var uuid : UUID
-//        if self.defaultRadio.clientId != "" {
-//            // use the stored string to create a UUID (if possible) else create a new UUID
-//            uuid = UUID(uuidString: self.defaultRadio.clientId) ?? UUID()
-//        } else {
-//            // none stored, create a new UUID
-//            uuid = UUID()
-//        }
-//
-//        // store the string for later use
-//        return uuid.uuidString
-//    }
-//
+
     // ----------------------------------------------------------------------------
     // MARK: - NSTableView DataSource methods
     
@@ -220,7 +213,7 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
         
         // get the number of rows
         //print ("rows: ")
-        return availableRadios.count
+        return station.count
     }
     
     // MARK: - NSTableView Delegate methods ----------------------------------------------------------------------------
@@ -240,16 +233,16 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
         
         // swift 4
         if columnIdentifier!.rawValue == "model" {
-            result = availableRadios[row].model
+            result = station[row].model
         }
         if columnIdentifier!.rawValue == "nickname" {
-            result = availableRadios[row].nickname
+            result = station[row].nickname
         }
-        if columnIdentifier!.rawValue == "ipAddress" {
-            result = availableRadios[row].ipAddress
+        if columnIdentifier!.rawValue == "station" {
+            //result = radios[row].stationName
         }
         if columnIdentifier!.rawValue == "default" {
-            result = availableRadios[row].default
+            result = station[row].default
         }
         
         return result

@@ -52,7 +52,6 @@
 		996AC0841E4E3D4800C20AA8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		996B9D722206364B0055D0F4 /* FilePreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilePreferences.swift; sourceTree = "<group>"; };
 		99931584220243F30017C05A /* WindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowController.swift; sourceTree = "<group>"; };
-		999EED2F208675230000F9D6 /* xLib6000.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = xLib6000.framework; path = ../../Library/Frameworks/xLib6000.framework; sourceTree = "<group>"; };
 		99BCEC3A21261EED0040C101 /* Repeat.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Repeat.framework; path = ../../Library/Frameworks/Repeat.framework; sourceTree = "<group>"; };
 		99C211021F297279003B47F1 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		99D64A2E1E5B9BEB0053ED1F /* AudioManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioManager.swift; sourceTree = "<group>"; };
@@ -130,7 +129,6 @@
 			isa = PBXGroup;
 			children = (
 				99BCEC3A21261EED0040C101 /* Repeat.framework */,
-				999EED2F208675230000F9D6 /* xLib6000.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";

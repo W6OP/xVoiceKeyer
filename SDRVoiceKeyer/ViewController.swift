@@ -54,8 +54,10 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     var audiomanager: AudioManager!
     var preferenceManager: PreferenceManager!
     
-    var availableRadios = [(model: String, nickname: String, clientId: String, clientName: String, ipAddress: String, default: String, serialNumber: String)]()
-    private var defaultRadio = (model: "", nickname: "", clientId: "", clientName: "", ipAddress: "", default: "", serialNumber: "")
+    // this is only used once - in showPreferences - can I somehow eliminate it?
+    var radios = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String)]()
+    private var defaultStation = (model: "", nickname: "", stationName: "", default: "", serialNumber: "", clientId: "")
+    private let radioKey = "defaultRadio"
     
     var isRadioConnected = false
     var isSliceActive = false
@@ -158,7 +160,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
 //        notificationCenter2.addObserver(self, selector: #selector(appMovedToForeround), name: NSApplication.didBecomeActiveNotification, object: nil)
         
         // FOR DEBUG: delete user defaults
-        //deleteUserDefaults()
+        deleteUserDefaults()
     }
     
 //    @objc func appMovedToBackground() {
@@ -326,23 +328,21 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      
      This is the normal flow. When the Connect button is clicked it goes straight to doConnectToradio()
      */
-    func didDiscoverRadio(discoveredRadios: [(model: String, nickname: String, clientId: String, clientName: String, ipAddress: String, default: String, serialNumber: String)]) {
+    func didDiscoverRadio(discoveredRadios: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String)]) {
         
         var found: Bool = false
-        self.availableRadios = discoveredRadios
+        self.radios = discoveredRadios
         
-        if let def = UserDefaults.standard.dictionary(forKey: "defaultRadio") {
-            self.defaultRadio.model = def["model"] as! String
-            self.defaultRadio.nickname = def["nickname"] as! String
-            self.defaultRadio.clientName = def["clientName"] as! String
-            self.defaultRadio.clientName = def["clientId"] as! String
-            self.defaultRadio.ipAddress = def["ipAddress"] as! String
-            self.defaultRadio.default = def["default"] as! String
-            self.defaultRadio.serialNumber = def["serialNumber"] as! String
+        if let defaults = UserDefaults.standard.dictionary(forKey: radioKey) {
+            self.defaultStation.model = defaults["model"] as! String
+            self.defaultStation.nickname = defaults["nickname"] as! String
+            self.defaultStation.stationName = defaults["stationName"] as! String
+            self.defaultStation.default = defaults["default"] as! String
+            self.defaultStation.serialNumber = defaults["serialNumber"] as! String
             
-            if def["xmitGain"] != nil {
-                self.gainSlider.intValue = Int32(def["xmitGain"] as! String) ?? 35
-                self.gainLabel.stringValue = def["xmitGain"] as! String
+            if defaults["xmitGain"] != nil {
+                self.gainSlider.intValue = Int32(defaults["xmitGain"] as! String) ?? 35
+                self.gainLabel.stringValue = defaults["xmitGain"] as! String
             } else {
                 self.gainSlider.intValue = 35
                 self.gainLabel.stringValue = "35"
@@ -351,35 +351,34 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         
         switch discoveredRadios.count {
         case 1:
-            if self.defaultRadio.serialNumber == discoveredRadios[0].serialNumber {
+            if self.defaultStation.serialNumber == discoveredRadios[0].serialNumber {
                 
                 // could have the same nickname but model or ipaddress may have changed
-                self.defaultRadio.model = discoveredRadios[0].model
-                self.defaultRadio.nickname = discoveredRadios[0].nickname
-                self.defaultRadio.ipAddress = discoveredRadios[0].ipAddress
+                self.defaultStation.model = discoveredRadios[0].model
+                self.defaultStation.nickname = discoveredRadios[0].nickname
                 
                 self.updateUserDefaults()
                 
-                self.doConnectRadio(serialNumber: self.defaultRadio.serialNumber, doConnect: true)
+                self.doConnectRadio(serialNumber: self.defaultStation.serialNumber, doConnect: true)
             }
             else{
                 self.showPreferences("" as AnyObject)
             }
             break
         default:
-            if self.defaultRadio.nickname != "" {
+            if self.defaultStation.nickname != "" {
                 for radio in discoveredRadios {
-                    if self.defaultRadio.serialNumber == radio.serialNumber && self.defaultRadio.default == YesNo.Yes.rawValue {
+                    if self.defaultStation.serialNumber == radio.serialNumber && self.defaultStation.default == YesNo.Yes.rawValue {
                         found = true
                         
                         // could have the same nickname but model or ipaddress may have change
-                        self.defaultRadio.model = radio.model
-                        self.defaultRadio.nickname = radio.nickname
-                        self.defaultRadio.ipAddress = radio.ipAddress
+                        self.defaultStation.model = radio.model
+                        self.defaultStation.nickname = radio.nickname
+                        self.defaultStation.stationName = radio.nickname
                         
                         self.updateUserDefaults()
                         
-                        self.doConnectRadio(serialNumber: self.defaultRadio.serialNumber, doConnect: true)
+                        self.doConnectRadio(serialNumber: self.defaultStation.serialNumber, doConnect: true)
                         break
                     }
                 }
@@ -402,16 +401,15 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         
         var defaults = [String : String]()
         
-        defaults["model"] = defaultRadio.model
-        defaults["nickname"] = defaultRadio.nickname
-        defaults["clientName"] = defaultRadio.clientName
-        defaults["clientId"] = defaultRadio.clientId
-        defaults["ipAddress"] = defaultRadio.ipAddress
-        defaults["default"] = defaultRadio.default
-        defaults["serialNumber"] = defaultRadio.serialNumber
+        defaults["model"] = defaultStation.model
+        defaults["nickname"] = defaultStation.nickname
+        defaults["stationName"] = defaultStation.stationName
+        defaults["default"] = defaultStation.default
+        defaults["serialNumber"] = defaultStation.serialNumber
         defaults["xmitGain"] = "\(gainSlider.intValue)"
         
-        UserDefaults.standard.set(defaults, forKey: "defaultRadio")
+
+        UserDefaults.standard.set(defaults, forKey: radioKey)
         UserDefaults.standard.set(timerState, forKey: "TimerState")
     }
     
@@ -420,7 +418,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      */
     func deleteUserDefaults(){
         
-        UserDefaults.standard.set(nil, forKey: "defaultRadio")
+        UserDefaults.standard.set(nil, forKey: radioKey)
         UserDefaults.standard.set(nil, forKey: "NSNavLastRootDirectory")
         UserDefaults.standard.set(nil, forKey: "TimerState")
         UserDefaults.standard.set(nil, forKey: "TimerInterval")
@@ -441,7 +439,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     func doConnectRadio(serialNumber: String, doConnect: Bool) {
         
         if self.radioManager.connectToRadio(serialNumber: serialNumber, doConnect: doConnect) == true {
-            self.view.window?.title = "SDR Voice Keyer - " + self.defaultRadio.nickname
+            self.view.window?.title = "SDR Voice Keyer - " + self.defaultStation.nickname
             self.isRadioConnected = true
             isSliceActive = true // this is just an assumption
             self.activeSliceLabel.stringValue = "Connected"
@@ -605,7 +603,8 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     func showPreferences(_ sender: AnyObject) {
         let SB = NSStoryboard(name: "Main", bundle: nil)
         let PVC: RadioPreferences = SB.instantiateController(withIdentifier: "radioSelection") as! RadioPreferences
-        PVC.availableRadios = self.availableRadios
+        //PVC.buildStationList(radios: self.radios)
+        PVC.station = self.radios
         PVC.preferenceManager = self.preferenceManager
         
         presentAsSheet(PVC)

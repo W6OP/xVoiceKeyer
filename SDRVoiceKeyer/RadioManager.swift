@@ -97,7 +97,7 @@ func UI(_ block: @escaping ()->Void) {
 protocol RadioManagerDelegate: class {
     
     // radio was discovered - notify GUI
-    func didDiscoverRadio(discoveredRadios: [(model: String, nickname: String, clientId: String, clientName: String,  ipAddress: String, default: String, serialNumber: String)])
+    func didDiscoverRadio(discoveredRadios: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String)])
     // notify the GUI the tcp connection to the radio was closed
     func didDisconnectFromRadio()
     // send message to view controller
@@ -147,9 +147,8 @@ class RadioManager: NSObject, ApiDelegate {
     
     // MARK: - Internal properties ----------------------------------------------------------------------------
     
-    // list of serial numbers of discovered radios - passed to the view controller
-    // to abstract it from the radio
-    var discoveredRadiosLocal: [(model: String, nickname: String, clientId: String, clientName: String, ipAddress: String, default: String, serialNumber: String)]
+    // local list of discovered radios - passed to the view controller to abstract it from the radio
+    var radiosView = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String)]()
     
     // MARK: - Internal Radio properties ----------------------------------------------------------------------------
     
@@ -167,7 +166,7 @@ class RadioManager: NSObject, ApiDelegate {
     var notifications = [NSObjectProtocol]()
     let log = (NSApp.delegate as! AppDelegate)
     let clientProgram = "SDRVoiceKeyer"
-    let clientStation = "W6OP" // TODO: get from preferences after form is updated
+    let clientStation = "" // IS THIS NEEDED ??
     
     // Array of available Radios
     var availableRadios = [DiscoveredRadio]()
@@ -188,7 +187,7 @@ class RadioManager: NSObject, ApiDelegate {
         
         audiomanager = AudioManager()
         availableRadios = [DiscoveredRadio]()
-        discoveredRadiosLocal = [(model: String, nickname: String, clientId: String, clientName: String, ipAddress: String, default: String, serialNumber: String)]()
+        //radiosView = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String)]()
         txAudioStreamId = StreamId("0") //DaxStreamId("0")!
         
         super.init()
@@ -228,6 +227,26 @@ class RadioManager: NSObject, ApiDelegate {
         os_log("Vita parser added.", log: RadioManager.model_log, type: .info)
     }
     
+    // MARK: - Notification Methods ----------------------------------------------------------------------------
+    
+    /**
+     Add subscriptions to Notifications from the xLib6000 API
+     */
+    func addNotificationListeners() {
+        let nc = NotificationCenter.default
+        
+        // Available Radios changed
+        nc.addObserver(forName:Notification.Name(rawValue:"radiosAvailable"),
+                       object:nil, queue:nil,
+                       using:radiosAvailable)
+        
+        nc.addObserver(forName: Notification.Name(rawValue: "sliceHasBeenAdded"), object:nil, queue:nil,
+                       using:sliceHasBeenAdded)
+        
+        nc.addObserver(forName: Notification.Name(rawValue: "sliceWillBeRemoved"), object:nil, queue:nil,
+                       using:sliceWillBeRemoved)
+    }
+    
     // MARK: - Implementation ----------------------------------------------------------------------------
     
     /**
@@ -246,7 +265,9 @@ class RadioManager: NSObject, ApiDelegate {
             for (_, foundRadio) in api.discoveredRadios.enumerated() where foundRadio.serialNumber == serialNumber {
                 activeRadio = foundRadio
                 
-                if api.connect(activeRadio!, clientStation: clientStation, clientProgram: self.clientProgram, clientId: nil, isGui: false) {
+                // TODO: as non gui I don't need station name.
+                // Should have a parameter to bind (true,false) - then station name should be avaiable
+                if api.connect(activeRadio!, clientStation: self.clientStation, clientProgram: self.clientProgram, clientId: nil, isGui: false) {
                     // notify viewcontroller if no slices (or GUI) on connect
                     if api.radio?.sliceList.count == 0 {
                         UI() {
@@ -275,26 +296,6 @@ class RadioManager: NSObject, ApiDelegate {
         activeRadio = nil
     }
     
-    // MARK: - Notification Methods ----------------------------------------------------------------------------
-    
-    /**
-     Add subscriptions to Notifications from the xLib6000 API
-     */
-    func addNotificationListeners() {
-        let nc = NotificationCenter.default
-        
-        // Available Radios changed
-        nc.addObserver(forName:Notification.Name(rawValue:"radiosAvailable"),
-                       object:nil, queue:nil,
-                       using:radiosAvailable)
-        
-        nc.addObserver(forName: Notification.Name(rawValue: "sliceHasBeenAdded"), object:nil, queue:nil,
-                       using:sliceHasBeenAdded)
-        
-        nc.addObserver(forName: Notification.Name(rawValue: "sliceWillBeRemoved"), object:nil, queue:nil,
-                       using:sliceWillBeRemoved)
-    }
-    
     // MARK: - Radio Methods ----------------------------------------------------------------------------
     
     /** 
@@ -306,23 +307,31 @@ class RadioManager: NSObject, ApiDelegate {
         // receive the updated list of Radios
         let availableRadios = (note.object as! [DiscoveredRadio])
         var newRadios: Int = 0
+        //var stationNames = [String]()
         
         if availableRadios.count > 0 {
             os_log("Discovery process has completed.", log: RadioManager.model_log, type: .info)
             
             for radio in availableRadios {
                 // only add new radios
-                if !self.discoveredRadiosLocal.contains(where: { $0.nickname == radio.nickname }) {
+                if !self.radiosView.contains(where: { $0.nickname == radio.nickname }) {
                     newRadios += 1
                     // TODO: THIS MAY NEED FIXING
-                    self.discoveredRadiosLocal.append((radio.model, radio.nickname, "radio.clientID", "radio.StaionName", radio.publicIp, "No", radio.serialNumber)) // IS radio.publicIp CORRECT???
+                    // station name is an array - I really need an array of guiclient names
+                    for client in radio.guiClients {
+                        //stationNames.append(client.station)
+                        self.radiosView.append((radio.model, radio.nickname, client.station, "No", radio.serialNumber, client.clientId?.uuidString ?? ""))
+                    }
+                    
+                    
+//                    self.radiosView.append((radio.model, radio.nickname, stationNames, "No", radio.serialNumber, radio.guiClients[0].clientId?.uuidString)) // IS radio.publicIp CORRECT???
                 }
             }
             
             if newRadios > 0 {
                 // let the view controller know a radio was discovered
                 UI() {
-                    self.radioManagerDelegate?.didDiscoverRadio(discoveredRadios: self.discoveredRadiosLocal)
+                    self.radioManagerDelegate?.didDiscoverRadio(discoveredRadios: self.radiosView)
                 }
             }
         }
