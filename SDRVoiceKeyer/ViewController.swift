@@ -339,6 +339,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
             self.defaultStation.stationName = defaults["stationName"] as! String
             self.defaultStation.default = defaults["default"] as! String
             self.defaultStation.serialNumber = defaults["serialNumber"] as! String
+            self.defaultStation.clientId = defaults["clientId"] as! String
             
             if defaults["xmitGain"] != nil {
                 self.gainSlider.intValue = Int32(defaults["xmitGain"] as! String) ?? 35
@@ -359,7 +360,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
                 
                 self.updateUserDefaults()
                 
-                self.doConnectRadio(serialNumber: self.defaultStation.serialNumber, doConnect: true)
+                self.doConnectRadio(serialNumber: self.defaultStation.serialNumber,stationName: self.defaultStation.stationName, clientId: self.defaultStation.clientId,  doConnect: true)
             }
             else{
                 self.showPreferences("" as AnyObject)
@@ -374,11 +375,12 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
                         // could have the same nickname but model or ipaddress may have change
                         self.defaultStation.model = radio.model
                         self.defaultStation.nickname = radio.nickname
-                        self.defaultStation.stationName = radio.nickname
+                        self.defaultStation.stationName = radio.stationName
+                        self.defaultStation.clientId = radio.clientId
                         
                         self.updateUserDefaults()
                         
-                        self.doConnectRadio(serialNumber: self.defaultStation.serialNumber, doConnect: true)
+                        self.doConnectRadio(serialNumber: self.defaultStation.serialNumber,stationName: self.defaultStation.stationName, clientId: self.defaultStation.clientId,  doConnect: true)
                         break
                     }
                 }
@@ -406,8 +408,8 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         defaults["stationName"] = defaultStation.stationName
         defaults["default"] = defaultStation.default
         defaults["serialNumber"] = defaultStation.serialNumber
+        defaults["clientId"] = defaultStation.clientId
         defaults["xmitGain"] = "\(gainSlider.intValue)"
-        
 
         UserDefaults.standard.set(defaults, forKey: radioKey)
         UserDefaults.standard.set(timerState, forKey: "TimerState")
@@ -436,9 +438,9 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      - parameter serialNumber: String
      - parameter doConnect: Bool
      */
-    func doConnectRadio(serialNumber: String, doConnect: Bool) {
+    func doConnectRadio(serialNumber: String, stationName: String, clientId: String, doConnect: Bool) {
         
-        if self.radioManager.connectToRadio(serialNumber: serialNumber, doConnect: doConnect) == true {
+        if self.radioManager.connectToRadio(serialNumber: serialNumber, clientStation: stationName, clientId: clientId, doConnect: doConnect) == true {
             self.view.window?.title = "SDR Voice Keyer - " + self.defaultStation.nickname
             self.isRadioConnected = true
             isSliceActive = true // this is just an assumption

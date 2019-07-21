@@ -91,7 +91,7 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
         if defaultStation.default == YesNo.Yes.rawValue {
             saveUserDefaults()
             self.dismiss(self)
-            preferenceManager.connectToRadio(serialNumber: defaultStation.serialNumber)
+            preferenceManager.connectToRadio(serialNumber: defaultStation.serialNumber, stationName: defaultStation.stationName, clientId: defaultStation.clientId)
         }
     }
     

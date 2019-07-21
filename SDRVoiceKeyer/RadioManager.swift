@@ -166,7 +166,6 @@ class RadioManager: NSObject, ApiDelegate {
     var notifications = [NSObjectProtocol]()
     let log = (NSApp.delegate as! AppDelegate)
     let clientProgram = "SDRVoiceKeyer"
-    let clientStation = "" // IS THIS NEEDED ??
     
     // Array of available Radios
     var availableRadios = [DiscoveredRadio]()
@@ -254,7 +253,7 @@ class RadioManager: NSObject, ApiDelegate {
      - parameters:
      - serialNumber: a string representing the serial number of the radio to connect
      */
-    func connectToRadio( serialNumber: String, doConnect: Bool) -> Bool {
+    func connectToRadio( serialNumber: String, clientStation: String, clientId: String, doConnect: Bool) -> Bool {
         
         os_log("Connect to the Radio.", log: RadioManager.model_log, type: .info)
         
@@ -267,7 +266,7 @@ class RadioManager: NSObject, ApiDelegate {
                 
                 // TODO: as non gui I don't need station name.
                 // Should have a parameter to bind (true,false) - then station name should be avaiable
-                if api.connect(activeRadio!, clientStation: self.clientStation, clientProgram: self.clientProgram, clientId: nil, isGui: false) {
+                if api.connect(activeRadio!, clientStation: clientStation, clientProgram: self.clientProgram, clientId: UUID(uuidString: clientId), isGui: false) {
                     // notify viewcontroller if no slices (or GUI) on connect
                     if api.radio?.sliceList.count == 0 {
                         UI() {
@@ -306,31 +305,40 @@ class RadioManager: NSObject, ApiDelegate {
     func radiosAvailable(_ note: Notification) {
         // receive the updated list of Radios
         let availableRadios = (note.object as! [DiscoveredRadio])
-        var newRadios: Int = 0
-        //var stationNames = [String]()
         
+        // I need to know if a GUI client exists
         if availableRadios.count > 0 {
             os_log("Discovery process has completed.", log: RadioManager.model_log, type: .info)
             
             for radio in availableRadios {
                 // only add new radios
                 if !self.radiosView.contains(where: { $0.nickname == radio.nickname }) {
-                    newRadios += 1
-                    // TODO: THIS MAY NEED FIXING
-                    // station name is an array - I really need an array of guiclient names
-                    for client in radio.guiClients {
-                        //stationNames.append(client.station)
-                        self.radiosView.append((radio.model, radio.nickname, client.station, "No", radio.serialNumber, client.clientId?.uuidString ?? ""))
+                    if radio.guiClients.count > 0 {
+                        for client in radio.guiClients {
+                            self.radiosView.append((radio.model, radio.nickname, client.station, "No", radio.serialNumber, client.clientId?.uuidString ?? ""))
+                        }
+                    }
+                } else { // already in list but has anything changed
+                    for temp in self.radiosView {
+                        if radio.nickname == temp.nickname {
+                            // delete this radio
+                            let newRadiosView = radiosView.filter { $0.nickname != radio.nickname }
+                            self.radiosView = newRadiosView
+                        }
                     }
                     
-                    
-//                    self.radiosView.append((radio.model, radio.nickname, stationNames, "No", radio.serialNumber, radio.guiClients[0].clientId?.uuidString)) // IS radio.publicIp CORRECT???
+                    if radio.guiClients.count > 0 {
+                        for client in radio.guiClients {
+                            self.radiosView.append((radio.model, radio.nickname, client.station, "No", radio.serialNumber, client.clientId?.uuidString ?? ""))
+                        }
+                    }
                 }
             }
             
-            if newRadios > 0 {
+            if radiosView.count > 0 {
                 // let the view controller know a radio was discovered
                 UI() {
+                    os_log("Radios updated.", log: RadioManager.model_log, type: .info)
                     self.radioManagerDelegate?.didDiscoverRadio(discoveredRadios: self.radiosView)
                 }
             }
