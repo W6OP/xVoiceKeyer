@@ -265,15 +265,15 @@ class RadioManager: NSObject, ApiDelegate {
                 activeRadio = foundRadio
                 
                 // TODO: as non gui I don't need station name.
-                // Should have a parameter to bind (true,false) - then station name should be avaiable
-                if api.connect(activeRadio!, clientStation: clientStation, clientProgram: self.clientProgram, clientId: UUID(uuidString: clientId), isGui: false) {
+                // Should have a parameter to bind (true,false) - then station name should be available
+                // UUID(uuidString: clientId)
+                if api.connect(activeRadio!, clientStation: clientStation, clientProgram: self.clientProgram, clientId: nil, isGui: false) {
                     // notify viewcontroller if no slices (or GUI) on connect
                     if api.radio?.sliceList.count == 0 {
                         UI() {
                             self.radioManagerDelegate?.radioMessageReceived(messageKey: RadioManagerMessage.INACTIVE)
                         }
                     }
-                    
                     return true
                 }
             }

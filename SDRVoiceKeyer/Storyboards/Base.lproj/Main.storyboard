@@ -1172,7 +1172,7 @@ Gw
                                                     </textFieldCell>
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                 </tableColumn>
-                                                <tableColumn identifier="nickname" width="137" minWidth="40" maxWidth="1000" id="xzX-eL-KGc">
+                                                <tableColumn identifier="nickname" width="160" minWidth="40" maxWidth="1000" id="xzX-eL-KGc">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" title="Nickname">
                                                         <font key="font" metaFont="smallSystem"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -1185,7 +1185,7 @@ Gw
                                                     </textFieldCell>
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                 </tableColumn>
-                                                <tableColumn identifier="ipAddress" width="93" minWidth="10" maxWidth="3.4028234663852886e+38" id="Psj-A1-taV">
+                                                <tableColumn identifier="stationName" width="160" minWidth="10" maxWidth="3.4028234663852886e+38" id="Psj-A1-taV">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Station">
                                                         <font key="font" metaFont="smallSystem"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -1198,7 +1198,7 @@ Gw
                                                     </textFieldCell>
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                 </tableColumn>
-                                                <tableColumn identifier="default" width="125.5" minWidth="10" maxWidth="3.4028234663852886e+38" id="RG3-ls-6VL">
+                                                <tableColumn identifier="default" width="55" minWidth="10" maxWidth="3.4028234663852886e+38" id="RG3-ls-6VL">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Default">
                                                         <font key="font" metaFont="smallSystem"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>

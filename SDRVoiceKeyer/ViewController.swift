@@ -160,7 +160,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
 //        notificationCenter2.addObserver(self, selector: #selector(appMovedToForeround), name: NSApplication.didBecomeActiveNotification, object: nil)
         
         // FOR DEBUG: delete user defaults
-        deleteUserDefaults()
+        //deleteUserDefaults()
     }
     
 //    @objc func appMovedToBackground() {
@@ -339,7 +339,9 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
             self.defaultStation.stationName = defaults["stationName"] as! String
             self.defaultStation.default = defaults["default"] as! String
             self.defaultStation.serialNumber = defaults["serialNumber"] as! String
-            self.defaultStation.clientId = defaults["clientId"] as! String
+            if defaults["clientId"] != nil {
+                self.defaultStation.clientId = defaults["clientId"] as! String
+            }
             
             if defaults["xmitGain"] != nil {
                 self.gainSlider.intValue = Int32(defaults["xmitGain"] as! String) ?? 35

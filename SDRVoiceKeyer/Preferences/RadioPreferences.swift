@@ -134,14 +134,14 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
     /**
      
      */
-    func buildStationList(radios: [(model: String, nickname: String, stationNames: [String], default: String, serialNumber: String)]) {
-
-        //for radio in radios {
-            //for client in radio.stationNames {
-               //station.append((model: radio.model, nickname: radio.nickname, stationName: client, default: radio.default, serialNumber: radio.serialNumber))
-            //}
-        //}
-    }
+//    func buildStationList(radios: [(model: String, nickname: String, stationNames: [String], default: String, serialNumber: String)]) {
+//
+//        //for radio in radios {
+//            //for client in radio.stationNames {
+//               //station.append((model: radio.model, nickname: radio.nickname, stationName: client, default: radio.default, serialNumber: radio.serialNumber))
+//            //}
+//        //}
+//    }
     
     /**
         Retrieve the user settings. File paths and the default radio.
@@ -238,8 +238,8 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
         if columnIdentifier!.rawValue == "nickname" {
             result = station[row].nickname
         }
-        if columnIdentifier!.rawValue == "station" {
-            //result = radios[row].stationName
+        if columnIdentifier!.rawValue == "stationName" {
+            result = station[row].stationName
         }
         if columnIdentifier!.rawValue == "default" {
             result = station[row].default
