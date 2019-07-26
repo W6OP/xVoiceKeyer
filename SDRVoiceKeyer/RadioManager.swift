@@ -103,7 +103,7 @@ protocol RadioManagerDelegate: class {
     // send message to view controller
     func radioMessageReceived(messageKey: RadioManagerMessage)
     // update slice, mode or frequency
-    func updateView(components: (slice: String, mode: String, frequency: String))
+    func updateView(components: (slice: String, mode: String, frequency: String, station: String))
 }
 
 // MARK: Structs ------------------------------------------------------------------------------------------------
@@ -154,6 +154,7 @@ class RadioManager: NSObject, ApiDelegate {
     
     // Radio currently running
     var activeRadio: DiscoveredRadio?
+    var activeStation: String
     
     // this starts the discovery process - Api to the Radio
     var api = Api.sharedInstance
@@ -186,6 +187,7 @@ class RadioManager: NSObject, ApiDelegate {
         
         audiomanager = AudioManager()
         availableRadios = [DiscoveredRadio]()
+        activeStation = ""
         //radiosView = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String)]()
         txAudioStreamId = StreamId("0") //DaxStreamId("0")!
         
@@ -239,6 +241,18 @@ class RadioManager: NSObject, ApiDelegate {
                        object:nil, queue:nil,
                        using:radiosAvailable)
         
+        nc.addObserver(forName:Notification.Name(rawValue:"guiClientHasBeenAdded"),
+                       object:nil, queue:nil,
+                       using:clientsUpdated)
+        
+        nc.addObserver(forName:Notification.Name(rawValue:"guiClientHasBeenRemoved"),
+                       object:nil, queue:nil,
+                       using:clientsUpdated)
+        
+        nc.addObserver(forName:Notification.Name(rawValue:"guiClientHasBeenUpdated"),
+                       object:nil, queue:nil,
+                       using:clientsUpdated)
+        
         nc.addObserver(forName: Notification.Name(rawValue: "sliceHasBeenAdded"), object:nil, queue:nil,
                        using:sliceHasBeenAdded)
         
@@ -267,8 +281,9 @@ class RadioManager: NSObject, ApiDelegate {
                 // TODO: as non gui I don't need station name.
                 // Should have a parameter to bind (true,false) - then station name should be available
                 // UUID(uuidString: clientId)
-                if api.connect(activeRadio!, clientStation: clientStation, clientProgram: self.clientProgram, clientId: nil, isGui: false) {
+                if api.connect(activeRadio!, clientProgram: self.clientProgram, clientId: nil, isGui: false) {
                     // notify viewcontroller if no slices (or GUI) on connect
+                    activeStation = clientStation
                     if api.radio?.sliceList.count == 0 {
                         UI() {
                             self.radioManagerDelegate?.radioMessageReceived(messageKey: RadioManagerMessage.INACTIVE)
@@ -343,6 +358,17 @@ class RadioManager: NSObject, ApiDelegate {
                 }
             }
         }
+    }
+    
+    // Do bind after this
+    func clientsUpdated(_ note: Notification) {
+        
+        // if default - clientId == clientId
+        // else
+        
+        // if station == station { // really need clientId too
+            api.radio?.boundClientId = UUID(uuidString: "clientId");
+        // }
     }
     
     /**
@@ -428,15 +454,16 @@ class RadioManager: NSObject, ApiDelegate {
      - parameters:
      - components: tuple with slice information for the GUI
      */
-    func findActiveSlice() -> ((slice: String, mode: String, frequency: String)) {
+    func findActiveSlice() -> ((slice: String, mode: String, frequency: String, station: String)) {
         
-        var components = (slice: "No TX", mode: "", frequency: "")
+        var components = (slice: "No TX", mode: "", frequency: "", station: "")
         
         for (_, slice) in (api.radio?.slices)! {
             if slice.txEnabled {
                 components.mode = slice.mode
                 components.frequency = convertFrequencyToDecimalString(frequency: slice.frequency)
                 components.slice = convertSliceNumberToLetter(sliceNumber: slice.id)
+                components.station = activeStation
             }
         }
         
@@ -521,7 +548,7 @@ class RadioManager: NSObject, ApiDelegate {
             os_log("All slices have been removed.", log: RadioManager.model_log, type: .info)
             UI() {
                 self.radioManagerDelegate?.radioMessageReceived(messageKey: RadioManagerMessage.INACTIVE)
-                self.radioManagerDelegate?.updateView(components: (slice: "??", mode: "", frequency: ""))
+                self.radioManagerDelegate?.updateView(components: (slice: "??", mode: "", frequency: "", station: ""))
             }
         }
     }

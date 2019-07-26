@@ -77,10 +77,11 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     @IBOutlet weak var gainLabel: NSTextField!
     @IBOutlet weak var buttonSendID: NSButton!
     @IBOutlet weak var buttonStop: NSButton!
-    @IBOutlet weak var labelSendID: NSTextField!
     @IBOutlet weak var labelSlice: NSTextField!
     @IBOutlet weak var labelMode: NSTextField!
     @IBOutlet weak var labelFrequency: NSTextField!
+    @IBOutlet weak var labelStation: NSTextField!
+    //@IBOutlet weak var labelSendID: NSTextField!
     
     // MARK: Actions
     // this handles all of the voice buttons - use the tag value to determine which audio file to load
@@ -101,7 +102,8 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     @IBAction func sendID(_ sender: NSButton) {
         
         self.idlabelTimer = nil
-        self.labelSendID.isHidden = true
+        //self.labelSendID.isHidden = true
+        //self.labelSendID.backgroundColor = NSColor.red
         voiceButtonSelected(buttonNumber: sender.tag)
     }
     
@@ -118,7 +120,8 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     // enable the id timer
     @IBAction func enableIDTimer(_ sender: NSButton) {
         
-        let timerInterval: Int = Int(UserDefaults.standard.string(forKey: "TimerInterval") ?? "10") ?? 10
+        // reset back for distribution
+        let timerInterval: Int = 1 //Int(UserDefaults.standard.string(forKey: "TimerInterval") ?? "10") ?? 10
         
         switch sender.state {
         case .on:
@@ -146,35 +149,23 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         self.activeSliceLabel.stringValue = "Connecting"
         
         updateButtonTitles(view: self.view)
-        self.labelSendID.backgroundColor = NSColor.green
+        //self.labelSendID.backgroundColor = NSColor.green
+        
+       
+//        buttonSendID.wantsLayer = true
+//        buttonSendID.layer?.backgroundColor = NSColor.red.cgColor
+        
+        // only if no border
+        //(buttonSendID.cell! as! NSButtonCell).backgroundColor = .red
         
         if let mutableAttributedTitle = buttonStop.attributedTitle.mutableCopy() as? NSMutableAttributedString {
             mutableAttributedTitle.addAttribute(.foregroundColor, value: NSColor.red, range: NSRange(location: 0, length: mutableAttributedTitle.length))
             buttonStop.attributedTitle = mutableAttributedTitle
         }
-        
-//        let notificationCenter = NotificationCenter.default
-//        notificationCenter.addObserver(self, selector: #selector(appMovedToBackground), name: NSApplication.willResignActiveNotification, object: nil)
-//
-//        let notificationCenter2 = NotificationCenter.default
-//        notificationCenter2.addObserver(self, selector: #selector(appMovedToForeround), name: NSApplication.didBecomeActiveNotification, object: nil)
-        
+ 
         // FOR DEBUG: delete user defaults
         //deleteUserDefaults()
     }
-    
-//    @objc func appMovedToBackground() {
-//        //print("App moved to background!")
-//        // inhibit the auto ID transmission
-//        // preferenceManager.enableTimer(isEnabled: false, interval: 0 )
-//    }
-//    
-//    @objc func appMovedToForeround() {
-//        //print("App moved to foreground!")
-//        // enable the auto ID transmission
-//        //let timerInterval: Int = Int(UserDefaults.standard.string(forKey: "TimerInterval") ?? "10") ?? 10
-//        // preferenceManager.enableTimer(isEnabled: false, interval: timerInterval )
-//    }
     
     // generated code
     override var representedObject: Any? {
@@ -202,6 +193,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     func stopTransmitting() {
         let xmitGain = gainSlider.intValue
         radioManager.keyRadio(doTransmit: false, xmitGain: Int(xmitGain))
+        self.timerExpired = false
     }
     
     // MARK: GUI Methods
@@ -212,8 +204,11 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      */
     func voiceButtonSelected(buttonNumber: Int) {
         
-        //var floatArray = [Float]()
         var transmitGain: Int = 35
+        
+        self.timerExpired = false
+        self.buttonSendID.wantsLayer = true
+        self.buttonSendID.layer?.backgroundColor = NSColor.windowBackgroundColor.cgColor
         
         DispatchQueue.main.async {
             let xmitGain = self.gainSlider.intValue
@@ -482,11 +477,12 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     /**
      Update the status labels when the radio notifies us of a change
      */
-    func updateView(components: (slice: String, mode: String, frequency: String)) {
+    func updateView(components: (slice: String, mode: String, frequency: String, station: String)) {
         UI {
             self.labelFrequency.stringValue = components.frequency
             self.labelMode.stringValue = components.mode
             self.labelSlice.stringValue = "Slice \(components.slice)"
+            self.labelStation.stringValue = components.station
         }
     }
     
@@ -498,22 +494,32 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
             print("timer fired = \(interval)")
             //self.selectAudioFile(buttonNumber: 102, transmitGain: transmitGain)
             UI{
-                self.labelSendID.isHidden = false
+                //self.labelSendID.backgroundColor = NSColor.green
+                //self.labelSendID.isHidden = false
                 self.startLabelTimer()
             }
         }
         
         self.idTimer!.start()
     }
-    
+    var timerExpired = false
     func startLabelTimer() {
         
-        self.idlabelTimer = Repeater(interval: .milliseconds(500), mode: .infinite) { _ in
+        self.idlabelTimer = Repeater(interval: .milliseconds(750), mode: .infinite) { _ in
             UI{
-                if self.labelSendID.isHidden {
-                    self.labelSendID.isHidden = false
+                if self.timerExpired {
+                    self.timerExpired = false
+                    //if self.labelSendID.isHidden {
+                    //self.labelSendID.backgroundColor = NSColor.green
+                    self.buttonSendID.wantsLayer = true
+                    self.buttonSendID.layer?.backgroundColor = NSColor.windowBackgroundColor.cgColor
+                    //self.labelSendID.isHidden = false
                 } else {
-                    self.labelSendID.isHidden = true
+                    self.timerExpired = true
+                    //self.labelSendID.isHidden = true
+                    //self.labelSendID.backgroundColor = NSColor.red
+                    self.buttonSendID.wantsLayer = true
+                    self.buttonSendID.layer?.backgroundColor = NSColor.green.cgColor
                 }
             }
         }
