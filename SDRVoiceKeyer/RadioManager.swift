@@ -365,9 +365,9 @@ class RadioManager: NSObject, ApiDelegate {
         
         // if default - clientId == clientId
         // else
-        
+        os_log("GUI clients have been updated.", log: RadioManager.model_log, type: .info)
         // if station == station { // really need clientId too
-            api.radio?.boundClientId = UUID(uuidString: "clientId");
+        //    api.radio?.boundClientId = UUID(uuidString: "clientId");
         // }
     }
     

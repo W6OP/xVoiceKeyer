@@ -74,7 +74,6 @@
 		996AC06F1E4E3D4800C20AA8 = {
 			isa = PBXGroup;
 			children = (
-				994AC73A22D3DFD80039FB3D /* xLib6000.framework */,
 				996AC07A1E4E3D4800C20AA8 /* SDRVoiceKeyer */,
 				996AC0791E4E3D4800C20AA8 /* Products */,
 				99E84E6A1F1144A500C8660C /* Frameworks */,
@@ -128,6 +127,7 @@
 		99E84E6A1F1144A500C8660C /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				994AC73A22D3DFD80039FB3D /* xLib6000.framework */,
 				99BCEC3A21261EED0040C101 /* Repeat.framework */,
 			);
 			name = Frameworks;
