@@ -158,6 +158,7 @@ class RadioManager: NSObject, ApiDelegate {
     
     // this starts the discovery process - Api to the Radio
     var api = Api.sharedInstance
+    var discovery = Discovery.sharedInstance
     
     // MARK: - Private properties ----------------------------------------------------------------------------
     
@@ -237,7 +238,7 @@ class RadioManager: NSObject, ApiDelegate {
         let nc = NotificationCenter.default
         
         // Available Radios changed
-        nc.addObserver(forName:Notification.Name(rawValue:"radiosAvailable"),
+        nc.addObserver(forName:Notification.Name(rawValue:"discoveredRadios"),
                        object:nil, queue:nil,
                        using:radiosAvailable)
         
@@ -275,7 +276,7 @@ class RadioManager: NSObject, ApiDelegate {
         usleep(1500)
         
         if (doConnect){
-            for (_, foundRadio) in api.discoveredRadios.enumerated() where foundRadio.serialNumber == serialNumber {
+            for (_, foundRadio) in discovery.discoveredRadios.enumerated() where foundRadio.serialNumber == serialNumber {
                 activeRadio = foundRadio
                 
                 // TODO: as non gui I don't need station name.
@@ -330,7 +331,7 @@ class RadioManager: NSObject, ApiDelegate {
                 if !self.radiosView.contains(where: { $0.nickname == radio.nickname }) {
                     if radio.guiClients.count > 0 {
                         for client in radio.guiClients {
-                            self.radiosView.append((radio.model, radio.nickname, client.station, "No", radio.serialNumber, client.clientId?.uuidString ?? ""))
+                            self.radiosView.append((radio.model, radio.nickname, client.station, "No", radio.serialNumber, client.clientId ?? ""))
                         }
                     }
                 } else { // already in list but has anything changed
@@ -344,7 +345,7 @@ class RadioManager: NSObject, ApiDelegate {
                     
                     if radio.guiClients.count > 0 {
                         for client in radio.guiClients {
-                            self.radiosView.append((radio.model, radio.nickname, client.station, "No", radio.serialNumber, client.clientId?.uuidString ?? ""))
+                            self.radiosView.append((radio.model, radio.nickname, client.station, "No", radio.serialNumber, client.clientId ?? ""))
                         }
                     }
                 }
