@@ -97,7 +97,7 @@ func UI(_ block: @escaping ()->Void) {
 protocol RadioManagerDelegate: class {
     
     // radio was discovered - notify GUI
-    func didDiscoverRadio(discoveredRadios: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String)])
+    func didDiscoverRadio(discoveredRadios: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: String)])
     // notify the GUI the tcp connection to the radio was closed
     func didDisconnectFromRadio()
     // send message to view controller
@@ -148,7 +148,7 @@ class RadioManager: NSObject, ApiDelegate {
     // MARK: - Internal properties ----------------------------------------------------------------------------
     
     // local list of discovered radios - passed to the view controller to abstract it from the radio
-    var radiosView = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String)]()
+    var radiosView = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: String)]()
     
     // MARK: - Internal Radio properties ----------------------------------------------------------------------------
     
@@ -320,56 +320,45 @@ class RadioManager: NSObject, ApiDelegate {
      */
     func radiosAvailable(_ note: Notification) {
         // receive the updated list of Radios
-        let availableRadios = (note.object as! [DiscoveredRadio])
+        let discoveredRadios = (note.object as! [DiscoveredRadio])
         
-        // I need to know if a GUI client exists
-        if availableRadios.count > 0 {
-            os_log("Discovery process has completed.", log: RadioManager.model_log, type: .info)
-            
-            for radio in availableRadios {
-                // only add new radios
-                if !self.radiosView.contains(where: { $0.nickname == radio.nickname }) {
-                    if radio.guiClients.count > 0 {
-                        for client in radio.guiClients {
-                            self.radiosView.append((radio.model, radio.nickname, client.station, "No", radio.serialNumber, client.clientId ?? ""))
-                        }
-                    }
-                } else { // already in list but has anything changed
-                    for temp in self.radiosView {
-                        if radio.nickname == temp.nickname {
-                            // delete this radio
-                            let newRadiosView = radiosView.filter { $0.nickname != radio.nickname }
-                            self.radiosView = newRadiosView
-                        }
-                    }
-                    
-                    if radio.guiClients.count > 0 {
-                        for client in radio.guiClients {
-                            self.radiosView.append((radio.model, radio.nickname, client.station, "No", radio.serialNumber, client.clientId ?? ""))
-                        }
-                    }
-                }
+        self.radiosView = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: String)]()
+        
+        // just collect radios
+        for radio in discoveredRadios {
+            for client in radio.guiClients {
+                self.radiosView.append((radio.model, radio.nickname, client.station, "No", radio.serialNumber, client.clientId ?? "", String(client.handle)))
             }
-            
-            if radiosView.count > 0 {
-                // let the view controller know a radio was discovered
-                UI() {
-                    os_log("Radios updated.", log: RadioManager.model_log, type: .info)
-                    self.radioManagerDelegate?.didDiscoverRadio(discoveredRadios: self.radiosView)
-                }
+        }
+
+        if radiosView.count > 0 {
+            // let the view controller know a radio was discovered
+            UI() {
+                os_log("Radios updated.", log: RadioManager.model_log, type: .info)
+                self.radioManagerDelegate?.didDiscoverRadio(discoveredRadios: self.radiosView)
             }
         }
     }
     
-    // Do bind after this
+    // Do bind after this ??
     func clientsUpdated(_ note: Notification) {
+        // receive the updated GUIClient
+        let guiClient = (note.object as! GuiClient)
         
-        // if default - clientId == clientId
-        // else
-        os_log("GUI clients have been updated.", log: RadioManager.model_log, type: .info)
-        // if station == station { // really need clientId too
-        //    api.radio?.boundClientId = UUID(uuidString: "clientId");
-        // }
+        if var view = self.radiosView.first(where: { $0.handle == String(guiClient.handle) }) {
+            if guiClient.clientId != nil
+            {
+                view.clientId = guiClient.clientId ?? ""
+            }
+        }
+
+        if radiosView.count > 0 {
+            // let the view controller know a radio was discovered or updated
+            UI() {
+                os_log("GUI clients have been updated.", log: RadioManager.model_log, type: .info)
+                self.radioManagerDelegate?.didDiscoverRadio(discoveredRadios: self.radiosView)
+            }
+        }
     }
     
     /**
@@ -734,3 +723,92 @@ class RadioManager: NSObject, ApiDelegate {
     
     }
 } // end class
+
+/*
+ func radiosAvailable(_ note: Notification) {
+ // receive the updated list of Radios
+ let discoveredRadio = (note.object as! [DiscoveredRadio])
+ 
+ self.radiosView = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String)]()
+ 
+ // just collect radios
+ for radio in discoveredRadio {
+ self.radiosView.append((radio.model, radio.nickname, "", "No", radio.serialNumber, ""))
+ }
+ // I need to know if a GUI client exists
+ //if discoveredRadio.count > 0 {
+ //            os_log("Discovery process has completed.", log: RadioManager.model_log, type: .info)
+ //
+ //            self.radiosView = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String)]()
+ //
+ //            for radio in discoveredRadio {
+ //                for client in radio.guiClients {
+ //                    self.radiosView.append((radio.model, radio.nickname, client.station, "No", radio.serialNumber, client.clientId ?? ""))
+ //                }
+ 
+ 
+ //self.radiosView.append((radio.model, radio.nickname, "", "No", radio.serialNumber, "" ?? "")) //client.station client.clientId
+ 
+ 
+ 
+ // only add new radios
+ //                if !self.radiosView.contains(where: { $0.nickname == radio.nickname }) {
+ //                    if radio.guiClients.count > 0 {
+ //                        for client in radio.guiClients {
+ //                            self.radiosView.append((radio.model, radio.nickname, client.station, "No", radio.serialNumber, client.clientId ?? ""))
+ //                        }
+ //                    }
+ //                } else { // already in list but has anything changed
+ //                    for temp in self.radiosView {
+ //                        if radio.nickname == temp.nickname {
+ //                            // delete this radio
+ //                            let newRadiosView = radiosView.filter { $0.nickname != radio.nickname }
+ //                            self.radiosView = newRadiosView
+ //                        }
+ //                    }
+ //
+ //                    if radio.guiClients.count > 0 {
+ //                        for client in radio.guiClients {
+ //                            self.radiosView.append((radio.model, radio.nickname, client.station, "No", radio.serialNumber, client.clientId ?? ""))
+ //                        }
+ //                    }
+ //                }
+ //}
+ 
+ //            if radiosView.count > 0 {
+ //                // let the view controller know a radio was discovered
+ //                UI() {
+ //                    os_log("Radios updated.", log: RadioManager.model_log, type: .info)
+ //                    self.radioManagerDelegate?.didDiscoverRadio(discoveredRadios: self.radiosView)
+ //                }
+ //            }
+ //}
+ }
+ 
+ // Do bind after this
+ func clientsUpdated(_ note: Notification) {
+ 
+ // receive the updated list of Radios
+ let discoveredRadio = (note.object as! [DiscoveredRadio])
+ 
+ // I need to know if a GUI client exists
+ if discoveredRadio.count > 0 {
+ os_log("GUI clients have been updated.", log: RadioManager.model_log, type: .info)
+ 
+ for radio in discoveredRadio {
+ for client in radio.guiClients {
+ self.radiosView.append((radio.model, radio.nickname, client.station, "No", radio.serialNumber, client.clientId ?? ""))
+ }
+ }
+ }
+ 
+ if radiosView.count > 0 {
+ // let the view controller know a radio was discovered
+ UI() {
+ os_log("Radios updated.", log: RadioManager.model_log, type: .info)
+ self.radioManagerDelegate?.didDiscoverRadio(discoveredRadios: self.radiosView)
+ }
+ }
+ }
+ 
+ */

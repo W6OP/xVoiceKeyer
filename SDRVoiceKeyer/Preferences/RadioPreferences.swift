@@ -49,8 +49,8 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
     // Array of available Radios from view controller
 //    var radios = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String)]()
     // Array of available radios per station name
-    var station = [(model: "", nickname: "", stationName: "", default: "", serialNumber: "", clientId: "")]
-    private var defaultStation = (model: "", nickname: "", stationName: "", default: "", serialNumber: "", clientId: "")
+    var station = [(model: "", nickname: "", stationName: "", default: "", serialNumber: "", clientId: "", handle: "")]
+    private var defaultStation = (model: "", nickname: "", stationName: "", default: "", serialNumber: "", clientId: "", handle: "")
     private let radioKey = "defaultRadio"
     private var isDefaultSet = false
     

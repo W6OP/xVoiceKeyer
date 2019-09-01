@@ -55,7 +55,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     var preferenceManager: PreferenceManager!
     
     // this is only used once - in showPreferences - can I somehow eliminate it?
-    var radios = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String)]()
+    var radios = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: String)]()
     private var defaultStation = (model: "", nickname: "", stationName: "", default: "", serialNumber: "", clientId: "")
     private let radioKey = "defaultRadio"
     
@@ -323,7 +323,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      
      This is the normal flow. When the Connect button is clicked it goes straight to doConnectToradio()
      */
-    func didDiscoverRadio(discoveredRadios: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String)]) {
+    func didDiscoverRadio(discoveredRadios: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: String)]) {
         
         var found: Bool = false
         self.radios = discoveredRadios
