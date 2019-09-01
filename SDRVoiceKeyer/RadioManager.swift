@@ -340,10 +340,12 @@ class RadioManager: NSObject, ApiDelegate {
         }
     }
     
-    // Do bind after this ??
+    // Do bind after this
     func clientsUpdated(_ note: Notification) {
         // receive the updated GUIClient
-        let guiClient = (note.object as! GuiClient)
+        guard let guiClient = (note.object as! GuiClient?)else {
+            return
+        }
         
         if var view = self.radiosView.first(where: { $0.handle == String(guiClient.handle) }) {
             if guiClient.clientId != nil
