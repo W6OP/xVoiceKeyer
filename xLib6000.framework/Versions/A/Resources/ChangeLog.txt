@@ -1,0 +1,783 @@
+xLib6000 V3 Change Log
+
+v2.5.1.2019_09_01
+
+Radio.swift - in parseClient(_:radio:queue:inUse:) added check that client status is for a Gui-client
+Vita.swift - in class parseGuiClients(handles:programs:stations:) added guard that handle not ""
+
+
+v2.5.1.2019_08_31
+
+Vita.swift - commented out guard in class parseGuiClients(handles:programs:stations:)
+Vita.swift - in class parseGuiClients(handles:programs:stations:) guard that there is at least one value
+
+
+v2.5.1.2019_08_19
+
+Meter.swift - added code to send sliceMeterHasBeenAdded / sliceMeterWillBeRemoved
+Api.swift - corrections to setupCommands()
+Api.swift - allow user to continue even if versions do not match
+Notifications.swift renamed radioDowngradeRequired & radioUpgradeRequired (drop "Required")")
+
+
+v2.5.1.2019_08_07
+
+xLib6000 scheme - unchecked "allow debugging when using document versions browser"
+WaterfallCommands.swift - corrected command syntax
+
+
+v2.5.1.2019_08_01
+
+Discovery.swift - renamed updateAvailableRadios() to updateDiscoveredRadios()
+
+
+v2.5.1.2019_07_30
+
+Turned off code signing
+Api.swift - corrected clientGui case for NOT isGui in setupCommands(_:)
+Api.swift - corrected issue where "client ip" command sent twice
+Api.swift - corrected clientGui case to not use a replyHandler
+Radio.swift - corrected findGuiClientByHandle(_:)
+Notifications.swift - renamed "radiosAvailable" to "discoveredRadios"
+RadioFactory.swift - rename file & class to Discovery
+Discovery.swift - converted Discovery class to a Singleton
+Api.swift - removed discoveredRadios var (use Discovery singleton)
+Api.swift - added initialization of Discovery in init()
+RadioCommands.swift - added sending of "client bind client_id=\(clientId)" on boundClientId
+GuiClient.swift - changed clientId var from UUID? to String?
+AppExtensions.swift - in struct Version added isV3M (V3 with Multiflex)
+
+
+v2.5.1.2019_07_25
+
+AppExtensions.swift - refactored isForThisClient(_:) to parse properties looking for the client handle
+All Streams - modified to use changed isForThisClient(_:)
+RadioFactory.swift - changed == for DiscoveredRadio to include model
+Various - removed static command definitions, replaced with literal strings
+Vita.swift - removed GuiClient class
+GuiClient.swift - added
+Profile.swift - added check for correct profile type in class parseStatus(_:radio:queue:inUse:)
+
+
+v2.5.1.2019_07_17
+
+RadioFactory.swift - removed debug print statement
+Radio.swift - in parseStatus(_:) added remote_audio_rx and tx cases (not fully implemented)
+Radio.swift - in parseStatus(_:) replaced fatalError() with _log.msg(....)
+Opus.swift - removed
+OpusCommands.swift - removed
+RemoteRxAudioStream.swift - added
+RemoteRxAudioStreamCommands.swift - added
+RemoteTxAudioStream.swift - added
+RemoteTxAudioStreamCommands.swift - added
+DaxRxAudioStream.swift - removed func isStatusForThisClient(_:)
+AppExtensions.swift - added func isForThisClient(_:) to replace isStatusForThisClient(_:)
+ALL Streams - changed the way streams are removed
+Notifications.swift - added remoteRxAudioStreamHasBeenAdded & remoteRxAudioStreamWillBeRemoved
+Notifications.swift - added remoteTxAudioStreamHasBeenAdded & remoteTxAudioStreamWillBeRemoved
+
+
+v2.5.1.2019_07_15
+
+Api.swift - made clientName, clientId, clientStation, isGui, lowBw "public private(set)"
+Api.swift - removed public var guiClients
+RadioFactory.swift - refactored udpSocket(_:didReceive:fromAddress:withFilterContext:)
+Radio.swift - refactored parseClient(_:radio:queue:inUse:)
+Radio.swift - in parseStatus(_:) corrected .client and .stream cases
+Various - changed use of "!" to "== false" for clarity
+RadioCommands.swift - changes to match refactor of parseClient(_:radio:queue:inUse:)
+Vita.swift - added class parseGuiClients(handles:programs:stations:) and its usage
+Vita.swift - added class GuiClient
+
+
+v2.5.1.2019_07_08
+
+Corrections and edits throughout to make v2.4.9 & v2.5.1 as similar as possible
+*Stream.swift - corrections to all streams & stream commands
+Meter.swift - in streamHandler(_:) modified error msg for unknown units
+
+
+v2.5.1.2019_07_07
+
+AppExtensions.swift - added vars isV3, isV2 & isV1 to the Version struct
+Api.swift - in setupCommands(_:) (changes as per DL3LSM)
+Api.swift - in enum Command (changes as per DL3LSM)
+Api.swift - in clientConnected() (changes as per DL3LSM)
+Radio.swift - in parseStatus(_:) (changes as per DL3LSM)
+Radio.swift - added var _clientInitialized (changes as per DL3LSM)
+Panadapter.swift - moved PanadapterFrame class to this file
+Frames.swift - removed PanadapterFrame clas from this file
+Notifications.swift - changed radioFirmwareDowngradeRequired to radioDowngradeRequired
+Notifications.swift - added radioUpgradeRequired
+Api.swift - refactored checkFirmware()
+
+
+v2.5.1.2019_07_03
+
+Corrections and edits throughout to make v2.4.9 & v2.5.1 as similar as possible
+
+
+v2.5.1.2019_06_20
+
+Api.swift - removed Level enum (it was unused)
+reconcile Api.swift differences with v2.4.9.20190618
+APi.swift - changed static kFrameworkName to kName
+
+
+v2.5.1.20190618
+
+Log.swift - removed LogHandler protocol definition
+Protocols.swift - added corrected LogHandler protocol definition
+Api.swift - revised checkFirmware() to only show "shortString" for apiVersion
+Api.swift - added clientStation clientName & clientID to connect(_:clientStation:clientName:clientId:isGui:isWan:wanHandle:primaryCmdTypes:secondaryCmdTypes:subscriptionCmdTypes:)
+APi.swift - added .clientStation & changed the order of commands in .allPrimary
+
+
+v2.5.1.20190617
+
+Changed version numbering to coincide with Flex version numbers
+  major.Minor.build.date
+  date (YYYYMMDD) will be updated whenever a new instance is pushed to the GitHub repo
+
+renamed all Stream for v3, incorporated new logic
+Api.swift - made _apiState public (renamed to apiState)
+Reconciled diffs with v2.4.9.20190617
+
+
+v3.0.3 23-Apr-2019
+
+Removed all use of Unified Logging, restored previous logging approach
+Restore Log.swift file and usage throughout the lib
+
+
+v3.0.2 22-Apr-2019
+
+Api.swift - changed "private var _objectQ" to "public var objectQ"
+Api.swift - added guiClients collection and supporting code
+GuiClient.swift - added class parseDiscoveryClients(_:api:)
+Radio.swift - removed guiClients collection (moved to Api)
+Radio.swift - changes to ClientToken enum
+FlexErrors.swift - added "case 0" to flexErrorLevel(errorCode:) and flexErrorString(errorCode:)
+
+
+v3.0.1 18-Apr-2019
+
+Replaced RadioParameters class with DiscoveredRadio class throughout library
+
+
+v3.0.0 17-Apr-2019
+
+***** This is NOT a complete v3 implementation, more to follow ****
+
+***** Hundreds of small changes to accomodate Version 3 *****
+
+RadioParameters.swift - added new v3 parameters
+Vita.swift - in class parseDiscovery(_:) added new v3 parameters
+Modified all "Unknown token" messages to display <token = value>
+Radio.swift - added RadioTokens daxIqCapacity & daxIqAvailable & code to process them
+Radio.swift - added properties localPtt, clientId, station & program & code to process them
+Radio.swift - added bandSettings collection and code to process it
+Radio.swift - added guiClients collection and code to process it
+Interlock.swift - added Token txClientHandle, added code to process it
+InterlockCommands.swift - added txClientHandle property & code to process it
+Api.swift - updated kApiFirmwareSupport to 3.0.18.x
+Api.swift - changes to the timing & content of the Primary, Secondary & Subscription command sets
+Api.swift - changed connectionHandle from String to UInt32?
+AppExtensions.swift - added new extension on String - handle
+UdpManager.swift - changed clientHandle from String to UInt32?
+Vita.swift - updated class parseDiscovery(_:) to v3
+Notifications.swift - added guiClientHasBeenAdded & guiClientWillBeRemoved
+RadioParameters.swift - updated to v3
+
+
+v2.5.1
+
+Vita.swift - in class parseDiscovery(_:), added printing of kv.value for unknown token
+
+
+v2.5.0 27-Mar-2019
+
+Recompiled for Swift 5.0 - changes made as needed
+
+
+v2.4.3 10-Mar-2019
+
+Changed all "import os" to "import os.log"
+Slice.swift - removed the meters collection & related code
+
+
+v2.4.2 28-Feb-2019
+
+Protocols.swift - removed the MeterStreamHandler protocol
+Meter.swift - refactored the StreamHandler to use the generic form used by other streams
+
+
+v2.4.1
+
+AppExtensions.swift - renamed the Bool extensions to be more descriptive of their functions
+
+
+v2.4.0 22-Feb-2019
+
+Reorganized all headings / comments to support use of Jazzy documentation creator
+
+Notifications.swift - add SliceMeterWillBeRemoved, added tcpPingFirstResponse
+Meter.swift - added code to send SliceMeterWillBeRemoved
+Pinger.swift - added code to send tcpPingFirstResponse notification
+Frames.swift - ADDED - moved all "frames" to this file
+Transmit.swift - removed unused property "cwWeight"
+Transmit.swift - removed unused property "ssbPeakControlEnabled"
+Transmit.swift - removed unused property "cwAutoSpaceEnabled"
+
+
+v2.3.9 19-Feb-2019
+
+Meter.swift - renamed meter property "number" to "group"
+Meter.swift - renamed meter property "id" to "number"
+Meter.swift - renamed meter typealias "MeterId" to "MeterNumber"
+Radio.swift - changed usage of "MeterId" to "MeterNumber"
+Slice.swift - changed usage of "meter.id" to "meter.number", "MeterId" to "MeterNumber"
+MeterCommands.swift - changed usage of "meter.id" to "meter.number", "MeterId" to "MeterNumber"
+
+
+v2.3.8 12-Feb-2019
+
+Profile.swift - corrections to list
+ProfileCommands.swift - corrections to list
+
+
+v2.3.7 07-Feb-2019
+
+SliceCommands.swift - added class removeSlice(id:)
+RadioCommands.swift - changed antennaListRequest(callback:) from "class" to "instance"
+RadioCommands.swift - corrected commands
+Api.swift - changed kNoError from "internal" to "public"
+
+
+v2.3.6 03-Feb-2019
+
+Notifications.swift - added equalizerHasBeenAdded
+Notifications.swift - added transmitHasBeenAdded
+Transmit.swift - added code to send new notifications
+Equalizer.swift - added code to send new notifications
+AppExtensions.swift - in valuesArray(delimiter:valuesToLower:) added code to strip whitespace
+Profile.swift - addaed code to handle profile lists without a final ^ delimiter
+
+
+v2.3.5
+
+Notifications.swift - added updateRequired
+Api.swift - in checkFirmware() added notification .updateRequired
+added KnownIssues.md
+
+
+v2.3.4
+
+Notifications.swift - added sliceBecameActive
+Slice.swift - in "internal var _active: Bool" added post of sliceBecameActive
+
+
+v2.3.3
+
+**** Reversed the changes from v3.0.0 ****
+Panadapter.swift - added logging to PanadapterFrame
+Waterfall.swift - added logging to WaterfallFrame
+Radio.swift - rename filterVoiceAutoLevel to filterVoiceAutoEnabled (all 3 variants)
+Radio.swift - rename filterCwAutoLevel to filterCwAutoEnabled (all 3 variants)
+Radio.swift - rename filterDigitalAutoLevel to filterDigitalAutoEnabled (all 3 variants)
+Interlock.swift - removed var txDelay
+InterlockCommands.swift - added var txDelay (read/write with command to Radio)
+
+
+v2.2.2
+
+TcpManager.swift - refactored _isWan & _seqNum vars to eliminate race issue
+UdpManager.swift - refactored _udpSuccessfulRegistration var to eliminate race issue
+RadioParameters.swift - changed public var requiresAdditionalLicense from String to Bool
+WanServer.swift - in public struct WanTestConnectionResults, changed formatting in String()
+WanServer.swift - corrected parseTestConnectionResults(_:)
+WanServer.swift - corrected radioSerial entry in private enum RadioTestConnectionResultsToken
+WanServer.swift - removed unnecessary initializer from public struct WanUserSettings
+Vita.swift - changed requiresAdditionalLicense from String to Bool
+Api.swift - added :isWan:wanHandle to connect(_:clientName:isGui:primaryCmdTypes:secondaryCmdTypes:subscriptionCmdTypes:)
+Added WanServerCommands.swift - contains class smartlinkConfigure(tcpPort:udpPort:callback:)
+AppExtensions.swift - changed all Bool extensions from function to var
+AppExtensions.swift - changed Int extension: hzToMHz from function to var
+AppExtensions.swift - changed String extensions: mhzToHz, iValue, bValue, fValue, tValue, dValue from func to var
+Panadapter.swift - in class PanadapterFrame: reworked accumulate(vita:expectedIndex:)
+Panadapter.swift - in class Panadapter: reworked vitaProcessor(_:)
+Waterfall.swift - in class WaterfallFrame: reworked accumulate(vita:expectedIndex:)
+Waterfall.swift - in class Waterfall: reworked vitaProcessor(_:)
+
+v2.2.1
+
+Profile.swift - refactored profiles to be a dynamic model rather than a static one
+ProfileCommands.swift - changed delete(_:name:callback:) to a class func
+ProfileCommands.swift - changed save(_:name:callback:) to a class func
+Radio.swift - in parseStatus(_:), in .profile changed parseProperties to parseStatus
+Notifications.swift - removed all profile related notifications, add .profileHasBeenAdded & .profileWillBeRemoved
+Profile.swift - changed "list' to be get-only
+Radio.swift - changed _filterCwAutoLevel, _filterVoiceAutoLevel, _filterDigitalAutoLevel from Int to Bool
+Radio.swift - changed _filter--AutoLevel to _filter--AutoEnabled
+RadioCommands.swift - changed filter--AutoLevel to filter--AutoEnabled
+Radio.swift - corrected parseFilterProperties(_:), removed -- = false from .level case
+RadioCommands.swift - added class calibrate(callback:)
+Radio.swift - changed _startOffset to _startCalibration
+RadioCommands.swift - changed startOffset to startCalibration, corrected setter
+Radio.swift - changed _calFreq to be in Hz (not MHz)
+ProfileCommands.swift - corrected profileCmd(_:) and var selection
+RadioCommands.swift - renamed radioStaticCmd(_:_:_:) to staticNetParamsSet(callback:)
+TcpManager.swift - protected var _isWan from potential race condition
+
+v2.1.1
+
+Panadapter.swift - commented out xPixel & yPixel code in parseProperties(_:)
+Meter.swift - corrected log message in streamHandler(_:)
+SliceCommands.swift - corrected error in "@objc dynamic public var audioPan: Int"
+Radio.swift - refactored vitaParser(_:) to eliminate unwrapped optional error on shutdown
+transmit.swift - removed txFilterHighLimits(txFilterLow, newValue) from _txFilterHigh
+transmit.swift - removed txFilterLowLimits(newValue, txFilterHigh) from _txFilterLow
+ProfileCommands.swift - modified save & delete methods to allow String tokens
+
+v2.1.0
+
+refactored the Api state machine, eliminated setConnectionState()
+UdpManager.swift - commented out "ping" code in register(clientHandle:)
+Panadapter.swift - renamed streamActive to isStreaming
+Waterfall.swift - renamed streamActive to isStreaming
+Opus.swift - added public var isStreaming
+Panadapter.swift - added detection of out-of-sequence packets
+Waterfall.swift - added detection of out-of-sequence packets
+Meter.swift - in parseProperties(_:) added '&& number != "" && units != ""' to if _initialized == false
+TcpManager.swift - correction to connect(radioParameters:isWan:)
+Api.swift - in tcpState(connected:host:port:error:) added guard for udp.bind success
+Api.swift - corrections to shutdown / disconnect processing
+UdpManager.swift - in bind(radioParameters:isWan:clientHandle:) added Bool return value
+
+v2.0.6
+
+WanServer.swift - changed hostName & hostPort to constants
+WanServer.swift - reworked log messages and comments
+Radio.swift - commented out code in defaultReplyHandler(_:seqNum:responseValue:reply:) until v2.4.9 bugs fixed
+Radio.swift - refactored removeAll()
+Panadapter.swift - added public var streamActive
+Waterfall.swift - added public var streamActive
+Radio.swift - added use of streamActive to vitaParser(_:)
+
+v2.0.5
+
+Radio.swift - corrections to defaultReplyHandler(_:seqNum:responseValue:reply:)
+FlexErrors.swift - corrected text for .SL_I_CWX_NOTHING_TO_ERASE
+Api.swift - in setConnectionState(_:) made disconnect dependent on _isGui
+
+v2.0.4
+
+RadioParameters.swift - refactored (simplification)
+WanServer.swift - added a "FIXME:" in socketDidDisconnect(_:withError:)
+Vita.swift - corrected an error in class parseDiscovery(_:) (payloadSize)
+
+v2.0.3
+
+Api.swift - reworked connect(_:clientName:isGui:primaryCmdTypes:secondaryCmdTypes:subscriptionCmdTypes:)
+Api.swift - Eliminated "pausing" of RadioFactory
+Api.swift - added sending of "client disconnect" command in setConnectionState(_:)
+RadioFactory.swift - chaged udpSocket(_:didReceive:fromAddress:withFilterContext:) to update availableRadios when status changes
+TcpManager, UdpManager, Vita, RadioParameters.swift - reworked Discovery token naming & usage
+
+v2.0.2
+
+RadioParameters.swift - added wanConnected property
+Vita.swift - added parsing of wanConnected to class parseDiscovery(_:)
+Radio.swift - in defaultReplyHandler(_:seqNum:responseValue:reply:) changed NSAlert to Application modal
+Api.swift - added clientDisconnect to Command enum
+RadioParameters.swift - added description() function
+
+v2.0.1
+
+AppExtensions.swift - in class makeObserver(_:with:of:object:) gave object default of nil
+Radio.swift - in defaultReplyHandler(_:seqNum:responseValue:reply:) added NSAlert for failures
+
+v2.0.0
+
+Opus.swift - added client_handle token (2.4.9.x addition)
+Radio.swift - added mute_local_audio_when_remote token (2.4.9.x addition)
+Api.swift - changed kApiFirmwareSupport to 2.4.9.x
+Radio.swift & RadioCommands.swift - renamed tnfEnabled to tnfsEnabled
+
+Converted to Unified Logging
+Api.swift - eliminated tcpError(_ msg: String) in TcpManager Delegate methods
+Api.swift - eliminated udpMessage(_ msg: String, level: OSLogType) in UdpManager Delegate methods
+TcpManager.swift - eliminated tcpError(_ msg: String) in TcpManager Delegate protocol
+UdpManager.swift - eliminated udpMessage(_ msg: String, level: OSLogType) in UdpManager Delegate protocol
+
+
+
+
+Changed major version number from 1 to 2 due to conversion to Unified Logging in place of Log Delegate
+
+============================================================
+
+v1.2.13
+
+Meter.swift - added new units to Unit enum, adjusted usage of units
+
+v1.2.12
+
+Opus.swift - removed "didSet..." from _delegate
+Opus.swift - in sendTxAudio(buffer:samples:) corrected format of Vita packet
+Opus.swift - added static params to top of file
+Api.swift - in setConnectionState(_:) commented out "Client connection established" message
+Vita.swift - corrected comments in init(packetType:classCode:streamId:tsi:tsf:)
+Vita.swift - added convenience init(type:streamId:)
+Vita.swift - commented out class discovery(payload:) - unused
+Opus.swift - used Vita's init(type:streamId:)
+Opus.swift - renamed static rate to sampleRate (changed from Int to Double)
+Opus.swift - renamed static frameLength to frameCount
+Opus.swift - renamed static channels to channelCount
+Opus.swift - added static rxStreamId
+TxAudioStream.swift - used Vita's init(type:streamId:)
+Notifications.swift - rename "opusHasBeenAdded" to "opusRxHasBeenAdded"
+Notifications.swift - rename "opusWillBeRemoved" to "opusRxWillBeRemoved"
+Notifications.swift - added "opusTxHasBeenAdded" and "opusTxWillBeRemoved"
+Radio.swift & Opus.swift - updated usage to match renamed notifications
+Radio.swift - in parseReply(_:) corrected seqNum in call to defaultReplyHandler(...)
+Radio.swift - in defaultReplyHandler(_:seqNum:responseValue:reply:) added printing of flexErrorString
+Panadapter.swift - in replyHandler(_:seqNum:responseValue:reply:) added printing of flexErrorString
+Atu.swift - changed __status, _status & status properties from Bool to String
+Atu.swift - added code to status property getter
+AtuCommands.swift - changed kSetCmd to kCmd, changed value to "atu "
+AtuCommands.swift - changed atuCmd(_:_:) to use new kCmd
+
+ALL log messages - re-evaluated the messageLevel of messages
+
+v1.2.11
+
+Interlock.swift - moved stateChange(_:) to Radio
+Radio.swift - added stateChange(_:) & made all accesses to "mox" use "_mox" with KVO signaling
+
+v1.2.10
+
+Intelock.swift - added PttSource and Reason enums (not currently used)
+Atu.swift - added Status enum (not currently used)
+Interlock.swift - corrected usage of stateChange(_:)
+
+v1.2.9
+
+Interlock.swift - added State enum
+Interlock.swift - added stateChange(_:)
+
+v1.2.8
+
+Transmit.swift, TransmitCommands.swift - moved "mox" property to Radio.swift, RadioCommands.swift
+
+v1.2.7
+
+Meter.swift - uncommented the Notification line in streamHandler(_:)
+Transmit.swift - changed moxEnabled to mox
+TransmitCommands.swift - made mox property send the "xmit 1/0" command
+
+v1.2.6
+
+Atu.swift - corrected "status"
+Radio.swift - corrected parseInfoReply(_:)
+
+v1.2.5
+
+ALL MODELS - replaced usage of update(_:property:value:key:) with this style
+    willChangeValue(for: \.carrierLevel)
+    _carrierLevel = property.value.iValue
+    didChangeValue(for: \.carrierLevel)
+
+v1.2.4
+
+Api.swift - removed udpStreamStatus(active:), it was unused
+Api.swift - removed addReplyHandler(_:replyTuple:), it was unused
+Api.swift - removed "replyTo" from send(_:diagnostic:replyTo:), it was not needed
+Api.swift - updated kApiFirmwareSupport to 2.3.9.x
+IqStream.swift - removed redundant guard from vitaProcessor(_:)
+Opus.swift - major refactor, properties renamed, code corrected
+OpusCommands.swift - corrected opusCmd(_:_:) to use " " instead of "="
+TcpManager.swift - removed addReplyHandler(_:replyTuple:) from TcpManagerDelegate protocol
+TcpManager.swift - removed "replyTo" from send(_:diagnostic:replyTo:)
+
+v1.2.3
+
+Panadapter.swift - "switch" changed to "if" in accumulate(vita:)
+Waterfall.swift - "switch" changed to "if" in accumulate(vita:)
+Api.swift - in setupCommands(_:) suppressed MTU command for versions prior to 2.3.x
+
+v1.2.2
+
+PanadapterCommands.swift - added bandZoomEnabled & segmentZoomEnabled
+Api.swift - added radioVersionMajor & radioVersionMinor properties
+Panadapter.swift - changed PanadapterFrame accumulate(vita:) to check radio version
+Waterfall.swift - changed WaterfallFrame accumulate(vita:) to check radio version
+
+v1.2.1
+
+Changed version number due to major change in UDP handling
+
+============================================================
+
+v1.1.13
+
+Api.swift - added NSObject to API's inheritance
+Api.swift - added "@objc dynamic" to sharedInstance declaration
+Api.swift - added .setMtu to the Commands enum and to allSecondaryCommands for 2.3.7
+Panadapter.swift - refactored panadapterFrame class and vitaProcessor(_:) method for v2.3.7
+Waterfall.swift - refactored waterfallFrame class and vitaProcessor(_:) method for 2.3.7
+README.MD - added note regarding 2.3.7 requirement
+
+v1.1.12
+
+Api.swift - changed kApiFirmwareSupport to 2.3.7.x
+Panadapter.swift - added band_zoom & segment_zoom tokens and parsing
+Waterfall.swift - added band_zoom & segment_zoom tokens and parsing
+Interlock.swift - added amplifier token and parsing
+
+v1.1.11
+
+Slice.swift - added properties "detached" and "nr2" (not sure what their usage should be)
+Api.swift - added "activeRadio = nil" in setConnectionState(_:), case .disconnected
+
+
+v1.1.10
+
+Radio.swift - reorganized parseProperties(_:) to mimic FlexLib
+Radio.swift - added Oscillator properties "ext_present", "gpsdo_present", "tcxo_present"
+RadioCommands.swift - changes needed due to parseProperties(_:) reorg
+Radio.swift - in parseVersionReply(_:) added property "pic-decpu"
+Radio.swift - in parseProperties(_:) added property "front_speaker_mute"
+RadioCommands.swift - added property "front_speaker_mute" (commented-out for now)
+
+v1.1.9
+
+Slice.swift - uppercased mode in parseProperties(_:)
+Slice.swift - changed Mode enum to be all uppercase
+various - changed all uses of the Mode enum to be uppercase
+
+v1.1.8
+
+AudioStreamCommands.swift - made sending of gain command conditional on !Api.sharedInstance.testerModeEnabled
+Slice.swift - removed $0.active from class func find(with:)
+AudioStream.swift - added class func find(with:)
+Slice.swift - added code in parseProperties(_:) to set AudioStream.slice to nil when Slice.daxChannel goes to zero
+Profile.swift - corrected parseProperties(_:) switch statement to use the "_" version of the properties
+
+v1.1.7
+
+EqualizerCommands.swift - corrected level commands ("<band>Hz" vs "<band>hz")
+Api.swift - made statics kId, kDomainId & kBundleIdentifier public
+Api.swift - added "@objc dynamic" to public var radio
+TransmitCommands.swift - corrected micAccEnabled, micBiasEnabled, micBoostEnabled commands
+Radio.swift - made antList, rfGainList, micList, sliceList "@objc dynamic"
+Radio.swift - refactored Profiles throughout
+Profile.swift, ProfileCommands.swift - refactored
+Notifications.swift - refactored profile notifications
+
+v1.1.6
+
+IqStream, Meter, Panadapter, Slice & Tnf.swift - refactored all "find" functions
+moved statics KMin & kMax from Radio to Api; renamed to kControlMin & kControlMax; usage corrected in multiple files
+moved statics KNotInUse & kRemoved from Radio to Api; usage corrected in multiple files
+
+v1.1.5
+
+Api.swift - added static property daxIqChannels
+Radio.swift - modified parseReply(_:) to pass replies to the defaultReplyHandler
+Api.swift - made kNoError a static
+Radio.swift - removed "private let kNoError = "0", used static in Api.swift
+Radio.swift - added code in parseStatus(_:), case tnf, to recognize tnf removed
+Radio.swift - added code in defaultReplyHandler(_:seqNum:responseValue:reply:) for tnf removal
+Tnf.swift - added code in parseStatus(_:radio:queue:inUse:) to process tnf removed
+Slice.swift - commented out dsb, dstr & fdv in Mode enum
+Slice.swift - removed usage of dsb, dstr & fdv modes
+Memory.swift - removed usage of dsb, dstr & fdv modes
+
+v1.1.4
+
+*** Client Facing ****
+all dynamic models with streams - changed the function signature of the StreamHandler method (see Protocols.swift)
+
+refactored many of the protocols and moved them to the Protocols.swift file
+Meters.swift - added code to vitaProcessor(_:) to ignore duplicate meters in a single Vita packet
+Slice.swift - added findActive()
+
+v1.1.3
+
+Api.swift - added "sub meter all" into allSubscriptionCommands()
+Radio.swift - removed the _metersToSubscribe property
+Meter.swift - corrected the logic in parseStatus(_:radio:queue:inUse:) for NOT inUse
+MeterCommands.swift - changed listRequest(callback: ) to NOT use the defaultReplyHandler
+Radio.swift - commented out the meterList case in defaultReplyHandler(_:seqNum:responseValue:reply:)
+Radio.swift - commented out the parseMeterListReply(_:) method
+All Models - changed _api and _q property from var to let
+Api.swift - changed kApiFirmwareSupport to 2.2.8.x
+
+v1.1.2
+
+Panadapter.swift - renamed daxChoices & daxChannels -> daxIqChoices & daxIqChanneld
+Slice.swift - added daxChoices & daxChannels
+Slice.swift - added txAntList property
+all models - removed update(_:value:key:)
+Api.swift - added update(_:value:key:)
+all models - changed update(_:value:key:) to _api.update(_:value:key:)
+RadioCommands.swift - refactored Gateway commands
+Radio.swift - changed _api from "internal" to "private"
+RadioCommands.swift - changed usage of _api to Api.sharedInstance
+RadioCommands.swift - corrected "nickName", "radioScreensaver" & "startOffset" commands
+
+v1.1.1
+
+Radio.swift - moved atuClear(callback:), atuStart(callback:) & atuBypass(callback:) to AtuCommands.swift
+Radio.swift - moved memoryApply(id:callback:), memoryCreate(), memoryRemove(id:callback:) to MemoryCommands.swift
+Radio.swift - moved all helper methods to class methods on the object
+Radio.swift - refactored to use update(_:value:key:) in parseInfoReply(_:) & parseVersionReply(_:)
+SliceCommands.swift - corrected filterCmd(low:high:) and its usage
+AudioStream, MicAudioStream, IqStream & TxAudioStream.swift - corrected test in class parseStatus(_:radio:queue:inUse:) for class isStatusForThisClient(_:)
+Api.swift - added testerModeEnabled property, used in class isStatusForThisClient(_:) to allow the xAPITester to see all streams
+
+*** Client Facing ****
+FlexErrors.swift - refactored
+on each object, in the <object>Commands.swift file, simplified names of instance methods (removed the name of the object as part of the method name)
+on each object, in the <object>Commands.swift file, made "create" a class method and "remove" an instance method
+
+============================================================
+
+v1.0.22
+
+interlockCommands.swift - corrected accTxDelay command
+Commands.rtf - added (located in the Documentation folder)
+SliceCommands.swift - corrected audioMute command (added asNumber())
+SliceCommands.swift - corrected filterHigh & filterLow commands
+SliceCommands.swift - removed sliceStatusCmd(_:_:) - unused
+UsbCableCommands.swift - corrected sourSlice command
+
+v1.0.21
+
+Slice.swift - moved setRecord(_:) to SliceCommands.swift
+Slice.swift - moved setPlay(_:) to SliceCommands.swift
+Memory.swift - moved select() to MemoryCommands.swift
+Radio.swift - used MeterCommands subscribeToId(_:) in parseMeterListReply
+
+*** Client Facing ****
+MeterCommands.swift - added class func subscribeToId(_:)
+
+v1.0.20
+
+SliceCommands.swift - corrected audioCmd, changed "token=value" to "token value"
+
+*** Client Facing ****
+Slice.swift - added static names() to AgcMode enum
+Slice.swift - added @objc dynamic agcNames property
+
+v1.0.19
+
+Meter.swift - moved code that handles "Slice Meters" from parseStatus(...) to parseProperties(...)
+Slice.swift - added missing "_q.sync" & "@objc dynamic" to meters property
+Panadapter.swift - added daxChannels & daxChoices properties
+Radio.swift - added findMeteryBy(id:)
+Radio.swift - Added update(_:value:key:)
+Radio.swift - Replaced cases in parseProperties() with update version
+Radio.swift - changed parseMeterListReply(_:) to "lowercase" meter names instead of "uppercase" them
+Api.swift - added MeterShortName enum
+Api.swift - added metersToSubscribe: parameter to connect(_:clientName:isGui:primaryCmdTypes:secondaryCmdTypes:subscriptionCmdTypes:)
+Radio.swift - rewrote parseMeterListReply(_:) to generate sub messages for all meters in _metersToSubscribe
+
+*** Client Facing ****
+Radio.swift - added property _metersToSubscribe
+Radio.swift - added metersToSubscribe: parameter to init(api:objectQ:)
+Notifications.swift - added sliceMeterHasBeenAdded
+
+
+v1.0.18
+
+Added update(_:value:key:) to each model (dynamic & static)
+Replaced cases in parseProperties() with update version
+Edited comments and repositioned source code in all Models
+Panadapter.swift - corrected error in parseProperties() for .loopBEnabled
+Interlock.swift - corrected error in parseProperties() for .tx1Delay
+Interlock.swift - corrected error in parseProperties() for .tx1Enabled
+
+*** Client Facing ****
+Meter.swift - added NSObject to class declaration
+Meter.swift - changed "description" property to "desc"
+
+v1.0.17
+
+SliceCommands.swift - corrected sliceLock(_:), changed "0x\(id)" to " 0x\(id)"
+
+v1.0.16
+
+AppExtensions.swift - added conditional use of compactMap vs flatMap
+Radio.swift - in vitaParser(..) simplified UDP Stream Error message
+
+v1.0.15
+
+xLib6000 Overview.pdf - corrected error in Udp stream path drawing
+Vita.swift - made string produced by desc() method more readable
+Vita.swift - in class encodeAsData(_:) added code to handle trailer
+Radio.swift - corrected "UDP Stream error" log message
+
+*** Client Facing ****
+Vita.swift - corrected payload usage, replaced UnsafeRawPointer to payload with payload data array
+Corresponding changes to all Dynamic Models with Udp Streams
+
+v1.0.14
+
+Added Documentation folder and "xLib6000 Overview.pdf" file
+Api.swift - in send(_:diagnostic:replyTo:) added testerDelegate?.addReplyHandler(_:replyTuple:)
+
+*** Client Facing ****
+Opus.swift - rename _id property to id
+Api.swift - in disconnect(reason:) changed object in .radioWillBeRemoved from activeRadio to radio
+
+v1.0.13
+
+Updated project settings to Xcode 9.3 recommendations
+Replaced CocoaAsyncSocket with newer version (7.6.3)
+Restructured folders to eliminate the "CommonCode" folder
+API & Radio.swift - renamed API Delegate method streamHandler(...) to vitaParser(...)
+Vita.swift - renamed VitaHandler protocol to VitaProcessor
+AudioStream, IqStream, MicAudioStream, Opus, Panadapter & Waterfall.swift - renamed VitaHandler to VitaProcessor
+Panadapter.swift - replaced literal 4096 with kMaxBins = 5120
+Radio.swift - refactored vitaParser(...) code
+Radio.swift - moved processing of Meter UDP streams to Meter.swift (class method vitaProcessor(...))
+
+*** Client Facing ****
+AudioStream, IqStream, MicAudioStream, Opus, Panadapter & Waterfall.swift - renamed the methods inside their
+      ...StreamHandlerProtocols from ...StreamHandler to streamHandler
+
+v1.0.12
+
+Merged branch v1.0.5x (changes to Slice.swift and SliceCommands.swift) for autoPan property
+APi.swift - changed setConnectionState(...) to public from internal
+Api.swift - added testerDelegate property & usage
+
+v1.0.7
+
+Api.swift - added connectionHandle & isWan properties
+Radio.swift - removed connectionHandle  & isWan properties
+Radio.swift - changed usage of connectionHandle & isWan to use properties on Api.swift
+Radio.swift - removed isWan property from initializer
+TcpManager.swift - removed default value for isWan from connect(...) method
+UdpManager.swift - removed default value for isWan from bind(...) method
+
+v1.0.5
+
+Radio.swift - removed default value for isWan from initializer
+Slice.swift - added autoPan (Bool) property
+SliceCommands.swift - added autoPan to sliceTune(...) method
+
+v1.0.4
+
+Api.swift, connected(...) - added missing param "isWan: isWan" to Radio init method
+APi.swift, setConnectionState(...) - changed wanConnectionHandle to radio?.connectionHandle ?? "" to _udp.bind(...) method
+
+v1.0.2
+
+Added this file - ChangeLog.txt
+Changed project name & project folder from xLib6000-master to xLib6000
+Radio.swift - removed _localIP & _localUDPPort properties
+RadioCommands.swift - changed radio.localIP & radio.localUDPPort to _api.localIP & _api.localUDPPort
+ 

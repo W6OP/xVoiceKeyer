@@ -121,7 +121,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     @IBAction func enableIDTimer(_ sender: NSButton) {
         
         // reset back for distribution
-        let timerInterval: Int = 1 //Int(UserDefaults.standard.string(forKey: "TimerInterval") ?? "10") ?? 10
+        let timerInterval: Int = Int(UserDefaults.standard.string(forKey: "TimerInterval") ?? "10") ?? 10
         
         switch sender.state {
         case .on:

@@ -248,11 +248,11 @@ class RadioManager: NSObject, ApiDelegate {
         
         nc.addObserver(forName:Notification.Name(rawValue:"guiClientHasBeenRemoved"),
                        object:nil, queue:nil,
-                       using:clientsUpdated)
+                       using:clientsRemoved)
         
-        nc.addObserver(forName:Notification.Name(rawValue:"guiClientHasBeenUpdated"),
-                       object:nil, queue:nil,
-                       using:clientsUpdated)
+//        nc.addObserver(forName:Notification.Name(rawValue:"guiClientHasBeenUpdated"),
+//                       object:nil, queue:nil,
+//                       using:clientsUpdated)
         
         nc.addObserver(forName: Notification.Name(rawValue: "sliceHasBeenAdded"), object:nil, queue:nil,
                        using:sliceHasBeenAdded)
@@ -343,7 +343,7 @@ class RadioManager: NSObject, ApiDelegate {
     // Do bind after this
     func clientsUpdated(_ note: Notification) {
         // receive the updated GUIClient
-        guard let guiClient = (note.object as! GuiClient?)else {
+        guard let guiClient = (note.object as? GuiClient)else {
             return
         }
         
@@ -353,6 +353,9 @@ class RadioManager: NSObject, ApiDelegate {
                 view.clientId = guiClient.clientId ?? ""
             }
         }
+        
+        // bind// if station
+        //radio.boundClientId = view.clientId
 
         if radiosView.count > 0 {
             // let the view controller know a radio was discovered or updated
@@ -361,6 +364,10 @@ class RadioManager: NSObject, ApiDelegate {
                 self.radioManagerDelegate?.didDiscoverRadio(discoveredRadios: self.radiosView)
             }
         }
+    }
+    
+    // get handle
+    func clientsRemoved(_ note: Notification) {
     }
     
     /**
