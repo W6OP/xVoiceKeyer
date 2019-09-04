@@ -55,7 +55,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     var preferenceManager: PreferenceManager!
     
     // this is only used once - in showPreferences - can I somehow eliminate it?
-    var radios = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: String)]()
+    var guiClients = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: String, guiUpdate: Bool)]()
     private var defaultStation = (model: "", nickname: "", stationName: "", default: "", serialNumber: "", clientId: "")
     private let radioKey = "defaultRadio"
     
@@ -323,10 +323,10 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      
      This is the normal flow. When the Connect button is clicked it goes straight to doConnectToradio()
      */
-    func didDiscoverRadio(discoveredRadios: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: String)]) {
+    func didDiscoverRadio(discoveredRadios: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: String, guiUpdate: Bool)]) {
         
         var found: Bool = false
-        self.radios = discoveredRadios
+        self.guiClients = discoveredRadios
         
         if let defaults = UserDefaults.standard.dictionary(forKey: radioKey) {
             self.defaultStation.model = defaults["model"] as! String
@@ -354,6 +354,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
                 // could have the same nickname but model or ipaddress may have changed
                 self.defaultStation.model = discoveredRadios[0].model
                 self.defaultStation.nickname = discoveredRadios[0].nickname
+                self.defaultStation.clientId = discoveredRadios[0].clientId
                 
                 self.updateUserDefaults()
                 
@@ -392,6 +393,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
             break
         }
     }
+    
     
     /**
      Update the user defaults.
@@ -614,7 +616,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         let SB = NSStoryboard(name: "Main", bundle: nil)
         let PVC: RadioPreferences = SB.instantiateController(withIdentifier: "radioSelection") as! RadioPreferences
         //PVC.buildStationList(radios: self.radios)
-        PVC.station = self.radios
+        PVC.station = self.guiClients
         PVC.preferenceManager = self.preferenceManager
         
         presentAsSheet(PVC)

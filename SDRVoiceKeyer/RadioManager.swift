@@ -97,7 +97,7 @@ func UI(_ block: @escaping ()->Void) {
 protocol RadioManagerDelegate: class {
     
     // radio was discovered - notify GUI
-    func didDiscoverRadio(discoveredRadios: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: String)])
+    func didDiscoverRadio(discoveredRadios: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: String, guiUpdate: Bool)])
     // notify the GUI the tcp connection to the radio was closed
     func didDisconnectFromRadio()
     // send message to view controller
@@ -148,7 +148,7 @@ class RadioManager: NSObject, ApiDelegate {
     // MARK: - Internal properties ----------------------------------------------------------------------------
     
     // local list of discovered radios - passed to the view controller to abstract it from the radio
-    var radiosView = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: String)]()
+    var guiClientView = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: String, guiUpdate: Bool)]()
     
     // MARK: - Internal Radio properties ----------------------------------------------------------------------------
     
@@ -322,20 +322,20 @@ class RadioManager: NSObject, ApiDelegate {
         // receive the updated list of Radios
         let discoveredRadios = (note.object as! [DiscoveredRadio])
         
-        self.radiosView = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: String)]()
+        self.guiClientView = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: String, guiUpdate: Bool)]()
         
         // just collect radios
         for radio in discoveredRadios {
             for client in radio.guiClients {
-                self.radiosView.append((radio.model, radio.nickname, client.station, "No", radio.serialNumber, client.clientId ?? "", String(client.handle)))
+                self.guiClientView.append((radio.model, radio.nickname, client.station, "No", radio.serialNumber, client.clientId ?? "", String(client.handle), false))
             }
         }
 
-        if radiosView.count > 0 {
+        if guiClientView.count > 0 {
             // let the view controller know a radio was discovered
             UI() {
                 os_log("Radios updated.", log: RadioManager.model_log, type: .info)
-                self.radioManagerDelegate?.didDiscoverRadio(discoveredRadios: self.radiosView)
+                self.radioManagerDelegate?.didDiscoverRadio(discoveredRadios: self.guiClientView)
             }
         }
     }
@@ -347,7 +347,8 @@ class RadioManager: NSObject, ApiDelegate {
             return
         }
         
-        if var view = self.radiosView.first(where: { $0.handle == String(guiClient.handle) }) {
+        // might have to use handle to be sure
+        if var view = self.guiClientView.first(where: { $0.handle == String(guiClient.handle) }) {
             if guiClient.clientId != nil
             {
                 view.clientId = guiClient.clientId ?? ""
@@ -357,17 +358,25 @@ class RadioManager: NSObject, ApiDelegate {
         // bind// if station
         //radio.boundClientId = view.clientId
 
-        if radiosView.count > 0 {
+        if guiClientView.count > 0 {
             // let the view controller know a radio was discovered or updated
             UI() {
                 os_log("GUI clients have been updated.", log: RadioManager.model_log, type: .info)
-                self.radioManagerDelegate?.didDiscoverRadio(discoveredRadios: self.radiosView)
+                self.radioManagerDelegate?.didDiscoverRadio(discoveredRadios: self.guiClientView)
             }
         }
     }
     
     // get handle
     func clientsRemoved(_ note: Notification) {
+        
+        guard let handle = (note.object as? UInt64)else {
+            return
+        }
+        
+        if self.guiClientView.first(where: { $0.handle == String(handle) }) != nil {
+            self.guiClientView = self.guiClientView.filter {$0.handle != String(handle)}
+        }
     }
     
     /**

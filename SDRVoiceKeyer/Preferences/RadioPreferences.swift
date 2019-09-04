@@ -49,8 +49,8 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
     // Array of available Radios from view controller
 //    var radios = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String)]()
     // Array of available radios per station name
-    var station = [(model: "", nickname: "", stationName: "", default: "", serialNumber: "", clientId: "", handle: "")]
-    private var defaultStation = (model: "", nickname: "", stationName: "", default: "", serialNumber: "", clientId: "", handle: "")
+    var station = [(model: "", nickname: "", stationName: "", default: "", serialNumber: "", clientId: "", handle: "", guiUpdate: false)]
+    private var defaultStation = (model: "", nickname: "", stationName: "", default: "", serialNumber: "", clientId: "", guiUpdate: false)
     private let radioKey = "defaultRadio"
     private var isDefaultSet = false
     
@@ -176,7 +176,7 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
     
         if (station.count > 0) {
             //for client in radios
-            defaultStation = station[tableViewRadioPicker.selectedRow]
+            //defaultStation = station[tableViewRadioPicker.selectedRow]
 
             if isDefaultSet == true {
                 var defaults = [String : String]()

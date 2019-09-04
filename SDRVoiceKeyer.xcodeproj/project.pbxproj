@@ -9,8 +9,8 @@
 /* Begin PBXBuildFile section */
 		99217D521E5D02A50042C787 /* RadioPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99217D511E5D02A50042C787 /* RadioPreferences.swift */; };
 		993D1E691E5F811D00BB5236 /* PreferenceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 993D1E681E5F811D00BB5236 /* PreferenceManager.swift */; };
-		996971A2231D852A00198FC8 /* xLib6000.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 996971A1231D852A00198FC8 /* xLib6000.framework */; };
-		996971A3231D852A00198FC8 /* xLib6000.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 996971A1231D852A00198FC8 /* xLib6000.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		9951B1C5232024CB0042F13C /* xLib6000.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9951B1C4232024CB0042F13C /* xLib6000.framework */; };
+		9951B1C6232024CB0042F13C /* xLib6000.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9951B1C4232024CB0042F13C /* xLib6000.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		996AC07C1E4E3D4800C20AA8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 996AC07B1E4E3D4800C20AA8 /* AppDelegate.swift */; };
 		996AC07E1E4E3D4800C20AA8 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 996AC07D1E4E3D4800C20AA8 /* ViewController.swift */; };
 		996AC0801E4E3D4800C20AA8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 996AC07F1E4E3D4800C20AA8 /* Assets.xcassets */; };
@@ -32,7 +32,7 @@
 			dstSubfolderSpec = 10;
 			files = (
 				99CEBF8221F7724A00C7ED74 /* Repeat.framework in Embed Frameworks */,
-				996971A3231D852A00198FC8 /* xLib6000.framework in Embed Frameworks */,
+				9951B1C6232024CB0042F13C /* xLib6000.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -42,9 +42,9 @@
 /* Begin PBXFileReference section */
 		99217D511E5D02A50042C787 /* RadioPreferences.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadioPreferences.swift; sourceTree = "<group>"; };
 		993D1E681E5F811D00BB5236 /* PreferenceManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreferenceManager.swift; sourceTree = "<group>"; };
+		9951B1C4232024CB0042F13C /* xLib6000.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = xLib6000.framework; path = ../../Library/Frameworks/xLib6000.framework; sourceTree = "<group>"; };
+		9951B1C7232024CE0042F13C /* xLib6000.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = xLib6000.framework; sourceTree = "<group>"; };
 		9966F71721FCD878005D8949 /* SDRVoiceKeyer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SDRVoiceKeyer.entitlements; sourceTree = "<group>"; };
-		996971A1231D852A00198FC8 /* xLib6000.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = xLib6000.framework; path = ../../Library/Frameworks/xLib6000.framework; sourceTree = "<group>"; };
-		996971A4231D852E00198FC8 /* xLib6000.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = xLib6000.framework; sourceTree = "<group>"; };
 		996AC0781E4E3D4800C20AA8 /* SDRVoiceKeyer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SDRVoiceKeyer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		996AC07B1E4E3D4800C20AA8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		996AC07D1E4E3D4800C20AA8 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -65,7 +65,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				99CEBF8121F7724A00C7ED74 /* Repeat.framework in Frameworks */,
-				996971A2231D852A00198FC8 /* xLib6000.framework in Frameworks */,
+				9951B1C5232024CB0042F13C /* xLib6000.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -75,7 +75,7 @@
 		996AC06F1E4E3D4800C20AA8 = {
 			isa = PBXGroup;
 			children = (
-				996971A1231D852A00198FC8 /* xLib6000.framework */,
+				9951B1C4232024CB0042F13C /* xLib6000.framework */,
 				996AC07A1E4E3D4800C20AA8 /* SDRVoiceKeyer */,
 				996AC0791E4E3D4800C20AA8 /* Products */,
 				99E84E6A1F1144A500C8660C /* Frameworks */,
@@ -129,7 +129,7 @@
 		99E84E6A1F1144A500C8660C /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				996971A4231D852E00198FC8 /* xLib6000.framework */,
+				9951B1C7232024CE0042F13C /* xLib6000.framework */,
 				99BCEC3A21261EED0040C101 /* Repeat.framework */,
 			);
 			name = Frameworks;
