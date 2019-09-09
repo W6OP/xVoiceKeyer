@@ -55,8 +55,8 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     var preferenceManager: PreferenceManager!
     
     // this is only used once - in showPreferences - can I somehow eliminate it?
-    var guiClients = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: String, guiUpdate: Bool)]()
-    private var defaultStation = (model: "", nickname: "", stationName: "", default: "", serialNumber: "", clientId: "")
+    var guiClients = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: String)]()
+    private var defaultStation = (model: "", nickname: "", stationName: "", default: "", serialNumber: "", clientId: "", handle: "")
     private let radioKey = "defaultRadio"
     
     var isRadioConnected = false
@@ -263,12 +263,18 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         case RadioManagerMessage.INACTIVE:
             isSliceActive = false
             disableVoiceButtons()
-            self.labelSlice.stringValue = "No TX Slice"
+            //self.labelSlice.stringValue = "Slice"
+            //self.activeSliceLabel.stringValue = "No TX Slice"
             return
         case RadioManagerMessage.ACTIVE:
-            self.isSliceActive = true
-            enableVoiceButtons()
             self.activeSliceLabel.stringValue = "Connected"
+            return
+        case RadioManagerMessage.SLICE:
+            self.isSliceActive = true
+            return
+        case RadioManagerMessage.BOUND:
+            enableVoiceButtons()
+            self.activeSliceLabel.stringValue = "Bound"
             return
         }
         
@@ -321,21 +327,29 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      if there are multiple radios, see if one is the default, if so - connect
      otherwise pop the preferences pane.
      
+     Now looking or stations or gui clients
+     Entered multiple times
+     
      This is the normal flow. When the Connect button is clicked it goes straight to doConnectToradio()
      */
-    func didDiscoverRadio(discoveredRadios: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: String, guiUpdate: Bool)]) {
+    func didDiscoverGUIClients(discoveredGUIClients: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: String)], isGuiClientUdate: Bool) {
         
         var found: Bool = false
-        self.guiClients = discoveredRadios
+        self.guiClients = discoveredGUIClients
         
+        // if defaults exists then retrieve them and update them
+        // move this to another function
         if let defaults = UserDefaults.standard.dictionary(forKey: radioKey) {
             self.defaultStation.model = defaults["model"] as! String
             self.defaultStation.nickname = defaults["nickname"] as! String
             self.defaultStation.stationName = defaults["stationName"] as! String
             self.defaultStation.default = defaults["default"] as! String
             self.defaultStation.serialNumber = defaults["serialNumber"] as! String
-            if defaults["clientId"] != nil {
-                self.defaultStation.clientId = defaults["clientId"] as! String
+            // only happens after connect
+            if isGuiClientUdate {
+                //if defaults["clientId"] != nil { // should never be nil
+                    self.defaultStation.clientId = defaults["clientId"] as! String
+                //}
             }
             
             if defaults["xmitGain"] != nil {
@@ -345,53 +359,68 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
                 self.gainSlider.intValue = 35
                 self.gainLabel.stringValue = "35"
             }
+            
+            updateUserDefaults()
         }
         
-        switch discoveredRadios.count {
-        case 1:
-            if self.defaultStation.serialNumber == discoveredRadios[0].serialNumber {
-                
-                // could have the same nickname but model or ipaddress may have changed
-                self.defaultStation.model = discoveredRadios[0].model
-                self.defaultStation.nickname = discoveredRadios[0].nickname
-                self.defaultStation.clientId = discoveredRadios[0].clientId
-                
-                self.updateUserDefaults()
-                
+        if let view = discoveredGUIClients.firstIndex(where: {$0.default == YesNo.Yes.rawValue}) {
+            found = true
+            self.defaultStation.model = discoveredGUIClients[view].model
+            self.defaultStation.nickname = discoveredGUIClients[view].nickname
+            self.defaultStation.stationName = discoveredGUIClients[view].stationName
+            if isGuiClientUdate {
+                self.defaultStation.clientId = discoveredGUIClients[view].clientId
+            }
+            
+            self.updateUserDefaults()
+            
+            // this makes it version 3 only - do I want to add something?
+            if isGuiClientUdate {
+                self.doBindToStation(clientId: discoveredGUIClients[view].clientId)
+            } else {
                 self.doConnectRadio(serialNumber: self.defaultStation.serialNumber,stationName: self.defaultStation.stationName, clientId: self.defaultStation.clientId,  doConnect: true)
             }
-            else{
-                self.showPreferences("" as AnyObject)
-            }
-            break
-        default:
-            if self.defaultStation.nickname != "" {
-                for radio in discoveredRadios {
-                    if self.defaultStation.serialNumber == radio.serialNumber && self.defaultStation.default == YesNo.Yes.rawValue {
-                        found = true
-                        
-                        // could have the same nickname but model or ipaddress may have change
-                        self.defaultStation.model = radio.model
-                        self.defaultStation.nickname = radio.nickname
-                        self.defaultStation.stationName = radio.stationName
-                        self.defaultStation.clientId = radio.clientId
-                        
-                        self.updateUserDefaults()
-                        
-                        self.doConnectRadio(serialNumber: self.defaultStation.serialNumber,stationName: self.defaultStation.stationName, clientId: self.defaultStation.clientId,  doConnect: true)
-                        break
-                    }
-                }
-                
-                if !found {
-                    self.showPreferences("" as AnyObject)
-                }
-            }
-            else {
-                self.showPreferences("" as AnyObject)
-            }
-            break
         }
+        
+        if !found {
+            self.showPreferences("" as AnyObject)
+        }
+        
+//        if self.defaultStation.nickname != "" {
+//            for guiClient in discoveredGUIClients {
+//                // self.defaultStation.serialNumber == guiClient.serialNumber &&
+//                if self.defaultStation.default == YesNo.Yes.rawValue {
+//                    found = true
+//                    
+//                    // could have the same nickname but model or ipaddress may have changed
+//                    self.defaultStation.model = guiClient.model
+//                    self.defaultStation.nickname = guiClient.nickname
+//                    self.defaultStation.stationName = guiClient.stationName
+//                    if isGuiClientUdate {
+//                        self.defaultStation.clientId = guiClient.clientId
+//                    }
+//                    
+//                    self.updateUserDefaults()
+//                    
+//                    // this makes it version 3 only - do I want to add something?
+//                    if isGuiClientUdate {
+//                        self.doBindToStation(clientId: guiClient.clientId)
+//                    } else {
+//                        self.doConnectRadio(serialNumber: self.defaultStation.serialNumber,stationName: self.defaultStation.stationName, clientId: self.defaultStation.clientId,  doConnect: true)
+//                    }
+//                    //break
+//                }
+//            }
+//            
+//            // none in the list were the default so now show the radio picker
+//            if !found {
+//                self.showPreferences("" as AnyObject)
+//            }
+//        }
+//        else {
+//            // if the defaults are empty show the radio picker
+//            self.showPreferences("" as AnyObject)
+//        }
     }
     
     
@@ -444,6 +473,15 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
             self.isRadioConnected = true
             isSliceActive = true // this is just an assumption
             self.activeSliceLabel.stringValue = "Connected"
+        }
+    }
+    
+    func doBindToStation(clientId: String)  {
+        if self.radioManager.bindToStation(clientId: clientId) == true {
+            self.view.window?.title = "SDR Voice Keyer - " + self.defaultStation.nickname
+            self.isRadioConnected = true
+            isSliceActive = true // this is just an assumption
+            self.activeSliceLabel.stringValue = "Bound"
         }
     }
     
