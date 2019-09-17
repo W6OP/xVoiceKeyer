@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
-        <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaDFRPlugin" version="14490.12"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14490.70"/>
         <capability name="System colors introduced in macOS 10.14" minToolsVersion="10.0"/>
@@ -747,7 +746,7 @@
         <scene sceneID="hIz-AP-VOD">
             <objects>
                 <viewController id="XfG-lQ-9wD" customClass="ViewController" customModule="SDRVoiceKeyer" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" wantsLayer="YES" misplaced="YES" id="m2S-Jp-Qdl">
+                    <view key="view" wantsLayer="YES" id="m2S-Jp-Qdl">
                         <rect key="frame" x="0.0" y="0.0" width="590" height="142"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
@@ -1108,7 +1107,6 @@ Gw
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="activeSliceLabel" destination="s4N-YB-pa1" id="Rtf-cf-zSc"/>
                         <outlet property="buttonSendID" destination="oNr-fR-Vvl" id="THN-39-1dF"/>
                         <outlet property="buttonStackView" destination="5fF-e0-tYH" id="7qy-Ez-Bfy"/>
                         <outlet property="buttonStackViewTwo" destination="uBx-Nt-OUL" id="98N-Az-yPM"/>
@@ -1120,6 +1118,7 @@ Gw
                         <outlet property="labelSlice" destination="Lwi-oo-ONC" id="MzR-Y9-JrS"/>
                         <outlet property="labelStation" destination="2Kp-vf-qhJ" id="Jnn-sg-x8A"/>
                         <outlet property="serialNumberLabel" destination="SiB-HI-Og7" id="t3d-J6-miG"/>
+                        <outlet property="statusLabel" destination="s4N-YB-pa1" id="Rtf-cf-zSc"/>
                     </connections>
                 </viewController>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
@@ -1154,7 +1153,7 @@ Gw
                                 <rect key="frame" x="20" y="51" width="470" height="135"/>
                                 <clipView key="contentView" id="MKX-zg-3Jt">
                                     <rect key="frame" x="1" y="0.0" width="468" height="134"/>
-                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <tableView verticalHuggingPriority="750" tag="1" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnReordering="NO" columnSelection="YES" columnResizing="NO" multipleSelection="NO" emptySelection="NO" autosaveColumns="NO" typeSelect="NO" headerView="bF2-aI-j3K" id="J1R-Gw-uyD">
                                             <rect key="frame" x="0.0" y="0.0" width="468" height="111"/>

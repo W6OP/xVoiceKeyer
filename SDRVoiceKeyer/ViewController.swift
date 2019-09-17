@@ -60,7 +60,10 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     private let radioKey = "defaultRadio"
     
     var isRadioConnected = false
-    var isSliceActive = false
+    var isTxSliceAvailable = false
+    var isValidMode = false
+    var isBoundToClient = false;
+    
     var timerState: String = "ON"
     var idTimer :Repeater?
     var idlabelTimer :Repeater?
@@ -70,7 +73,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     // MARK: Outlets
     @IBOutlet weak var voiceButton1: NSButton!
     @IBOutlet weak var serialNumberLabel: NSTextField!
-    @IBOutlet weak var activeSliceLabel: NSTextField!
+    @IBOutlet weak var statusLabel: NSTextField!
     @IBOutlet weak var buttonStackView: NSStackView!
     @IBOutlet weak var buttonStackViewTwo: NSStackView!
     @IBOutlet weak var gainSlider: NSSlider!
@@ -146,7 +149,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         // create the audio manager
         audiomanager = AudioManager()
         audiomanager.audioManagerDelegate = self
-        self.activeSliceLabel.stringValue = "Connecting"
+        self.statusLabel.stringValue = "Connecting"
         
         updateButtonTitles(view: self.view)
         //self.labelSendID.backgroundColor = NSColor.green
@@ -250,42 +253,34 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      - parameter messageKey: RadioManagerMessage - enum value for the message
      */
     func radioMessageReceived(messageKey: RadioManagerMessage) {
-        var heading: String = ""
-        var message: String = ""
+        
+        //var heading: String = ""
+        //var message: String = ""
         
         switch messageKey {
-        case RadioManagerMessage.DAX:
-            heading = "TX DAX Disabled"
-            message = "TX DAX must be enabled to transmit."
-        case RadioManagerMessage.MODE:
-            heading = "Invalid Mode"
-            message = "The mode must be a voice mode."
-        case RadioManagerMessage.INACTIVE:
-            isSliceActive = false
-            disableVoiceButtons()
-            //self.labelSlice.stringValue = "Slice"
-            //self.activeSliceLabel.stringValue = "No TX Slice"
-            return
-        case RadioManagerMessage.ACTIVE:
-            self.activeSliceLabel.stringValue = "Connected"
-            return
-        case RadioManagerMessage.SLICE:
-            self.isSliceActive = true
-            return
-        case RadioManagerMessage.BOUND:
-            enableVoiceButtons()
-            self.activeSliceLabel.stringValue = "Bound"
-            return
+        case RadioManagerMessage.INVALIDMODE:
+            isValidMode = false
+            //heading = "Invalid Mode"
+            //message = "The mode must be a voice mode."
+//            if !heading.isEmpty {
+//                let alert = NSAlert()
+//                alert.messageText = heading
+//                alert.informativeText = message
+//                alert.alertStyle = .warning
+//                alert.addButton(withTitle: "OK")
+//                alert.beginSheetModal(for: NSApp.mainWindow!, completionHandler: { (response) in
+//                    if response == NSApplication.ModalResponse.alertFirstButtonReturn { return }
+//                })
+//            }
+        case RadioManagerMessage.TXSLICEAVAILABLE:
+            isTxSliceAvailable = true
+        case .VALIDMODE:
+            isValidMode = true
+        case .NOTXSLICE:
+            isTxSliceAvailable = false
         }
         
-        let alert = NSAlert()
-        alert.messageText = heading
-        alert.informativeText = message
-        alert.alertStyle = .warning
-        alert.addButton(withTitle: "OK")
-        alert.beginSheetModal(for: NSApp.mainWindow!, completionHandler: { (response) in
-            if response == NSApplication.ModalResponse.alertFirstButtonReturn { return }
-        })
+        enableVoiceButtons()
     }
     
     /**
@@ -335,21 +330,54 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     func didDiscoverGUIClients(discoveredGUIClients: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: String)], isGuiClientUdate: Bool) {
         
         var found: Bool = false
+        
+        // IS THIS NECESSARY
         self.guiClients = discoveredGUIClients
         
-        // if defaults exists then retrieve them and update them
-        // move this to another function
+        loadUserDefaults(isGuiClientUdate: isGuiClientUdate)
+        
+        // find if a default is set
+        
+        if let view = discoveredGUIClients.firstIndex(where: {$0.stationName == self.defaultStation.stationName}) {
+            found = true
+            self.defaultStation.model = discoveredGUIClients[view].model
+            self.defaultStation.nickname = discoveredGUIClients[view].nickname
+            self.defaultStation.stationName = discoveredGUIClients[view].stationName
+            if isGuiClientUdate {
+                self.defaultStation.clientId = discoveredGUIClients[view].clientId
+            }
+            
+            self.updateUserDefaults()
+            
+            // this makes it version 3 only - do I want to add something?
+            if isGuiClientUdate && !isBoundToClient {
+                self.doBindToStation(clientId: discoveredGUIClients[view].clientId)
+                print(self.defaultStation.stationName)
+            } else if !isBoundToClient {
+                self.doConnectRadio(serialNumber: self.defaultStation.serialNumber,stationName: self.defaultStation.stationName, clientId: self.defaultStation.clientId,  doConnect: true)
+            }
+        }
+        
+        if !found {
+            self.showPreferences("" as AnyObject)
+        }
+    }
+    
+    // if defaults exists then retrieve them and update them
+    // if one of the self.guiClients matches one of these set default to yes in self.guiClients
+    func loadUserDefaults(isGuiClientUdate: Bool) {
+        
         if let defaults = UserDefaults.standard.dictionary(forKey: radioKey) {
             self.defaultStation.model = defaults["model"] as! String
             self.defaultStation.nickname = defaults["nickname"] as! String
+            
             self.defaultStation.stationName = defaults["stationName"] as! String
+            
             self.defaultStation.default = defaults["default"] as! String
             self.defaultStation.serialNumber = defaults["serialNumber"] as! String
             // only happens after connect
             if isGuiClientUdate {
-                //if defaults["clientId"] != nil { // should never be nil
-                    self.defaultStation.clientId = defaults["clientId"] as! String
-                //}
+                self.defaultStation.clientId = defaults["clientId"] as! String
             }
             
             if defaults["xmitGain"] != nil {
@@ -362,68 +390,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
             
             updateUserDefaults()
         }
-        
-        if let view = discoveredGUIClients.firstIndex(where: {$0.default == YesNo.Yes.rawValue}) {
-            found = true
-            self.defaultStation.model = discoveredGUIClients[view].model
-            self.defaultStation.nickname = discoveredGUIClients[view].nickname
-            self.defaultStation.stationName = discoveredGUIClients[view].stationName
-            if isGuiClientUdate {
-                self.defaultStation.clientId = discoveredGUIClients[view].clientId
-            }
-            
-            self.updateUserDefaults()
-            
-            // this makes it version 3 only - do I want to add something?
-            if isGuiClientUdate {
-                self.doBindToStation(clientId: discoveredGUIClients[view].clientId)
-            } else {
-                self.doConnectRadio(serialNumber: self.defaultStation.serialNumber,stationName: self.defaultStation.stationName, clientId: self.defaultStation.clientId,  doConnect: true)
-            }
-        }
-        
-        if !found {
-            self.showPreferences("" as AnyObject)
-        }
-        
-//        if self.defaultStation.nickname != "" {
-//            for guiClient in discoveredGUIClients {
-//                // self.defaultStation.serialNumber == guiClient.serialNumber &&
-//                if self.defaultStation.default == YesNo.Yes.rawValue {
-//                    found = true
-//                    
-//                    // could have the same nickname but model or ipaddress may have changed
-//                    self.defaultStation.model = guiClient.model
-//                    self.defaultStation.nickname = guiClient.nickname
-//                    self.defaultStation.stationName = guiClient.stationName
-//                    if isGuiClientUdate {
-//                        self.defaultStation.clientId = guiClient.clientId
-//                    }
-//                    
-//                    self.updateUserDefaults()
-//                    
-//                    // this makes it version 3 only - do I want to add something?
-//                    if isGuiClientUdate {
-//                        self.doBindToStation(clientId: guiClient.clientId)
-//                    } else {
-//                        self.doConnectRadio(serialNumber: self.defaultStation.serialNumber,stationName: self.defaultStation.stationName, clientId: self.defaultStation.clientId,  doConnect: true)
-//                    }
-//                    //break
-//                }
-//            }
-//            
-//            // none in the list were the default so now show the radio picker
-//            if !found {
-//                self.showPreferences("" as AnyObject)
-//            }
-//        }
-//        else {
-//            // if the defaults are empty show the radio picker
-//            self.showPreferences("" as AnyObject)
-//        }
     }
-    
-    
     /**
      Update the user defaults.
      */
@@ -471,17 +438,15 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         if self.radioManager.connectToRadio(serialNumber: serialNumber, clientStation: stationName, clientId: clientId, doConnect: doConnect) == true {
             self.view.window?.title = "SDR Voice Keyer - " + self.defaultStation.nickname
             self.isRadioConnected = true
-            isSliceActive = true // this is just an assumption
-            self.activeSliceLabel.stringValue = "Connected"
+            self.statusLabel.stringValue = "Connected"
         }
     }
     
     func doBindToStation(clientId: String)  {
         if self.radioManager.bindToStation(clientId: clientId) == true {
             self.view.window?.title = "SDR Voice Keyer - " + self.defaultStation.nickname
-            self.isRadioConnected = true
-            isSliceActive = true // this is just an assumption
-            self.activeSliceLabel.stringValue = "Bound"
+            isBoundToClient = true
+            self.statusLabel.stringValue = "Bound"
         }
     }
     
@@ -490,15 +455,15 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      */
     func didDisconnectFromRadio() {
         self.isRadioConnected = false
-        self.isRadioConnected = false
-        self.activeSliceLabel.stringValue = "Disconnected"
+        self.isBoundToClient = false
+        self.statusLabel.stringValue = "Disconnected"
     }
     
     /**
      Refresh the voice buttons.
      */
     func doUpdateButtons() {
-        if self.isRadioConnected && self.isSliceActive {
+        if self.isBoundToClient && self.isTxSliceAvailable {
             enableVoiceButtons()
         }
     }
@@ -509,7 +474,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     func doUpdateButtonLabels() {
         updateButtonTitles(view: self.view)
         audiomanager.clearFileCache()
-        if self.isRadioConnected && self.isSliceActive {
+        if self.isRadioConnected && self.isTxSliceAvailable {
             enableVoiceButtons()
         }
     }
@@ -525,7 +490,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
             self.labelStation.stringValue = components.station
         }
     }
-    
+   
     /**
      Turn on or off the ID timer.
      */
@@ -572,27 +537,31 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      */
     func enableVoiceButtons(){
         
-        for case let button as NSButton in self.buttonStackView.subviews {
-            if UserDefaults.standard.string(forKey: String(button.tag)) != "" {
-                button.isEnabled = self.isRadioConnected
-            } else {
-                button.isEnabled = false
+        if isBoundToClient && isValidMode && isTxSliceAvailable {
+            for case let button as NSButton in self.buttonStackView.subviews {
+                if UserDefaults.standard.string(forKey: String(button.tag)) != "" {
+                    button.isEnabled = self.isRadioConnected
+                } else {
+                    button.isEnabled = false
+                }
             }
-        }
-        
-        for case let button as NSButton in self.buttonStackViewTwo.subviews {
-            if UserDefaults.standard.string(forKey: String(button.tag)) != "" {
-                button.isEnabled = self.isRadioConnected
-            } else {
-                button.isEnabled = false
+            
+            for case let button as NSButton in self.buttonStackViewTwo.subviews {
+                if UserDefaults.standard.string(forKey: String(button.tag)) != "" {
+                    button.isEnabled = self.isRadioConnected
+                } else {
+                    button.isEnabled = false
+                }
             }
-        }
-        
-        // Send ID button
-        if UserDefaults.standard.string(forKey: String(102)) != "" {
-            buttonSendID.isEnabled = self.isRadioConnected
+            
+            // Send ID button
+            if UserDefaults.standard.string(forKey: String(102)) != "" {
+                buttonSendID.isEnabled = self.isRadioConnected
+            } else {
+                buttonSendID.isEnabled = false
+            }
         } else {
-            buttonSendID.isEnabled = false
+            disableVoiceButtons()
         }
     }
     
