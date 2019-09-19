@@ -435,6 +435,11 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      */
     func doConnectRadio(serialNumber: String, stationName: String, clientId: String, doConnect: Bool) {
         
+        if isRadioConnected {
+            doBindToStation(clientId: clientId)
+            return
+        }
+        
         if self.radioManager.connectToRadio(serialNumber: serialNumber, clientStation: stationName, clientId: clientId, doConnect: doConnect) == true {
             self.view.window?.title = "SDR Voice Keyer - " + self.defaultStation.nickname
             self.isRadioConnected = true
@@ -463,9 +468,9 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      Refresh the voice buttons.
      */
     func doUpdateButtons() {
-        if self.isBoundToClient && self.isTxSliceAvailable {
+        //if self.isBoundToClient && self.isTxSliceAvailable {
             enableVoiceButtons()
-        }
+        //}
     }
     
     /**
@@ -474,9 +479,9 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     func doUpdateButtonLabels() {
         updateButtonTitles(view: self.view)
         audiomanager.clearFileCache()
-        if self.isRadioConnected && self.isTxSliceAvailable {
+        //if self.isRadioConnected && self.isTxSliceAvailable {
             enableVoiceButtons()
-        }
+        //}
     }
     
     /**
