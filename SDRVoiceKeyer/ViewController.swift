@@ -327,34 +327,37 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      
      This is the normal flow. When the Connect button is clicked it goes straight to doConnectToradio()
      */
-    func didDiscoverGUIClients(discoveredGUIClients: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: String)], isGuiClientUdate: Bool) {
+    func didDiscoverGUIClients(discoveredGUIClients: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: String)], isGuiClientUpdate: Bool) {
         
         var found: Bool = false
         
         // IS THIS NECESSARY
         self.guiClients = discoveredGUIClients
         
-        loadUserDefaults(isGuiClientUdate: isGuiClientUdate)
+        loadUserDefaults(isGuiClientUpdate: isGuiClientUpdate)
         
         // find if a default is set
-        
         if let view = discoveredGUIClients.firstIndex(where: {$0.stationName == self.defaultStation.stationName}) {
             found = true
             self.defaultStation.model = discoveredGUIClients[view].model
             self.defaultStation.nickname = discoveredGUIClients[view].nickname
             self.defaultStation.stationName = discoveredGUIClients[view].stationName
-            if isGuiClientUdate {
+            if isGuiClientUpdate {
                 self.defaultStation.clientId = discoveredGUIClients[view].clientId
             }
             
             self.updateUserDefaults()
             
             // this makes it version 3 only - do I want to add something?
-            if isGuiClientUdate && !isBoundToClient {
-                self.doBindToStation(clientId: discoveredGUIClients[view].clientId)
-                print(self.defaultStation.stationName)
-            } else if !isBoundToClient {
+            // first time through isGUIClientUpdate is false
+//            if isGuiClientUpdate && !isBoundToClient {
+//                self.doBindToStation(clientId: discoveredGUIClients[view].clientId)
+//                print("BIND: " + self.defaultStation.stationName)
+//            } else
+                
+                if !self.isRadioConnected  {
                 self.doConnectRadio(serialNumber: self.defaultStation.serialNumber,stationName: self.defaultStation.stationName, clientId: self.defaultStation.clientId,  doConnect: true)
+                print("CONNECT: " + self.defaultStation.stationName)
             }
         }
         
@@ -365,7 +368,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     
     // if defaults exists then retrieve them and update them
     // if one of the self.guiClients matches one of these set default to yes in self.guiClients
-    func loadUserDefaults(isGuiClientUdate: Bool) {
+    func loadUserDefaults(isGuiClientUpdate: Bool) {
         
         if let defaults = UserDefaults.standard.dictionary(forKey: radioKey) {
             self.defaultStation.model = defaults["model"] as! String
@@ -376,7 +379,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
             self.defaultStation.default = defaults["default"] as! String
             self.defaultStation.serialNumber = defaults["serialNumber"] as! String
             // only happens after connect
-            if isGuiClientUdate {
+            if isGuiClientUpdate {
                 self.defaultStation.clientId = defaults["clientId"] as! String
             }
             
@@ -435,18 +438,23 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      */
     func doConnectRadio(serialNumber: String, stationName: String, clientId: String, doConnect: Bool) {
         
-        if isRadioConnected {
-            doBindToStation(clientId: clientId)
-            return
-        }
+        // fixed a bug and this will never be hit now
+//        if isRadioConnected {
+//            doBindToStation(clientId: clientId)
+//            return
+//        }
         
         if self.radioManager.connectToRadio(serialNumber: serialNumber, clientStation: stationName, clientId: clientId, doConnect: doConnect) == true {
             self.view.window?.title = "SDR Voice Keyer - " + self.defaultStation.nickname
             self.isRadioConnected = true
             self.statusLabel.stringValue = "Connected"
+            doBindToStation(clientId: clientId)
         }
     }
     
+    /**
+     
+     */
     func doBindToStation(clientId: String)  {
         if self.radioManager.bindToStation(clientId: clientId) == true {
             self.view.window?.title = "SDR Voice Keyer - " + self.defaultStation.nickname

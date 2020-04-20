@@ -96,7 +96,7 @@ func UI(_ block: @escaping ()->Void) {
  */
 protocol RadioManagerDelegate: class {
     // radio and gui clients were discovered - notify GUI
-    func didDiscoverGUIClients(discoveredGUIClients: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: String)], isGuiClientUdate: Bool)
+    func didDiscoverGUIClients(discoveredGUIClients: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: String)], isGuiClientUpdate: Bool)
     // notify the GUI the tcp connection to the radio was closed
     func didDisconnectFromRadio()
     // send message to view controller
@@ -125,12 +125,21 @@ public enum RadioManagerMessage : String {
  programs.
  */
 class RadioManager: NSObject, ApiDelegate {
+    func addReplyHandler(_ sequenceNumber: SequenceNumber, replyTuple: ReplyTuple) {
+        os_log("addReplyHandler added.", log: RadioManager.model_log, type: .info)
+    }
+    
+    
+    func defaultReplyHandler(_ command: String, sequenceNumber: SequenceNumber, responseValue: String, reply: String) {
+        os_log("defaultReplyHandler added.", log: RadioManager.model_log, type: .info)
+    }
+    
     
     // KVO
-    var _observationList: Dictionary = [String: [NSKeyValueObservation]]()
+    var _observationList: Dictionary = [ObjectId: [NSKeyValueObservation]]()
     
     // setup logging for the RadioManager
-    static let model_log = OSLog(subsystem: "com.w6op.RadioManager-Swift", category: "Model")
+    static let model_log = OSLog(subsystem: "com.w6op.RadioManager-Swift", category: "xVoiceKeyer")
     
     // delegate to pass messages back to viewcontroller
     weak var radioManagerDelegate:RadioManagerDelegate?
@@ -143,7 +152,7 @@ class RadioManager: NSObject, ApiDelegate {
     // MARK: - Internal Radio properties ----------------------------------------------------------------------------
     
     // Radio currently running
-    var activeRadio: DiscoveredRadio?
+    var activeRadio: DiscoveryPacket?
     var activeStation: String
     var activeStationHandle: String
     
@@ -158,7 +167,7 @@ class RadioManager: NSObject, ApiDelegate {
     // Notification observers
     var notifications = [NSObjectProtocol]()
     
-    let log = (NSApp.delegate as! AppDelegate)
+    //let log = Logger.sharedInstance //(NSApp.delegate as! AppDelegate)
     let clientProgram = "SDRVoiceKeyer"
     var txAudioStream: DaxTxAudioStream! // TxAudioStream!
     var txAudioStreamId: StreamId //DaxStreamId
@@ -177,7 +186,7 @@ class RadioManager: NSObject, ApiDelegate {
         audiomanager = AudioManager()
         activeStation = ""
         activeStationHandle = ""
-        txAudioStreamId = StreamId("0") //DaxStreamId("0")!
+        txAudioStreamId = StreamId("0")
         
         super.init()
         
@@ -200,15 +209,15 @@ class RadioManager: NSObject, ApiDelegate {
         
     }
     
-    func addReplyHandler(_ sequenceId: SequenceId, replyTuple: ReplyTuple) {
-        // unused in xVoiceKeyer
-        //replyHandlers[sequenceId] = replyTuple
-        os_log("addReplyHandler added.", log: RadioManager.model_log, type: .info)
-    }
+//    func addReplyHandler(_ sequenceId: SequenceId, replyTuple: ReplyTuple) {
+//        // unused in xVoiceKeyer
+//        //replyHandlers[sequenceId] = replyTuple
+//        os_log("addReplyHandler added.", log: RadioManager.model_log, type: .info)
+//    }
     
     func defaultReplyHandler(_ command: String, seqNum: String, responseValue: String, reply: String) {
         // unused in xVoiceKeyer
-        os_log("defaultReplyHandler added.", log: RadioManager.model_log, type: .info)
+        os_log("defaultReplyHandler called.", log: RadioManager.model_log, type: .info)
     }
     
     func vitaParser(_ vitaPacket: Vita) {
@@ -262,7 +271,7 @@ class RadioManager: NSObject, ApiDelegate {
             for (_, foundRadio) in discovery.discoveredRadios.enumerated() where foundRadio.serialNumber == serialNumber {
                 activeRadio = foundRadio
                 
-                if api.connect(activeRadio!, clientProgram: self.clientProgram, clientId: nil, isGui: false) {
+                if api.connect(activeRadio!, programName: "SDRVoiceKeyer", clientId: nil, isGui: false) {
                     os_log("Connected to the Radio.", log: RadioManager.model_log, type: .info)
                     return true
                 }
@@ -276,12 +285,10 @@ class RadioManager: NSObject, ApiDelegate {
      */
     func bindToStation(clientId: String) -> Bool {
         
-        if api.radio?.boundClientId != UUID(uuidString: clientId) {
+        if api.radio?.boundClientId != clientId {
             //cleanUp()
-            api.radio?.boundClientId = UUID(uuidString: clientId)
-            
-            //api.send("sub client all")
-            
+            api.radio?.boundClientId = clientId
+           
             if let view = self.guiClientView.firstIndex(where: {$0.clientId == clientId}) {
                 activeStation = self.guiClientView[view].stationName
                 activeStationHandle = self.guiClientView[view].handle
@@ -318,7 +325,7 @@ class RadioManager: NSObject, ApiDelegate {
      */
     func radiosAvailable(_ note: Notification) {
         // receive the updated list of Radios
-        let discoveredRadios = (note.object as! [DiscoveredRadio])
+        let discoveredRadios = (note.object as! [DiscoveryPacket])
         
         self.guiClientView = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: String)]()
         
@@ -331,9 +338,10 @@ class RadioManager: NSObject, ApiDelegate {
 
         if guiClientView.count > 0 {
             // let the view controller know a radio was discovered
+            // this is the first thing to occur after xLib adds a radio
             UI() {
                 os_log("Radios updated.", log: RadioManager.model_log, type: .info)
-                self.radioManagerDelegate?.didDiscoverGUIClients(discoveredGUIClients: self.guiClientView, isGuiClientUdate: false)
+                self.radioManagerDelegate?.didDiscoverGUIClients(discoveredGUIClients: self.guiClientView, isGuiClientUpdate: false)
             }
         }
     }
@@ -353,7 +361,7 @@ class RadioManager: NSObject, ApiDelegate {
             // let the view controller know a radio was discovered or updated
             UI() {
                 os_log("GUI clients have been updated.", log: RadioManager.model_log, type: .info)
-                self.radioManagerDelegate?.didDiscoverGUIClients(discoveredGUIClients: self.guiClientView, isGuiClientUdate: true)
+                self.radioManagerDelegate?.didDiscoverGUIClients(discoveredGUIClients: self.guiClientView, isGuiClientUpdate: true)
             }
         }
     }
@@ -384,7 +392,7 @@ class RadioManager: NSObject, ApiDelegate {
         var observations = [NSKeyValueObservation]()
         let slice: xLib6000.Slice = (note.object as! xLib6000.Slice)
         
-        if String(slice.clientHandle) == self.activeStationHandle {
+        if String(slice.clientHandle) == self.activeStationHandle { // TODO: CHANGE activeStationHandle TO HANDLE
             os_log("Slice has been addded.", log: RadioManager.model_log, type: .info)
             
             // add the observations so we can update the GUI
@@ -580,9 +588,10 @@ class RadioManager: NSObject, ApiDelegate {
         if doTransmit  {
             self.audioBuffer = buffer!
             if txAudioStreamRequested == false {
-                if DaxTxAudioStream.create(callback: updateTxStreamId) {
-                    txAudioStreamRequested = true
-                }
+                //api.radio.requestDaxTxAudioStream(_ command: String, sequenceNumber: SequenceNumber, responseValue: String, reply: String)
+                txAudioStreamRequested = true
+                api.radio!.requestDaxTxAudioStream(callback: updateTxStreamId)
+                // _ command: String, sequenceNumber: SequenceNumber, responseValue: String, reply: String
             }
             else{
                 if clearToTransmit(){
@@ -606,7 +615,8 @@ class RadioManager: NSObject, ApiDelegate {
      - responseValue:  the response value
      - reply:          the reply
      */
-    func updateTxStreamId(_ command: String, seqNum: String, responseValue: String, reply: String) {
+    // _ command: String, sequenceNumber: SequenceNumber, responseValue: String, reply: String
+    func updateTxStreamId(_ command: String, sequenceNumber: UInt, responseValue: String, reply: String) {
         
         guard responseValue == "0" else {
             // Anything other than 0 is an error, log it and ignore the Reply
@@ -641,7 +651,7 @@ class RadioManager: NSObject, ApiDelegate {
     func clearToTransmit() -> Bool {
         
         // see if the GUI has gone away and cleanup if it has
-        if api.activeRadio == nil {
+        if api.radio == nil {
             UI() {
                 self.radioManagerDelegate?.didDisconnectFromRadio()
             }
