@@ -50,24 +50,25 @@ import Repeat
  */
 class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerDelegate, AudioManagerDelegate {
     
-var radioManager: RadioManager!
+    var radioManager: RadioManager!
     var audiomanager: AudioManager!
     var preferenceManager: PreferenceManager!
     
-    // this is only used once - in showPreferences - can I somehow eliminate it?
+    // this is only used in showPreferences
     var guiClientView = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: String)]()
     
     private var defaultStation = (model: "", nickname: "", stationName: "", default: "", serialNumber: "", clientId: "", handle: "")
     
     // view of available slices for the view controller
-    private var sliceView = [(sliceLetter: UInt16, mode: SliceMode?, txEnabled: Bool, sliceHandle: UInt32)]()
+    private var sliceView = [(sliceLetter: UInt16, voiceMode: Bool, txEnabled: Bool, sliceHandle: UInt32)]()
     
     private let radioKey = "defaultRadio"
     
     var isRadioConnected = false
-    var isTxSliceAvailable = false
-    var isValidMode = false
-    var isBoundToClient = false;
+    //var isTxSliceAvailable = false
+    //var isValidMode = false
+    var isBoundToClient = false
+    var stationName = ""
     
     var timerState: String = "ON"
     var idTimer :Repeater?
@@ -136,7 +137,7 @@ var radioManager: RadioManager!
         default: break
         }
     }
-     // MARK: Generated Code ---------------------------------------------------------------------------
+    // MARK: Generated Code ---------------------------------------------------------------------------
     // generated code
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -182,165 +183,33 @@ var radioManager: RadioManager!
     override func viewWillDisappear() {
         
     }
-  
-    // MARK: Button Handling ---------------------------------------------------------------------------
-    
-    /**
-     Handle button clicks etc. from any voice button
-     - parameter buttonNumber: Int
-     */
-    func voiceButtonSelected(buttonNumber: Int) {
-        
-        var transmitGain: Int = 35
-        
-        self.timerExpired = false
-        self.buttonSendID.wantsLayer = true
-        self.buttonSendID.layer?.backgroundColor = NSColor.windowBackgroundColor.cgColor
-        
-        DispatchQueue.main.async {
-            let xmitGain = self.gainSlider.intValue
-            transmitGain = Int(xmitGain)
-        }
-        
-        if self.isRadioConnected {
-            selectAudioFile(buttonNumber: buttonNumber, transmitGain: transmitGain)
-        } else {
-            let alert = NSAlert()
-            alert.messageText = "Radio Unavailable"
-            alert.informativeText = "The Radio GUI seems to have gone away."
-            alert.alertStyle = .warning
-            alert.addButton(withTitle: "OK")
-            alert.beginSheetModal(for: NSApp.mainWindow!, completionHandler: { (response) in
-                if response == NSApplication.ModalResponse.alertFirstButtonReturn { return }
-            })
-        }
-    }
-    
-    /**
-     Select the audio file to transmit and return it as an array
-     of 32 bit floats
-     - parameter buttonNumber: Int
-     - parameter transmitGain: Int
-     */
-    func selectAudioFile(buttonNumber: Int, transmitGain: Int){
-        var floatArray = [Float]()
-        
-        floatArray = self.audiomanager.selectAudioFile(buttonNumber: buttonNumber)
-        
-        if floatArray.count > 0 {
-            self.radioManager.keyRadio(doTransmit: true, buffer: floatArray, xmitGain: transmitGain)
-        }
-    }
-    
-    /**
-     Refresh the voice buttons.
-     */
-    func doUpdateButtons() {
-        enableVoiceButtons()
-    }
-    
-    /**
-     Refresh the voice buttons labels.
-     */
-    func doUpdateButtonLabels() {
-        updateButtonTitles(view: self.view)
-        audiomanager.clearFileCache()
-
-        enableVoiceButtons()
-    }
-    
-    /**
-       Enable all the voice buttons.
-       */
-      func enableVoiceButtons(){
-          
-          if isBoundToClient && isValidMode && isTxSliceAvailable {
-              for case let button as NSButton in self.buttonStackView.subviews {
-                  if UserDefaults.standard.string(forKey: String(button.tag)) != "" {
-                      button.isEnabled = self.isRadioConnected
-                  } else {
-                      button.isEnabled = false
-                  }
-              }
-              
-              for case let button as NSButton in self.buttonStackViewTwo.subviews {
-                  if UserDefaults.standard.string(forKey: String(button.tag)) != "" {
-                      button.isEnabled = self.isRadioConnected
-                  } else {
-                      button.isEnabled = false
-                  }
-              }
-              
-              // Send ID button
-              if UserDefaults.standard.string(forKey: String(102)) != "" {
-                  buttonSendID.isEnabled = self.isRadioConnected
-              } else {
-                  buttonSendID.isEnabled = false
-              }
-          } else {
-              disableVoiceButtons()
-          }
-      }
-      
-      /**
-       Disable all the voice buttons.
-       */
-      func disableVoiceButtons(){
-          for case let button as NSButton in self.buttonStackView.subviews {
-              button.isEnabled = false
-          }
-          
-          for case let button as NSButton in self.buttonStackViewTwo.subviews {
-              button.isEnabled = false
-          }
-          
-          buttonSendID.isEnabled = false
-      }
-      
-      /**
-       Collect all the buttons from view and subviews and update their label (title)
-       - parameter view: - the view to search
-       */
-      func updateButtonTitles(view: NSView) {
-          
-          var results = [NSButton]()
-          let offset = 10 // labels start with tag = 11
-          
-          for subview in view.subviews as [NSView] {
-              if let button = subview as? NSButton {
-                  if button.tag != 0 && button.tag != 102 {
-                      results += [button]
-                      button.title = UserDefaults.standard.string(forKey: String(button.tag + offset)) ?? ""
-                  }
-              } else {
-                  updateButtonTitles(view: subview)
-              }
-          }
-      }
     
     // MARK: GUIClients Message Handling ---------------------------------------------------------------------------
     /**
      receive messages from the radio manager
      - parameter messageKey: RadioManagerMessage - enum value for the message
      */
-    func radioMessageReceived(messageKey: RadioManagerMessage) {
-        
-        switch messageKey {
-        case RadioManagerMessage.INVALIDMODE:
-            isValidMode = false
-            
-        case RadioManagerMessage.TXSLICEAVAILABLE:
-            isTxSliceAvailable = true
-            
-        case .VALIDMODE:
-            isValidMode = true
-            
-        case .NOTXSLICE:
-            isTxSliceAvailable = false
-        }
-        
-        enableVoiceButtons()
-    }
+    //    func radioMessageReceived(messageKey: RadioManagerMessage) {
+    
+    //        switch messageKey {
+    //        case RadioManagerMessage.INVALIDMODE:
+    //            //isValidMode = false
+    //            break
+    //
+    //        case RadioManagerMessage.TXSLICEAVAILABLE:
+    //            //isTxSliceAvailable = true
+    //            break
+    //        case .VALIDMODE:
+    //            //isValidMode = true
+    //            break
+    //
+    //        case .NOTXSLICE:
+    //            //isTxSliceAvailable = false
+    //            break
+    //        }
+    
+    //enableVoiceButtons(validSliceAvailable: true)
+    //    }
     
     /**
      receive messages from the audio manager
@@ -411,7 +280,7 @@ var radioManager: RadioManager!
             self.showPreferences("" as AnyObject)
         }
     }
-
+    
     /**
      After the initial discovery we need to wait for updates to get the client id
      */
@@ -445,77 +314,245 @@ var radioManager: RadioManager!
         
     }
     
+    /**
+     A GUIClient has disappeared from the network so we will remove it from our collection.
+     */
     func didRemoveGUIClients(discoveredGUIClients: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: String)], isGuiClientUpdate: Bool) {
-          
-        // keep preferences up to date
-           self.guiClientView = discoveredGUIClients
         
-       }
+        // keep preferences up to date
+        self.guiClientView = discoveredGUIClients
+        
+    }
     
     // MARK: Slice Message Handling ---------------------------------------------------------------------------
-    func didAddSlice(slice: [(sliceLetter: UInt16, mode: SliceMode?, txEnabled: Bool, sliceHandle: UInt32)]) {
-        
-        self.sliceView += slice
-     }
-     
-    
-       
-    // MARK: Radio Methods ---------------------------------------------------------------------------
-       /**
-        Select the desired radio and instruct the RadioManager to start the connect process.
-        - parameter serialNumber: String
-        - parameter doConnect: Bool
-        */
-       func doConnectRadio(serialNumber: String, stationName: String, clientId: String, doConnect: Bool) {
-           
-           if self.radioManager.connectToRadio(serialNumber: serialNumber, clientStation: stationName, clientId: clientId, doConnect: doConnect) == true {
-               self.view.window?.title = "SDR Voice Keyer - " + self.defaultStation.nickname
-               self.isRadioConnected = true
-               self.statusLabel.stringValue = "Connected"
-           }
-       }
-       
-       /**
-        Bind to the desired station with the client id.
-        - parameter clientId: String
-        */
-       func doBindToStation(clientId: String)  {
-           if self.radioManager.bindToStation(clientId: clientId) == true {
-               self.view.window?.title = "SDR Voice Keyer - " + self.defaultStation.nickname
-               isBoundToClient = true
-               self.statusLabel.stringValue = "Bound"
-           }
-       }
-       
-       /**
-        Request to be disconnected from the selected radio.
-        */
-       func didDisconnectFromRadio() {
-           self.isRadioConnected = false
-           self.isBoundToClient = false
-           self.statusLabel.stringValue = "Disconnected"
-       }
     
     /**
-        Immediately stop transmitting
-        */
-       func stopTransmitting() {
-           let xmitGain = gainSlider.intValue
-           radioManager.keyRadio(doTransmit: false, xmitGain: Int(xmitGain))
-           self.timerExpired = false
-       }
-       
-       /**
-        Update the status labels when the radio notifies us of a change
-        */
-       func updateView(components: (slice: String, mode: String, frequency: String, station: String)) {
-           UI {
-               self.labelFrequency.stringValue = components.frequency
-               self.labelMode.stringValue = components.mode
-               self.labelSlice.stringValue = "Slice \(components.slice)"
-               self.labelStation.stringValue = components.station
-           }
-       }
+     Add a slice information object to the local sliceView collection.
+     */
+    func didAddSlice(slice: [(sliceLetter: UInt16, voiceMode: Bool, txEnabled: Bool, sliceHandle: UInt32)]) {
+        self.sliceView += slice
+        
+        if sliceView.firstIndex(where: { $0.txEnabled == true && $0.voiceMode == true }) != nil {
+            enableVoiceButtons(validSliceAvailable: true)
+        }
+    }
+    
+    /**
+     Remove a slice information object from the local sliceView collection.
+     */
+    func didRemoveSlice(sliceHandle: UInt32) {
+        
+        if let index = sliceView.firstIndex(where: { $0.sliceHandle == sliceHandle }) {
+            sliceView.remove(at: index)
+        }
+        
+        if sliceView.firstIndex(where: { $0.txEnabled == true }) != nil {
+            return
+        }
+        
+        // if no slices are txEnabled
+        disableVoiceButtons()
+    }
+    
+    // MARK: Radio Methods ---------------------------------------------------------------------------
+    /**
+     Select the desired radio and instruct the RadioManager to start the connect process.
+     - parameter serialNumber: String
+     - parameter doConnect: Bool
+     */
+    func doConnectRadio(serialNumber: String, stationName: String, clientId: String, doConnect: Bool) {
+        
+        if self.radioManager.connectToRadio(serialNumber: serialNumber, clientStation: stationName, clientId: clientId, doConnect: doConnect) == true {
+            //self.stationName = stationName
+            self.view.window?.title = "SDR Voice Keyer - " + self.defaultStation.nickname
+            self.isRadioConnected = true
+            self.statusLabel.stringValue = "Connected"
+        }
+    }
+    
+    /**
+     Bind to the desired station with the client id.
+     - parameter clientId: String
+     */
+    func doBindToStation(clientId: String)  {
+        
+        if self.radioManager.bindToStation(clientId: clientId) == true {
+            self.view.window?.title = "SDR Voice Keyer - " + self.defaultStation.nickname
+            isBoundToClient = true
+            //self.statusLabel.stringValue = stationName
+            
+            if sliceView.firstIndex(where: { $0.txEnabled == true && $0.voiceMode == true }) != nil {
+                enableVoiceButtons(validSliceAvailable: true)
+            }
+        }
+        
+    }
+    
+    /**
+     Request to be disconnected from the selected radio.
+     */
+    func didDisconnectFromRadio() {
+        self.isRadioConnected = false
+        self.isBoundToClient = false
+        self.statusLabel.stringValue = "Disconnected"
+    }
+    
+    /**
+     Immediately stop transmitting
+     */
+    func stopTransmitting() {
+        let xmitGain = gainSlider.intValue
+        radioManager.keyRadio(doTransmit: false, xmitGain: Int(xmitGain))
+        self.timerExpired = false
+    }
+    
+    /**
+     Update the status labels when the radio notifies us of a change
+     */
+    func updateView(components: (slice: String, mode: String, frequency: String, station: String)) {
+        UI {
+            self.labelFrequency.stringValue = components.frequency
+            self.labelMode.stringValue = components.mode
+            self.labelSlice.stringValue = "Slice \(components.slice)"
+            self.labelStation.stringValue = components.station
+        }
+    }
+    
+    // MARK: Button Handling ---------------------------------------------------------------------------
+    
+    /**
+     Handle button clicks etc. from any voice button
+     - parameter buttonNumber: Int
+     */
+    func voiceButtonSelected(buttonNumber: Int) {
+        
+        var transmitGain: Int = 35
+        
+        self.timerExpired = false
+        self.buttonSendID.wantsLayer = true
+        self.buttonSendID.layer?.backgroundColor = NSColor.windowBackgroundColor.cgColor
+        
+        DispatchQueue.main.async {
+            let xmitGain = self.gainSlider.intValue
+            transmitGain = Int(xmitGain)
+        }
+        
+        if self.isRadioConnected {
+            selectAudioFile(buttonNumber: buttonNumber, transmitGain: transmitGain)
+        } else {
+            let alert = NSAlert()
+            alert.messageText = "Radio Unavailable"
+            alert.informativeText = "The Radio GUI seems to have gone away."
+            alert.alertStyle = .warning
+            alert.addButton(withTitle: "OK")
+            alert.beginSheetModal(for: NSApp.mainWindow!, completionHandler: { (response) in
+                if response == NSApplication.ModalResponse.alertFirstButtonReturn { return }
+            })
+        }
+    }
+    
+    /**
+     Select the audio file to transmit and return it as an array
+     of 32 bit floats
+     - parameter buttonNumber: Int
+     - parameter transmitGain: Int
+     */
+    func selectAudioFile(buttonNumber: Int, transmitGain: Int){
+        var floatArray = [Float]()
+        
+        floatArray = self.audiomanager.selectAudioFile(buttonNumber: buttonNumber)
+        
+        if floatArray.count > 0 {
+            self.radioManager.keyRadio(doTransmit: true, buffer: floatArray, xmitGain: transmitGain)
+        }
+    }
+    
+    /**
+     Refresh the voice buttons.
+     */
+    func doUpdateButtons() {
+        enableVoiceButtons(validSliceAvailable: true)
+    }
+    
+    /**
+     Refresh the voice buttons labels.
+     */
+    func doUpdateButtonLabels() {
+        updateButtonTitles(view: self.view)
+        audiomanager.clearFileCache()
+        
+        enableVoiceButtons(validSliceAvailable: true)
+    }
+    
+    /**
+     Enable all the voice buttons.
+     */
+    func enableVoiceButtons(validSliceAvailable: Bool){
+        
+        if isBoundToClient && validSliceAvailable {
+            for case let button as NSButton in self.buttonStackView.subviews {
+                if UserDefaults.standard.string(forKey: String(button.tag)) != "" {
+                    button.isEnabled = self.isRadioConnected
+                } else {
+                    button.isEnabled = false
+                }
+            }
+            
+            for case let button as NSButton in self.buttonStackViewTwo.subviews {
+                if UserDefaults.standard.string(forKey: String(button.tag)) != "" {
+                    button.isEnabled = self.isRadioConnected
+                } else {
+                    button.isEnabled = false
+                }
+            }
+            
+            // Send ID button
+            if UserDefaults.standard.string(forKey: String(102)) != "" {
+                buttonSendID.isEnabled = self.isRadioConnected
+            } else {
+                buttonSendID.isEnabled = false
+            }
+        } else {
+            disableVoiceButtons()
+        }
+    }
+    
+    /**
+     Disable all the voice buttons.
+     */
+    func disableVoiceButtons(){
+        
+        for case let button as NSButton in self.buttonStackView.subviews {
+            button.isEnabled = false
+        }
+        
+        for case let button as NSButton in self.buttonStackViewTwo.subviews {
+            button.isEnabled = false
+        }
+        
+        buttonSendID.isEnabled = false
+    }
+    
+    /**
+     Collect all the buttons from view and subviews and update their label (title)
+     - parameter view: - the view to search
+     */
+    func updateButtonTitles(view: NSView) {
+        
+        var results = [NSButton]()
+        let offset = 10 // labels start with tag = 11
+        
+        for subview in view.subviews as [NSView] {
+            if let button = subview as? NSButton {
+                if button.tag != 0 && button.tag != 102 {
+                    results += [button]
+                    button.title = UserDefaults.standard.string(forKey: String(button.tag + offset)) ?? ""
+                }
+            } else {
+                updateButtonTitles(view: subview)
+            }
+        }
+    }
     
     // MARK: User Defaults ---------------------------------------------------------------------------
     
@@ -584,7 +621,7 @@ var radioManager: RadioManager!
         UserDefaults.standard.set(nil, forKey: "\(102)")
     }
     
-   
+    
     
     // MARK: Timer Methods ---------------------------------------------------------------------------
     
@@ -629,7 +666,7 @@ var radioManager: RadioManager!
         self.idlabelTimer!.start()
     }
     
-  // MARK: Preferences ---------------------------------------------------------------------------
+    // MARK: Preferences ---------------------------------------------------------------------------
     
     /**
      Show the file preferences panel and populate it

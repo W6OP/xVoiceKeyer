@@ -104,12 +104,14 @@ protocol RadioManagerDelegate: class {
     
     func didRemoveGUIClients(discoveredGUIClients: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: String)], isGuiClientUpdate: Bool)
     
-    func didAddSlice(slice: [(sliceLetter: UInt16, mode: SliceMode?, txEnabled: Bool, sliceHandle: UInt32)])
+    func didAddSlice(slice: [(sliceLetter: UInt16, voiceMode: Bool, txEnabled: Bool, sliceHandle: UInt32)])
+    
+    func didRemoveSlice(sliceHandle: UInt32)
     
     // notify the GUI the tcp connection to the radio was closed
     func didDisconnectFromRadio()
     // send message to view controller
-    func radioMessageReceived(messageKey: RadioManagerMessage)
+    //func radioMessageReceived(messageKey: RadioManagerMessage)
     // update slice, mode or frequency
     func updateView(components: (slice: String, mode: String, frequency: String, station: String))
 }
@@ -119,12 +121,12 @@ protocol RadioManagerDelegate: class {
 /**
  Unify message nouns going to the view controller
  */
-public enum RadioManagerMessage : String {
-    case VALIDMODE = "Valid Mode"
-    case INVALIDMODE = "Invalid Mode"
-    case TXSLICEAVAILABLE = "TX Slice Available"
-    case NOTXSLICE = "No TX Slice"
-}
+//public enum RadioManagerMessage : String {
+//    case VALIDMODE = "Valid Mode"
+//    case INVALIDMODE = "Invalid Mode"
+//    case TXSLICEAVAILABLE = "TX Slice Available"
+//    case NOTXSLICE = "No TX Slice"
+//}
 
 public enum SliceMode : String {
     case usb = "USB"
@@ -167,7 +169,7 @@ class RadioManager: NSObject, ApiDelegate {
     // local dictionary of slices
     var availableSlices = [UInt32: Slice]()
     // view of available slices for the view controller
-    var sliceView = [(sliceLetter: UInt16, mode: SliceMode?, txEnabled: Bool, sliceHandle: UInt32)]()
+    //var sliceView = [(sliceLetter: UInt16, mode: SliceMode?, txEnabled: Bool, sliceHandle: UInt32)]()
     
     // MARK: - Internal Radio properties ----------------------------------------------------------------------------
     
@@ -189,8 +191,8 @@ class RadioManager: NSObject, ApiDelegate {
     
     //let log = Logger.sharedInstance //(NSApp.delegate as! AppDelegate)
     let clientProgram = "SDRVoiceKeyer"
-    var txAudioStream: DaxTxAudioStream! // TxAudioStream!
-    var txAudioStreamId: StreamId //DaxStreamId
+    var txAudioStream: DaxTxAudioStream!
+    var txAudioStreamId: StreamId 
     var txAudioStreamRequested = false
     var audioBuffer = [Float]()
     var audioStreamTimer :Repeater? // timer to meter audio chunks to radio at 24khz sample rate
@@ -458,37 +460,26 @@ class RadioManager: NSObject, ApiDelegate {
      */
     func sliceHasBeenAdded(_ note: Notification){
         
-        //var observations = [NSKeyValueObservation]()
         let slice: xLib6000.Slice = (note.object as! xLib6000.Slice)
+        var isValidMode = false
         
-        //availableSlices[slice.clientHandle] = slice
+        var sliceView = [(sliceLetter: UInt16, voiceMode: Bool, txEnabled: Bool, sliceHandle: UInt32)]()
         
-        // I probably don't need to persist the slices here, just send them to the view controller
-        // as they arrive
-        // if let _ = availableSlices.updateValue(slice, forKey: slice.clientHandle){
+        switch SliceMode(rawValue: slice.mode) {
+        case .lsb, .usb, .fm:
+            isValidMode = true
+        default:
+            isValidMode = false
+        }
         
-        os_log("Slice has been addded.", log: RadioManager.model_log, type: .info)
-        
-        sliceView = [(sliceLetter: UInt16, mode: SliceMode?, txEnabled: Bool, sliceHandle: UInt32)]()
-        
-        sliceView.append((sliceLetter: slice.id, mode: SliceMode(rawValue: slice.mode), txEnabled: slice.txEnabled, sliceHandle: slice.clientHandle))
+        sliceView.append((sliceLetter: slice.id, voiceMode: isValidMode, txEnabled: slice.txEnabled, sliceHandle: slice.clientHandle))
         
         // now notify the view controller
-        self.radioManagerDelegate?.didAddSlice(slice: sliceView)
-        //}
+         UI() {
+            self.radioManagerDelegate?.didAddSlice(slice: sliceView)
+        }
         
-        // create a collection of slices and look at them later
-        
-        //        if String(slice.clientHandle) == self.activeStationHandle {
-        //            os_log("Slice has been addded.", log: RadioManager.model_log, type: .info)
-        //
-        //            // add the observations so we can update the GUI
-        //            observations.append(slice.observe(\.txEnabled, options: [.initial, .new], changeHandler: self.updateSliceStatus(_:_:)) )
-        //            observations.append(slice.observe(\.frequency, options: [.initial, .new], changeHandler: self.updateSliceStatus(_:_:)) )
-        //            observations.append(slice.observe(\.mode, options: [.initial, .new], changeHandler: self.updateSliceStatus(_:_:)) )
-        //
-        //            _observationList[slice.id] = observations
-        //        }
+        os_log("Slice has been addded.", log: RadioManager.model_log, type: .info)
     }
     
     /**
@@ -500,25 +491,14 @@ class RadioManager: NSObject, ApiDelegate {
     func sliceWillBeRemoved(_ note: Notification){
         
         let slice: xLib6000.Slice = (note.object as! xLib6000.Slice)
-        
-        if let _ = availableSlices.removeValue(forKey: slice.clientHandle) {
-            os_log("Slice has been removed.", log: RadioManager.model_log, type: .info)
+    
+         os_log("Slice has been removed.", log: RadioManager.model_log, type: .info)
+
+         UI() {
+            self.radioManagerDelegate?.didRemoveSlice(sliceHandle: slice.clientHandle)
         }
-//        guard _observationList[slice.id] != nil else {
-//            return
-//        }
-//        var observations = _observationList[slice.id]!
-//
-//        _observationList.removeValue(forKey: slice.id)
-//        observations.removeAll()
-//
-//        os_log("Slice has been removed.", log: RadioManager.model_log, type: .info)
-//        #if DEBUG
-//        print ("Slice \(slice.sliceLetter ?? "Unknown") has been removed.")
-//        #endif
-        
-        // notify viewcontroller if no slices
-        checkSliceStatus ()
+
+        //checkSliceStatus ()
     }
     
     /**
@@ -541,26 +521,26 @@ class RadioManager: NSObject, ApiDelegate {
             print ("Slice \(slice.sliceLetter ?? "Unknown") is txEnabled.")
             #endif
             
-            UI() {
-                self.radioManagerDelegate?.updateView(components: self.findTxEnabledSlice(clientHandle: slice.clientHandle))
-                self.radioManagerDelegate?.radioMessageReceived(messageKey: RadioManagerMessage.TXSLICEAVAILABLE)
-            }
-            // now check for a valid mode
-            if checkForValidMode() {
-                print("Valid Mode")
-                UI() {
-                    self.radioManagerDelegate?.radioMessageReceived(messageKey: RadioManagerMessage.VALIDMODE)
-                }
-            } else {
-                print("Invalid Mode")
-                UI() {
-                    self.radioManagerDelegate?.radioMessageReceived(messageKey: RadioManagerMessage.INVALIDMODE)
-                }
-            }
+//            UI() {
+//                self.radioManagerDelegate?.updateView(components: self.findTxEnabledSlice(clientHandle: slice.clientHandle))
+//                self.radioManagerDelegate?.radioMessageReceived(messageKey: RadioManagerMessage.TXSLICEAVAILABLE)
+//            }
+//            // now check for a valid mode
+//            if checkForValidMode() {
+//                print("Valid Mode")
+//                UI() {
+//                    self.radioManagerDelegate?.radioMessageReceived(messageKey: RadioManagerMessage.VALIDMODE)
+//                }
+//            } else {
+//                print("Invalid Mode")
+//                UI() {
+//                    self.radioManagerDelegate?.radioMessageReceived(messageKey: RadioManagerMessage.INVALIDMODE)
+//                }
+//            }
             
             return
         } else {
-            checkSliceStatus ()
+            //checkSliceStatus ()
         }
     }
     
@@ -569,21 +549,21 @@ class RadioManager: NSObject, ApiDelegate {
      Now see if any slices are txUpdated - this is necessary to update GUI
      when no slices are txEnabled and then one is enabled or disabled again.
      */
-    func checkSliceStatus () {
-        
-        if api.radio?.slices.count == 0 {
-            UI() {
-                self.radioManagerDelegate?.radioMessageReceived(messageKey: RadioManagerMessage.NOTXSLICE)
-            }
-        } else {
-            let results = api.radio?.slices.filter { $0.value.txEnabled == true }
-            if results?.count == 0 {
-                UI() {
-                    self.radioManagerDelegate?.radioMessageReceived(messageKey: RadioManagerMessage.NOTXSLICE)
-                }
-            }
-        }
-    }
+//    func checkSliceStatus () {
+//
+//        if api.radio?.slices.count == 0 {
+//            UI() {
+//                self.radioManagerDelegate?.radioMessageReceived(messageKey: RadioManagerMessage.NOTXSLICE)
+//            }
+//        } else {
+//            let results = api.radio?.slices.filter { $0.value.txEnabled == true }
+//            if results?.count == 0 {
+//                UI() {
+//                    self.radioManagerDelegate?.radioMessageReceived(messageKey: RadioManagerMessage.NOTXSLICE)
+//                }
+//            }
+//        }
+//    }
     
     /**
      Find the slice configured to transmit.
@@ -750,24 +730,16 @@ class RadioManager: NSObject, ApiDelegate {
             return false
         }
         
-        // this is new and turns on button - can't get status
-        //        api.radio?.transmit.daxEnabled = true
-        //        if api.radio?.transmit.daxEnabled != true{
-        //            UI() {
-        //                self.radioManagerDelegate?.radioMessageReceived(messageKey: RadioManagerMessage.DAX)
-        //            }
-        //            return false
-        //        }
         
-        if (api.radio?.slices.count)! > 0 {
-            return checkForValidMode ()
-        } else {
-            // can't do anything without an active slice
-            UI() {
-                self.radioManagerDelegate?.radioMessageReceived(messageKey: RadioManagerMessage.NOTXSLICE)
-            }
+//        if (api.radio?.slices.count)! > 0 {
+//            return checkForValidMode ()
+//        } else {
+//            // can't do anything without an active slice
+//            UI() {
+//                self.radioManagerDelegate?.radioMessageReceived(messageKey: RadioManagerMessage.NOTXSLICE)
+//            }
             return false
-        }
+//        }
     }
     
     /**

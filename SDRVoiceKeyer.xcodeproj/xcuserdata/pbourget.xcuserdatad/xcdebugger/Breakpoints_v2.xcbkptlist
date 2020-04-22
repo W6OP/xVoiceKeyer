@@ -15,10 +15,10 @@
             timestampString = "590605397.845629"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "328"
-            endingLineNumber = "328"
-            landmarkName = "radioMessageReceived(messageKey:)"
-            landmarkType = "7">
+            startingLineNumber = "194"
+            endingLineNumber = "194"
+            landmarkName = "ViewController"
+            landmarkType = "3">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -66,8 +66,8 @@
             timestampString = "590605397.846787"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "165"
-            endingLineNumber = "165"
+            startingLineNumber = "166"
+            endingLineNumber = "166"
             landmarkName = "viewDidLoad()"
             landmarkType = "7">
          </BreakpointContent>
@@ -83,10 +83,10 @@
             timestampString = "590605397.850268"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "336"
-            endingLineNumber = "336"
-            landmarkName = "radioMessageReceived(messageKey:)"
-            landmarkType = "7">
+            startingLineNumber = "203"
+            endingLineNumber = "203"
+            landmarkName = "ViewController"
+            landmarkType = "3">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -115,58 +115,10 @@
             filePath = "SDRVoiceKeyer/ViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "342"
-            endingLineNumber = "342"
-            landmarkName = "radioMessageReceived(messageKey:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "A4B2BA5B-0CF8-43A6-A320-61B835608023"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "SDRVoiceKeyer/ViewController.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "200"
-            endingLineNumber = "200"
-            landmarkName = "voiceButtonSelected(buttonNumber:)"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "A4B2BA5B-0CF8-43A6-A320-61B835608023 - edbf69b16aa7ffcc"
-                  shouldBeEnabled = "No"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "SDRVoiceKeyer.ViewController.voiceButtonSelected(buttonNumber: Swift.Int) -&gt; ()"
-                  moduleName = "SDRVoiceKeyer"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/pbourget/XcodeProjects/SDRVoiceKeyer/SDRVoiceKeyer/ViewController.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "216"
-                  endingLineNumber = "216"
-                  offsetFromSymbolStart = "1129">
-               </Location>
-               <Location
-                  uuid = "A4B2BA5B-0CF8-43A6-A320-61B835608023 - 27796b72c1e7bbb9"
-                  shouldBeEnabled = "No"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 () -&gt; () in SDRVoiceKeyer.ViewController.voiceButtonSelected(buttonNumber: Swift.Int) -&gt; ()"
-                  moduleName = "SDRVoiceKeyer"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/pbourget/XcodeProjects/SDRVoiceKeyer/SDRVoiceKeyer/ViewController.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "210"
-                  endingLineNumber = "210"
-                  offsetFromSymbolStart = "91">
-               </Location>
-            </Locations>
+            startingLineNumber = "211"
+            endingLineNumber = "211"
+            landmarkName = "ViewController"
+            landmarkType = "3">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -179,8 +131,8 @@
             filePath = "SDRVoiceKeyer/RadioManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "709"
-            endingLineNumber = "709"
+            startingLineNumber = "689"
+            endingLineNumber = "689"
             landmarkName = "updateTxStreamId(_:sequenceNumber:responseValue:reply:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -211,8 +163,8 @@
             filePath = "SDRVoiceKeyer/RadioManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "431"
-            endingLineNumber = "431"
+            startingLineNumber = "433"
+            endingLineNumber = "433"
             landmarkName = "clientsRemoved(_:)"
             landmarkType = "7">
             <Locations>
@@ -259,25 +211,9 @@
             filePath = "SDRVoiceKeyer/RadioManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "427"
-            endingLineNumber = "427"
+            startingLineNumber = "429"
+            endingLineNumber = "429"
             landmarkName = "clientsRemoved(_:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "E07621EA-C4F7-4794-90EB-1B59E065E561"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "SDRVoiceKeyer/ViewController.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "257"
-            endingLineNumber = "257"
-            landmarkName = "enableVoiceButtons()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -291,8 +227,8 @@
             filePath = "SDRVoiceKeyer/RadioManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "320"
-            endingLineNumber = "320"
+            startingLineNumber = "322"
+            endingLineNumber = "322"
             landmarkName = "bindToStation(clientId:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -307,8 +243,8 @@
             filePath = "SDRVoiceKeyer/RadioManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "319"
-            endingLineNumber = "319"
+            startingLineNumber = "321"
+            endingLineNumber = "321"
             landmarkName = "bindToStation(clientId:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -316,16 +252,16 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "C2D8DBFC-EE90-4EA5-9E9E-1B5F17A3795D"
+            uuid = "6E75C90E-9CE4-4F0B-A96A-194311B12586"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "SDRVoiceKeyer/ViewController.swift"
+            filePath = "SDRVoiceKeyer/RadioManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "458"
-            endingLineNumber = "458"
-            landmarkName = "didAddSlice(slice:)"
+            startingLineNumber = "519"
+            endingLineNumber = "519"
+            landmarkName = "updateSliceStatus(_:_:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
