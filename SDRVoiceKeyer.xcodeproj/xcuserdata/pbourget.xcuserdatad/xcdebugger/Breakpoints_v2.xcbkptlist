@@ -131,8 +131,8 @@
             filePath = "SDRVoiceKeyer/RadioManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "689"
-            endingLineNumber = "689"
+            startingLineNumber = "637"
+            endingLineNumber = "637"
             landmarkName = "updateTxStreamId(_:sequenceNumber:responseValue:reply:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -156,87 +156,7 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "CA9853FC-1427-4631-AD35-B005845D3C89"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "SDRVoiceKeyer/RadioManager.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "433"
-            endingLineNumber = "433"
-            landmarkName = "clientsRemoved(_:)"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "CA9853FC-1427-4631-AD35-B005845D3C89 - 6abd8eedf593fa99"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "SDRVoiceKeyer.RadioManager.clientsRemoved(Foundation.Notification) -&gt; ()"
-                  moduleName = "SDRVoiceKeyer"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/pbourget/XcodeProjects/SDRVoiceKeyer/SDRVoiceKeyer/RadioManager.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "425"
-                  endingLineNumber = "425"
-                  offsetFromSymbolStart = "444">
-               </Location>
-               <Location
-                  uuid = "CA9853FC-1427-4631-AD35-B005845D3C89 - 96fe3b692e64df7"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 ((model: Swift.String, nickname: Swift.String, stationName: Swift.String, default: Swift.String, serialNumber: Swift.String, clientId: Swift.String, handle: Swift.String)) -&gt; Swift.Bool in SDRVoiceKeyer.RadioManager.clientsRemoved(Foundation.Notification) -&gt; ()"
-                  moduleName = "SDRVoiceKeyer"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/pbourget/XcodeProjects/SDRVoiceKeyer/SDRVoiceKeyer/RadioManager.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "425"
-                  endingLineNumber = "425"
-                  offsetFromSymbolStart = "193">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "9DF13E16-CE4E-442D-950F-4D858945D9F9"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "SDRVoiceKeyer/RadioManager.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "429"
-            endingLineNumber = "429"
-            landmarkName = "clientsRemoved(_:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "5A36BD3D-260A-4006-ABC0-110F2394DEEB"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "SDRVoiceKeyer/RadioManager.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "322"
-            endingLineNumber = "322"
-            landmarkName = "bindToStation(clientId:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "564D4907-6446-4FD4-BE0B-B4097DE6EC28"
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -252,16 +172,16 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "6E75C90E-9CE4-4F0B-A96A-194311B12586"
-            shouldBeEnabled = "Yes"
+            uuid = "564D4907-6446-4FD4-BE0B-B4097DE6EC28"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "SDRVoiceKeyer/RadioManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "519"
-            endingLineNumber = "519"
-            landmarkName = "updateSliceStatus(_:_:)"
+            startingLineNumber = "320"
+            endingLineNumber = "320"
+            landmarkName = "bindToStation(clientId:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

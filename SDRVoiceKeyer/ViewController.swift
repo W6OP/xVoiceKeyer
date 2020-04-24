@@ -60,7 +60,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     private var defaultStation = (model: "", nickname: "", stationName: "", default: "", serialNumber: "", clientId: "", handle: "")
     
     // view of available slices for the view controller
-    private var sliceView = [(sliceLetter: UInt16, voiceMode: Bool, txEnabled: Bool, sliceHandle: UInt32)]()
+    private var sliceView = [(sliceLetter: String, radioMode: RadioMode, txEnabled: Bool, frequency: String, sliceHandle: UInt32)]()
     
     private let radioKey = "defaultRadio"
     
@@ -324,36 +324,6 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         
     }
     
-    // MARK: Slice Message Handling ---------------------------------------------------------------------------
-    
-    /**
-     Add a slice information object to the local sliceView collection.
-     */
-    func didAddSlice(slice: [(sliceLetter: UInt16, voiceMode: Bool, txEnabled: Bool, sliceHandle: UInt32)]) {
-        self.sliceView += slice
-        
-        if sliceView.firstIndex(where: { $0.txEnabled == true && $0.voiceMode == true }) != nil {
-            enableVoiceButtons(validSliceAvailable: true)
-        }
-    }
-    
-    /**
-     Remove a slice information object from the local sliceView collection.
-     */
-    func didRemoveSlice(sliceHandle: UInt32) {
-        
-        if let index = sliceView.firstIndex(where: { $0.sliceHandle == sliceHandle }) {
-            sliceView.remove(at: index)
-        }
-        
-        if sliceView.firstIndex(where: { $0.txEnabled == true }) != nil {
-            return
-        }
-        
-        // if no slices are txEnabled
-        disableVoiceButtons()
-    }
-    
     // MARK: Radio Methods ---------------------------------------------------------------------------
     /**
      Select the desired radio and instruct the RadioManager to start the connect process.
@@ -381,7 +351,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
             isBoundToClient = true
             //self.statusLabel.stringValue = stationName
             
-            if sliceView.firstIndex(where: { $0.txEnabled == true && $0.voiceMode == true }) != nil {
+            if sliceView.firstIndex(where: { $0.txEnabled == true && $0.radioMode != RadioMode.unknown }) != nil {
                 enableVoiceButtons(validSliceAvailable: true)
             }
         }
@@ -417,6 +387,83 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
             self.labelStation.stringValue = components.station
         }
     }
+    
+    // MARK: Slice Message Handling ---------------------------------------------------------------------------
+    
+    /**
+     Add a slice information object to the local sliceView collection.
+     */
+    func didAddSlice(slice: [(sliceLetter: String, radioMode: RadioMode, txEnabled: Bool, frequency: String, sliceHandle: UInt32)]) {
+        
+        var components: (slice: String, mode: String, frequency: String, station: String)
+        
+        self.sliceView += slice
+        
+        if sliceView.firstIndex(where: { $0.txEnabled == true && $0.radioMode != RadioMode.unknown }) != nil {
+            
+            if let index = sliceView.firstIndex(where: { $0.txEnabled == true && $0.radioMode != RadioMode.unknown }) {
+                components.slice = sliceView[index].sliceLetter
+                components.mode = sliceView[index].radioMode.rawValue
+                components.frequency = sliceView[index].frequency
+                components.station = "Station" //sliceView[index].
+                updateView(components: components)
+            }
+            
+            enableVoiceButtons(validSliceAvailable: true) 
+        }
+        
+        //var components: (sliceLetter: String, mode: String, frequency: String, station: String)
+        
+        
+    }
+    
+    /**
+     Find the slice to be updated by its handle.
+     */
+    func didUpdateSlice(sliceHandle: UInt32, sliceStatus: SliceStatus, newValue: Any) {
+        
+        if let index = sliceView.firstIndex(where: { $0.sliceHandle == sliceHandle }) {
+            
+            switch sliceStatus {
+            case .txEnabled:
+                sliceView[index].txEnabled = newValue as! Bool
+                print("TX Enabled/Disabled")
+            case .active:
+            break // not used
+            case .mode:
+                sliceView[index].radioMode = newValue as! RadioMode
+            case .frequency:
+                sliceView[index].frequency = newValue as! String
+            }
+        }
+        
+        if sliceView.firstIndex(where: { $0.txEnabled == true && $0.radioMode != RadioMode.unknown }) != nil {
+            enableVoiceButtons(validSliceAvailable: true)
+        } else {
+            disableVoiceButtons()
+        }
+    }
+    
+    /**
+     Remove a slice information object from the local sliceView collection.
+     */
+    func didRemoveSlice(sliceHandle: UInt32) {
+        
+        if let index = sliceView.firstIndex(where: { $0.sliceHandle == sliceHandle }) {
+            sliceView.remove(at: index)
+        }
+        
+//        if sliceView.firstIndex(where: { $0.txEnabled == true }) != nil {
+//            return
+//        }
+        
+       if sliceView.firstIndex(where: { $0.txEnabled == true && $0.radioMode != RadioMode.unknown }) != nil {
+            enableVoiceButtons(validSliceAvailable: true)
+        } else {
+            disableVoiceButtons()
+        }
+    }
+    
     
     // MARK: Button Handling ---------------------------------------------------------------------------
     
