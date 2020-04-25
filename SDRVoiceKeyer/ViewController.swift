@@ -65,8 +65,6 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     private let radioKey = "defaultRadio"
     
     var isRadioConnected = false
-    //var isTxSliceAvailable = false
-    //var isValidMode = false
     var isBoundToClient = false
     var stationName = ""
     
@@ -333,7 +331,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     func doConnectRadio(serialNumber: String, stationName: String, clientId: String, doConnect: Bool) {
         
         if self.radioManager.connectToRadio(serialNumber: serialNumber, clientStation: stationName, clientId: clientId, doConnect: doConnect) == true {
-            //self.stationName = stationName
+            self.stationName = stationName
             self.view.window?.title = "SDR Voice Keyer - " + self.defaultStation.nickname
             self.isRadioConnected = true
             self.statusLabel.stringValue = "Connected"
@@ -349,9 +347,8 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         if self.radioManager.bindToStation(clientId: clientId) == true {
             self.view.window?.title = "SDR Voice Keyer - " + self.defaultStation.nickname
             isBoundToClient = true
-            //self.statusLabel.stringValue = stationName
             
-            if sliceView.firstIndex(where: { $0.txEnabled == true && $0.radioMode != RadioMode.unknown }) != nil {
+            if sliceView.firstIndex(where: { $0.txEnabled == true && $0.radioMode != RadioMode.other }) != nil {
                 enableVoiceButtons(validSliceAvailable: true)
             }
         }
@@ -399,22 +396,18 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         
         self.sliceView += slice
         
-        if sliceView.firstIndex(where: { $0.txEnabled == true && $0.radioMode != RadioMode.unknown }) != nil {
+        if sliceView.firstIndex(where: { $0.txEnabled == true && $0.radioMode != RadioMode.other }) != nil {
             
-            if let index = sliceView.firstIndex(where: { $0.txEnabled == true && $0.radioMode != RadioMode.unknown }) {
+            if let index = sliceView.firstIndex(where: { $0.txEnabled == true && $0.radioMode != RadioMode.other }) {
                 components.slice = sliceView[index].sliceLetter
                 components.mode = sliceView[index].radioMode.rawValue
                 components.frequency = sliceView[index].frequency
-                components.station = "Station" //sliceView[index].
+                components.station = self.stationName
                 updateView(components: components)
             }
             
             enableVoiceButtons(validSliceAvailable: true) 
         }
-        
-        //var components: (sliceLetter: String, mode: String, frequency: String, station: String)
-        
-        
     }
     
     /**
@@ -422,12 +415,14 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      */
     func didUpdateSlice(sliceHandle: UInt32, sliceStatus: SliceStatus, newValue: Any) {
         
+        var components: (slice: String, mode: String, frequency: String, station: String)
+        
+        // find the slice to update
         if let index = sliceView.firstIndex(where: { $0.sliceHandle == sliceHandle }) {
             
             switch sliceStatus {
             case .txEnabled:
                 sliceView[index].txEnabled = newValue as! Bool
-                print("TX Enabled/Disabled")
             case .active:
             break // not used
             case .mode:
@@ -437,9 +432,25 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
             }
         }
         
-        if sliceView.firstIndex(where: { $0.txEnabled == true && $0.radioMode != RadioMode.unknown }) != nil {
+        if sliceView.firstIndex(where: { $0.txEnabled == true && $0.radioMode != RadioMode.other }) != nil {
+            if let index = sliceView.firstIndex(where: { $0.sliceHandle == sliceHandle }) {
+                components.slice = sliceView[index].sliceLetter
+                components.mode = sliceView[index].radioMode.rawValue
+                components.frequency = sliceView[index].frequency
+                components.station = self.stationName
+                updateView(components: components)
+            }
+            
             enableVoiceButtons(validSliceAvailable: true)
         } else {
+            if let index = sliceView.firstIndex(where: { $0.sliceHandle == sliceHandle }) {
+                components.slice = sliceView[index].sliceLetter
+                components.mode = sliceView[index].radioMode.rawValue
+                components.frequency = sliceView[index].frequency
+                components.station = self.stationName
+                updateView(components: components)
+            }
+            
             disableVoiceButtons()
         }
     }
@@ -452,12 +463,8 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         if let index = sliceView.firstIndex(where: { $0.sliceHandle == sliceHandle }) {
             sliceView.remove(at: index)
         }
-        
-//        if sliceView.firstIndex(where: { $0.txEnabled == true }) != nil {
-//            return
-//        }
-        
-       if sliceView.firstIndex(where: { $0.txEnabled == true && $0.radioMode != RadioMode.unknown }) != nil {
+
+       if sliceView.firstIndex(where: { $0.txEnabled == true && $0.radioMode != RadioMode.other }) != nil {
             enableVoiceButtons(validSliceAvailable: true)
         } else {
             disableVoiceButtons()
@@ -553,7 +560,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
                 }
             }
             
-            // Send ID button
+            // Send ID button if it has been configured
             if UserDefaults.standard.string(forKey: String(102)) != "" {
                 buttonSendID.isEnabled = self.isRadioConnected
             } else {

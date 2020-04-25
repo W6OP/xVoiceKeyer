@@ -131,10 +131,11 @@ protocol RadioManagerDelegate: class {
 //}
 
 public enum RadioMode : String {
+    case am = "AM"
     case usb = "USB"
     case lsb = "LSB"
     case fm = "FM"
-    case unknown = "Unknown"
+    case other = "Invalid"
 }
 
 
@@ -452,8 +453,8 @@ class RadioManager: NSObject, ApiDelegate {
     func sliceHasBeenAdded(_ note: Notification){
         
         let slice: xLib6000.Slice = (note.object as! xLib6000.Slice)
-        let mode: RadioMode = RadioMode(rawValue: slice.mode) ?? RadioMode.unknown
-        let frequency: String = String(slice.frequency)
+        let mode: RadioMode = RadioMode(rawValue: slice.mode) ?? RadioMode.other
+        let frequency: String = convertFrequencyToDecimalString (frequency: slice.frequency)
         
         var sliceView = [(sliceLetter: String, radioMode: RadioMode, txEnabled: Bool, frequency: String, sliceHandle: UInt32)]()
         
@@ -500,11 +501,11 @@ class RadioManager: NSObject, ApiDelegate {
          case .active:
              newValue = "Active" // not used
          case .mode:
-            newValue = RadioMode(rawValue: slice.mode) ?? RadioMode.unknown
+            newValue = RadioMode(rawValue: slice.mode) ?? RadioMode.other
          case .txEnabled:
             newValue = slice.txEnabled
          case .frequency:
-            newValue = slice.frequency
+            newValue = convertFrequencyToDecimalString (frequency: slice.frequency)
          }
          
          print ("Slice \(slice.sliceLetter ?? "Unknown") has changed.")
@@ -551,13 +552,11 @@ class RadioManager: NSObject, ApiDelegate {
             let start = frequencyString[0..<1]
             let end = frequencyString[1..<4]
             let extend = frequencyString[4..<6]
-            //print ("\(start).\(end)")
             return ("\(start).\(end).\(extend)")
         default:
             let start = frequencyString[0..<2]
             let end = frequencyString[2..<5]
             let extend = frequencyString[5..<7]
-            //print ("\(start).\(end).\(extend)")
             return ("\(start).\(end).\(extend)")
         }
     }
