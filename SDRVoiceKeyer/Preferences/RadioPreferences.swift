@@ -155,7 +155,7 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
             self.defaultStation.stationName = defaults["stationName"] as! String
             self.defaultStation.default = defaults["default"] as! String
             self.defaultStation.serialNumber = defaults["serialNumber"] as! String
-            self.defaultStation.clientId = defaults["clientId"] as! String
+            self.defaultStation.clientId = "" //defaults["clientId"] as! String
         }
         
         for i in 0..<station.count {
