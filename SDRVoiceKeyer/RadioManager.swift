@@ -310,7 +310,7 @@ class RadioManager: NSObject, ApiDelegate {
     /**
      Bind to a specific station so we get their messages and updates
      */
-    func bindToStation(clientId: String, station: String) -> String {
+    func bindToStation(clientId: String, station: String) -> UInt32 {
         
         api.radio?.boundClientId = clientId
             
@@ -318,11 +318,11 @@ class RadioManager: NSObject, ApiDelegate {
             if let client = radio.guiClients.filter({ $0.station == station }).first {
                 
                 os_log("Bound to the Radio.", log: RadioManager.model_log, type: .info)
-                return String(client.handle)
+                return client.handle
             }
         }
         
-        return ""
+        return 0
     }
     
     // cleanup so we can bind with another station

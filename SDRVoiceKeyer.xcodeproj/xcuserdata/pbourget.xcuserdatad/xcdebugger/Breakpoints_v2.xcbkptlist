@@ -128,8 +128,8 @@
             filePath = "SDRVoiceKeyer/ViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "603"
-            endingLineNumber = "603"
+            startingLineNumber = "592"
+            endingLineNumber = "592"
             landmarkName = "loadUserDefaults(isGuiClientUpdate:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -240,8 +240,8 @@
             filePath = "SDRVoiceKeyer/ViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "379"
-            endingLineNumber = "379"
+            startingLineNumber = "372"
+            endingLineNumber = "372"
             landmarkName = "updateView(sliceHandle:)"
             landmarkType = "7">
             <Locations>
@@ -304,8 +304,8 @@
             filePath = "SDRVoiceKeyer/ViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "450"
-            endingLineNumber = "450"
+            startingLineNumber = "439"
+            endingLineNumber = "439"
             landmarkName = "didRemoveSlice(sliceHandle:sliceLetter:)"
             landmarkType = "7">
          </BreakpointContent>

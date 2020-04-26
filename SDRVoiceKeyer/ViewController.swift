@@ -68,6 +68,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     var isBoundToClient = false
     var boundClientId: String? = nil
     var connectedStationName = ""
+    var connectedStationHandle: UInt32 = 0
     
     var timerState: String = "ON"
     var idTimer :Repeater?
@@ -328,14 +329,13 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      */
     func doBindToStation(clientId: String, station: String)  {
         
-        let activeStationhandle = self.radioManager.bindToStation(clientId: clientId, station: station)
+        connectedStationHandle = self.radioManager.bindToStation(clientId: clientId, station: station)
         
-        if activeStationhandle != "" {
+        if connectedStationHandle != 0 {
             self.view.window?.title = "SDR Voice Keyer - " + self.defaultStation.nickname
             isBoundToClient = true
-            
-            //filterSlices(activeStationHandle: activeStationhandle)
-            
+            updateView(sliceHandle: connectedStationHandle)
+          
             if sliceView.firstIndex(where: { $0.txEnabled == true && $0.radioMode != RadioMode.other }) != nil {
                 enableVoiceButtons(validSliceAvailable: true)
             }
@@ -343,13 +343,6 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         
     }
     
-    /**
-     Remove slices that belong to another radio
-     */
-    func filterSlices(activeStationHandle : String) {
-        
-        sliceView.removeAll(where: { String($0.sliceHandle) != activeStationHandle })
-    }
     /**
      Request to be disconnected from the selected radio.
      */
@@ -374,9 +367,9 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      */
     func updateView(sliceHandle: UInt32) {
         
-        if sliceView.firstIndex(where: { $0.sliceHandle == sliceHandle && $0.txEnabled == true && $0.radioMode != RadioMode.other }) != nil {
+        if sliceView.firstIndex(where: { $0.sliceHandle == connectedStationHandle && $0.txEnabled == true && $0.radioMode != RadioMode.other }) != nil {
             
-            if let index = sliceView.firstIndex(where: { $0.sliceHandle == sliceHandle && $0.txEnabled == true && $0.radioMode != RadioMode.other }) {
+            if let index = sliceView.firstIndex(where: { $0.sliceHandle == connectedStationHandle && $0.txEnabled == true && $0.radioMode != RadioMode.other }) {
                
                 self.labelFrequency.stringValue = sliceView[index].frequency
                 self.labelMode.stringValue = sliceView[index].radioMode.rawValue
@@ -424,15 +417,11 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
             }
         }
         
-        if sliceView.firstIndex(where: { $0.sliceHandle == sliceHandle && $0.txEnabled == true && $0.radioMode != RadioMode.other }) != nil {
+        if sliceView.firstIndex(where: { $0.sliceHandle == connectedStationHandle && $0.txEnabled == true && $0.radioMode != RadioMode.other }) != nil {
             
             updateView(sliceHandle: sliceHandle)
-            
             enableVoiceButtons(validSliceAvailable: true)
         } else {
-            
-            //updateView()
-            
             disableVoiceButtons()
         }
     }
@@ -446,7 +435,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
             sliceView.remove(at: index)
         }
         
-        if sliceView.firstIndex(where: { $0.sliceHandle == sliceHandle && $0.txEnabled == true && $0.radioMode != RadioMode.other }) != nil {
+        if sliceView.firstIndex(where: { $0.sliceHandle == connectedStationHandle && $0.txEnabled == true && $0.radioMode != RadioMode.other }) != nil {
             enableVoiceButtons(validSliceAvailable: true)
             updateView(sliceHandle: sliceHandle)
         } else {
