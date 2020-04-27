@@ -46,11 +46,11 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
     // class variables
     var preferenceManager: PreferenceManager!
    
-    // Array of available Radios from view controller
-//    var radios = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String)]()
     // Array of available radios per station name
-    var station = [(model: "", nickname: "", stationName: "", default: "", serialNumber: "", clientId: "", handle: "")]
-    private var defaultStation = (model: "", nickname: "", stationName: "", default: "", serialNumber: "", clientId: "", handle: "")
+    var station = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)]()
+    
+    private var defaultStation = (model: "", nickname: "", stationName: "", default: "", serialNumber: "", clientId: "", handle: UInt32())
+    
     private let radioKey = "defaultRadio"
     private var isDefaultSet = false
     
@@ -130,18 +130,6 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
         isDefaultSet = false // don't save radio on exit
         saveUserDefaults()
     }
-    
-    /**
-     
-     */
-//    func buildStationList(radios: [(model: String, nickname: String, stationNames: [String], default: String, serialNumber: String)]) {
-//
-//        //for radio in radios {
-//            //for client in radio.stationNames {
-//               //station.append((model: radio.model, nickname: radio.nickname, stationName: client, default: radio.default, serialNumber: radio.serialNumber))
-//            //}
-//        //}
-//    }
     
     /**
         Retrieve the user settings. File paths and the default radio.

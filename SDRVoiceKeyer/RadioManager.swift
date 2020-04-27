@@ -96,13 +96,13 @@ func UI(_ block: @escaping ()->Void) {
  */
 protocol RadioManagerDelegate: class {
     // radio and gui clients were discovered - notify GUI
-    func didDiscoverGUIClients(discoveredGUIClients: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: String)], isGuiClientUpdate: Bool)
+    func didDiscoverGUIClients(discoveredGUIClients: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)], isGuiClientUpdate: Bool)
     
-    func didAddGUIClients(discoveredGUIClients: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: String)], isGuiClientUpdate: Bool)
+    func didAddGUIClients(discoveredGUIClients: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)], isGuiClientUpdate: Bool)
     
-    func didUpdateGUIClients(discoveredGUIClients: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: String)], isGuiClientUpdate: Bool)
+    func didUpdateGUIClients(discoveredGUIClients: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)], isGuiClientUpdate: Bool)
     
-    func didRemoveGUIClients(discoveredGUIClients: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: String)], isGuiClientUpdate: Bool)
+    func didRemoveGUIClients(discoveredGUIClients: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)], isGuiClientUpdate: Bool)
     
     func didAddSlice(slice: [(sliceLetter: String, radioMode: RadioMode, txEnabled: Bool, frequency: String, sliceHandle: UInt32)])
     
@@ -261,7 +261,7 @@ class RadioManager: NSObject, ApiDelegate {
         
         nc.addObserver(forName:Notification.Name(rawValue:"guiClientHasBeenAdded"),
                        object:nil, queue:nil,
-                       using:clientsAdded)
+                       using:guiClientsAdded)
         
         nc.addObserver(forName:Notification.Name(rawValue:"guiClientHasBeenUpdated"),
                        object:nil, queue:nil,
@@ -278,7 +278,7 @@ class RadioManager: NSObject, ApiDelegate {
                        using:sliceWillBeRemoved)
     }
     
-    // MARK: - Implementation ----------------------------------------------------------------------------
+    // MARK: - Connect and Bind ----------------------------------------------------------------------------
     
     /**
      Exposed function for the GUI to indicate which radio to connect to.
@@ -317,10 +317,11 @@ class RadioManager: NSObject, ApiDelegate {
         api.radio?.boundClientId = clientId
             
         for radio in discovery.discoveredRadios {
-            if let client = radio.guiClients.filter({ $0.station == station }).first {
-                
+            
+            if let client = radio.guiClients.filter({ $0.value.station == station }).first {
+                let handle = client.key
                 os_log("Bound to the Radio.", log: RadioManager.model_log, type: .info)
-                return client.handle
+                return handle
             }
         }
         
@@ -337,12 +338,10 @@ class RadioManager: NSObject, ApiDelegate {
      Perform an orderly close of the Radio resources.
      */
     func closeRadio() {
-        // TODO:
-        //api.disconnect()
         activeRadio = nil
     }
     
-    // MARK: - Radio Methods ----------------------------------------------------------------------------
+    // MARK: - Dicovery Methods ----------------------------------------------------------------------------
     
     /** 
      Notification that one or more radios were discovered.
@@ -353,18 +352,16 @@ class RadioManager: NSObject, ApiDelegate {
         // receive the updated list of Radios
         let discoveryPacket = (note.object as! [DiscoveryPacket])
 
-        var guiClientView = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: String)]()
+        var guiClientView = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)]()
 
         // just collect the radio's gui clients
         for radio in discoveryPacket {
-            for client in radio.guiClients {
-                print("GUIClient \(client.station) was discovered ")
-                guiClientView.append((radio.model, radio.nickname, client.station, "No", radio.serialNumber, client.clientId ?? "", String(client.handle)))
+            for guiClient in radio.guiClients {
+                let handle = guiClient.key
+                guiClientView.append((radio.model, radio.nickname, guiClient.value.station, "No", radio.serialNumber, guiClient.value.clientId ?? "", handle))
             }
         }
 
-        //print("GUIClient \(station) was discovered ")
-        
         if guiClientView.count > 0 {
             // let the view controller know a radio was discovered
             // this is the first thing to occur after xLib adds a radio
@@ -379,15 +376,16 @@ class RadioManager: NSObject, ApiDelegate {
      When another GUI client appears we receive a notification.
      Let the view controller know there has been an update.
      */
-    func clientsAdded(_ note: Notification) {
+    func guiClientsAdded(_ note: Notification) {
         
-        var guiClientView = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: String)]()
+        var guiClientView = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)]()
 
         if let station = note.object as? String {
             for radio in discovery.discoveredRadios {
                 for client in radio.guiClients {
-                    if client.station == station {
-                        guiClientView.append((radio.model, radio.nickname, client.station, "No", radio.serialNumber, client.clientId ?? "", String(client.handle)))
+                    let handle = client.key
+                    if client.value.station == station {
+                        guiClientView.append((radio.model, radio.nickname, station, "No", radio.serialNumber, client.value.clientId ?? "", handle))
                     }
                 }
             }
@@ -405,15 +403,15 @@ class RadioManager: NSObject, ApiDelegate {
     // Do bind after this
     func clientsUpdated(_ note: Notification) {
         
-        var guiClientView = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: String)]()
+        var guiClientView = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)]()
 
-        if let station = note.object as? String {
+        if let guiClient = note.object as? GuiClient { // was station
             
-            let clientId = getClientId(station: station)
-
             for radio in discovery.discoveredRadios {
-                if let client = radio.guiClients.filter({ $0.station == station }).first {
-                    guiClientView.append((radio.model, radio.nickname, client.station, "No", radio.serialNumber, clientId, String(client.handle)))
+//                if let client = radio.guiClients.filter({ $0.station == station }).first
+                if let client = radio.guiClients.first(where: { $0.value.station == guiClient.station} ){
+                    let handle = client.key
+                    guiClientView.append((radio.model, radio.nickname, guiClient.station, "No", radio.serialNumber, String(guiClient.clientId ?? ""), handle)) // was String(client.handle)
                 }
             }
             
@@ -431,12 +429,12 @@ class RadioManager: NSObject, ApiDelegate {
      Get the client id for a station name.
      - parameter station: String
      */
-    func getClientId(station: String) -> String {
-        
-        guard let clientId = activeRadio?.guiClients[0].clientId else { return "" }
-        
-        return clientId
-    }
+//    func getClientId(station: String) -> String {
+//
+//        guard let clientId = activeRadio?.guiClients[0]?.clientId else { return "" }
+//
+//        return clientId
+//    }
     
     // get handle - TODO: this needs work
     func clientsRemoved(_ note: Notification) {
