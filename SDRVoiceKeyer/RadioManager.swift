@@ -297,7 +297,7 @@ class RadioManager: NSObject, ApiDelegate {
                 
                 activeRadio = foundRadio
                 
-                if api.connect(activeRadio!, clientStation: clientStation, programName: "SDRVoiceKeyer", clientId: nil, isGui: false) {
+                if api.connect(activeRadio!, programName: "SDRVoiceKeyer", clientId: nil, isGui: false) {
                     
                     os_log("Connected to the Radio.", log: RadioManager.model_log, type: .info)
                     return true
@@ -311,6 +311,8 @@ class RadioManager: NSObject, ApiDelegate {
      Bind to a specific station so we get their messages and updates
      */
     func bindToStation(clientId: String, station: String) -> UInt32 {
+        
+        cleanUp()
         
         api.radio?.boundClientId = clientId
             

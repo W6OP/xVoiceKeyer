@@ -64,8 +64,8 @@
             filePath = "SDRVoiceKeyer/RadioManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "652"
-            endingLineNumber = "652"
+            startingLineNumber = "654"
+            endingLineNumber = "654"
             landmarkName = "updateTxStreamId(_:sequenceNumber:responseValue:reply:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -96,8 +96,8 @@
             filePath = "SDRVoiceKeyer/RadioManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "621"
-            endingLineNumber = "621"
+            startingLineNumber = "623"
+            endingLineNumber = "623"
             landmarkName = "keyRadio(doTransmit:buffer:xmitGain:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -112,8 +112,8 @@
             filePath = "SDRVoiceKeyer/RadioManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "628"
-            endingLineNumber = "628"
+            startingLineNumber = "630"
+            endingLineNumber = "630"
             landmarkName = "keyRadio(doTransmit:buffer:xmitGain:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -128,8 +128,8 @@
             filePath = "SDRVoiceKeyer/ViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "592"
-            endingLineNumber = "592"
+            startingLineNumber = "600"
+            endingLineNumber = "600"
             landmarkName = "loadUserDefaults(isGuiClientUpdate:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -144,8 +144,8 @@
             filePath = "SDRVoiceKeyer/RadioManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "471"
-            endingLineNumber = "471"
+            startingLineNumber = "473"
+            endingLineNumber = "473"
             landmarkName = "sliceHasBeenAdded(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -160,8 +160,8 @@
             filePath = "SDRVoiceKeyer/RadioManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "515"
-            endingLineNumber = "515"
+            startingLineNumber = "517"
+            endingLineNumber = "517"
             landmarkName = "updateSliceStatus(_:sliceStatus:_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -176,8 +176,8 @@
             filePath = "SDRVoiceKeyer/RadioManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "528"
-            endingLineNumber = "528"
+            startingLineNumber = "530"
+            endingLineNumber = "530"
             landmarkName = "updateSliceStatus(_:sliceStatus:_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -192,8 +192,8 @@
             filePath = "SDRVoiceKeyer/RadioManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "531"
-            endingLineNumber = "531"
+            startingLineNumber = "533"
+            endingLineNumber = "533"
             landmarkName = "updateSliceStatus(_:sliceStatus:_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -240,8 +240,8 @@
             filePath = "SDRVoiceKeyer/ViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "372"
-            endingLineNumber = "372"
+            startingLineNumber = "380"
+            endingLineNumber = "380"
             landmarkName = "updateView(sliceHandle:)"
             landmarkType = "7">
             <Locations>
@@ -288,8 +288,8 @@
             filePath = "SDRVoiceKeyer/RadioManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "526"
-            endingLineNumber = "526"
+            startingLineNumber = "528"
+            endingLineNumber = "528"
             landmarkName = "updateSliceStatus(_:sliceStatus:_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -304,8 +304,8 @@
             filePath = "SDRVoiceKeyer/ViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "439"
-            endingLineNumber = "439"
+            startingLineNumber = "447"
+            endingLineNumber = "447"
             landmarkName = "didRemoveSlice(sliceHandle:sliceLetter:)"
             landmarkType = "7">
          </BreakpointContent>

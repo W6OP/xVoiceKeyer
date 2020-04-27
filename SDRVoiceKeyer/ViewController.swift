@@ -315,6 +315,12 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      */
     func doConnectRadio(serialNumber: String, stationName: String, clientId: String, doConnect: Bool) {
         
+        // if already connected we need to cleanup before connecting again
+        if isRadioConnected {
+            doBindToStation(clientId: clientId, station: stationName)
+            return
+        }
+        
         if self.radioManager.connectToRadio(serialNumber: serialNumber, clientStation: stationName, clientId: clientId, doConnect: doConnect) == true {
             self.connectedStationName = stationName
             self.view.window?.title = "SDR Voice Keyer - " + self.defaultStation.nickname
@@ -334,6 +340,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         if connectedStationHandle != 0 {
             self.view.window?.title = "SDR Voice Keyer - " + self.defaultStation.nickname
             isBoundToClient = true
+            self.connectedStationName = station
             updateView(sliceHandle: connectedStationHandle)
           
             if sliceView.firstIndex(where: { $0.txEnabled == true && $0.radioMode != RadioMode.other }) != nil {
@@ -350,6 +357,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         self.isRadioConnected = false
         self.isBoundToClient = false
         self.connectedStationName = ""
+        self.connectedStationHandle = 0
         self.statusLabel.stringValue = "Disconnected"
     }
     
