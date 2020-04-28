@@ -228,7 +228,6 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     func didAddGUIClients(discoveredGUIClients: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)], isGuiClientUpdate: Bool) {
         
         if guiClientView.filter({ $0.stationName == defaultStation.stationName }).isEmpty {
-            
             guiClientView += discoveredGUIClients
         }
     }
@@ -239,20 +238,13 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      otherwise show the preference pane. Also if there is a default, update its information
      if there are multiple radios, see if one is the default, if so - connect
      otherwise pop the preferences pane.
-     
-     Now looking or stations or gui clients
-     Entered multiple times
-     
      This is the normal flow. When the Connect button is clicked it goes straight to doConnectToradio()
-     
-     GUICLIENTS ARE ADDED BEFORE THEY ARE DISCOVERED
      */
     func didDiscoverGUIClients(discoveredGUIClients: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)], isGuiClientUpdate: Bool) {
         
         loadUserDefaults(isGuiClientUpdate: isGuiClientUpdate)
         
         if guiClientView.filter({ $0.stationName == defaultStation.stationName }).isEmpty {
-            
             guiClientView += discoveredGUIClients
         } else {
             guiClientView.removeAll(where: { $0.stationName == defaultStation.stationName })
@@ -300,10 +292,24 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     
     /**
      A GUIClient has disappeared from the network so we will remove it from our collection.
+     First get the handle so we can remove the slices too
      */
-    func didRemoveGUIClients(discoveredGUIClients: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)], isGuiClientUpdate: Bool) {
+    func didRemoveGUIClients(station: String) {
         
-        guiClientView.removeAll(where: { $0.stationName == discoveredGUIClients[0].stationName })
+        if !guiClientView.filter({ $0.stationName == station }).isEmpty {
+            let handle = guiClientView.first( where: { $0.stationName == station })?.handle
+            sliceView.removeAll( where: { $0.sliceHandle == handle})
+        }
+        
+        guiClientView.removeAll(where: { $0.stationName == station})
+        
+        if (station == connectedStationName){
+            connectedStationName = ""
+            connectedStationHandle = 0
+            isBoundToClient = false
+            
+            updateView(sliceHandle: 0)
+        }
         
     }
     

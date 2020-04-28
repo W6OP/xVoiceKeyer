@@ -108,6 +108,8 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
         
         tableViewRadioPicker.dataSource = self
         tableViewRadioPicker.delegate = self
+        
+        buttonConnectControl.isEnabled = true
     }
     
     // View Will Appear

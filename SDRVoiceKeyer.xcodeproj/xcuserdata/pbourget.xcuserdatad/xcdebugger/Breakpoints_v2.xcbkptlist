@@ -7,16 +7,32 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "7E659B3D-E124-41EE-93DF-F912E9AF9B25"
-            shouldBeEnabled = "Yes"
+            uuid = "B528D55F-6C64-470D-A143-31CF9F611BB6"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "SDRVoiceKeyer/ViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "232"
-            endingLineNumber = "232"
-            landmarkName = "didAddGUIClients(discoveredGUIClients:isGuiClientUpdate:)"
+            startingLineNumber = "304"
+            endingLineNumber = "304"
+            landmarkName = "didRemoveGUIClients(station:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "6AEB1589-9C90-454C-8CD6-C48E8A104011"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SDRVoiceKeyer/RadioManager.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "407"
+            endingLineNumber = "407"
+            landmarkName = "guiClientsUpdated(_:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
