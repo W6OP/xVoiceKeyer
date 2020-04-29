@@ -15,11 +15,11 @@
                 <application id="hnw-xV-0zn" sceneMemberID="viewController">
                     <menu key="mainMenu" title="Main Menu" systemMenu="main" id="AYu-sK-qS6">
                         <items>
-                            <menuItem title="SDRVoiceKeyer" id="1Xt-HY-uBw">
+                            <menuItem title="xVoiceKeyer" id="1Xt-HY-uBw">
                                 <modifierMask key="keyEquivalentModifierMask"/>
-                                <menu key="submenu" title="SDRVoiceKeyer" systemMenu="apple" id="uQy-DD-JDr">
+                                <menu key="submenu" title="xVoiceKeyer" systemMenu="apple" id="uQy-DD-JDr">
                                     <items>
-                                        <menuItem title="About SDRVoiceKeyer" id="5kV-Vb-QxS">
+                                        <menuItem title="About xVoiceKeyer" id="5kV-Vb-QxS">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
                                                 <action selector="orderFrontStandardAboutPanel:" target="Ady-hI-5gd" id="Exp-CZ-Vem"/>
@@ -44,7 +44,7 @@
                                             <menu key="submenu" title="Services" systemMenu="services" id="hz9-B4-Xy5"/>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="4je-JR-u6R"/>
-                                        <menuItem title="Hide SDRVoiceKeyer" keyEquivalent="h" id="Olw-nP-bQN">
+                                        <menuItem title="Hide xVoiceKeyer" keyEquivalent="h" id="Olw-nP-bQN">
                                             <connections>
                                                 <action selector="hide:" target="Ady-hI-5gd" id="PnN-Uc-m68"/>
                                             </connections>
@@ -62,7 +62,7 @@
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="kCx-OE-vgT"/>
-                                        <menuItem title="Quit SDRVoiceKeyer" keyEquivalent="q" id="4sb-4s-VLi">
+                                        <menuItem title="Quit xVoiceKeyer" keyEquivalent="q" id="4sb-4s-VLi">
                                             <connections>
                                                 <action selector="terminate:" target="Ady-hI-5gd" id="Te7-pn-YzF"/>
                                             </connections>
@@ -655,7 +655,7 @@
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <menu key="submenu" title="Help" systemMenu="help" id="F2S-fz-NVQ">
                                     <items>
-                                        <menuItem title="SDRVoiceKeyer Help" keyEquivalent="?" id="FKE-Sm-Kum">
+                                        <menuItem title="xVoiceKeyer Help" keyEquivalent="?" id="FKE-Sm-Kum">
                                             <connections>
                                                 <action selector="showHelp:" target="Ady-hI-5gd" id="y7X-2Q-9no"/>
                                             </connections>
@@ -669,7 +669,7 @@
                         <outlet property="delegate" destination="Voe-Tx-rLC" id="PrD-fu-P6m"/>
                     </connections>
                 </application>
-                <customObject id="Voe-Tx-rLC" customClass="AppDelegate" customModule="SDRVoiceKeyer" customModuleProvider="target"/>
+                <customObject id="Voe-Tx-rLC" customClass="AppDelegate" customModule="xVoiceKeyer" customModuleProvider="target"/>
                 <customObject id="Ady-hI-5gd" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="75" y="0.0"/>
@@ -677,8 +677,8 @@
         <!--Window Controller-->
         <scene sceneID="R2V-B0-nI4">
             <objects>
-                <windowController id="B8D-0N-5wS" customClass="WindowController" customModule="SDRVoiceKeyer" customModuleProvider="target" sceneMemberID="viewController">
-                    <window key="window" title="SDR Voice Keyer" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="IQv-IB-iLA">
+                <windowController id="B8D-0N-5wS" customClass="WindowController" customModule="xVoiceKeyer" customModuleProvider="target" sceneMemberID="viewController">
+                    <window key="window" title="xVoice Keyer" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="IQv-IB-iLA" userLabel="xVoice Keyer">
                         <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>
                         <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
                         <rect key="contentRect" x="196" y="240" width="480" height="270"/>
@@ -687,13 +687,12 @@
                             <outlet property="delegate" destination="B8D-0N-5wS" id="1QS-vL-pF2"/>
                         </connections>
                     </window>
-                    <touchBar key="touchBar" id="rsd-78-Xah" userLabel="SDRTouchBar">
+                    <touchBar key="touchBar" id="rsd-78-Xah" userLabel="xTouchBar">
                         <touchBarItems>
                             <touchBarItem id="VSA-aW-Cmj">
                                 <viewController key="viewController" id="Km9-cl-wQC">
                                     <button key="view" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="7zL-nQ-2nY">
-                                        <rect key="frame" x="0.0" y="-11" width="84" height="41"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="72" height="30"/>
                                         <buttonCell key="cell" type="push" title="Stop" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="iDU-9V-sx9">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" usesAppearanceFont="YES"/>
@@ -708,8 +707,7 @@
                             <touchBarItem id="blz-n6-gIM">
                                 <viewController key="viewController" id="l2Z-oY-eRF">
                                     <segmentedControl key="view" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="jFD-bj-Vnf">
-                                        <rect key="frame" x="0.0" y="-3" width="531" height="33"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="527" height="30"/>
                                         <segmentedCell key="cell" borderStyle="border" alignment="left" tag="1" segmentDistribution="fillEqually" style="rounded" trackingMode="momentary" id="Dkx-0L-Esg">
                                             <font key="font" metaFont="system"/>
                                             <segments>
@@ -743,10 +741,10 @@
             </objects>
             <point key="canvasLocation" x="77" y="250"/>
         </scene>
-        <!--View Controller-->
+        <!--xVoiceKeyer-->
         <scene sceneID="hIz-AP-VOD">
             <objects>
-                <viewController id="XfG-lQ-9wD" customClass="ViewController" customModule="SDRVoiceKeyer" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="xVoiceKeyer" id="XfG-lQ-9wD" customClass="ViewController" customModule="xVoiceKeyer" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" wantsLayer="YES" id="m2S-Jp-Qdl">
                         <rect key="frame" x="0.0" y="0.0" width="590" height="142"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -1063,7 +1061,7 @@ Gw
         <!--Radio Preferences-->
         <scene sceneID="zwc-lB-DSG">
             <objects>
-                <viewController identifier="radioSelection" storyboardIdentifier="radioSelection" id="3zi-E8-UUr" customClass="RadioPreferences" customModule="SDRVoiceKeyer" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController identifier="radioSelection" storyboardIdentifier="radioSelection" id="3zi-E8-UUr" customClass="RadioPreferences" customModule="xVoiceKeyer" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" id="3gJ-RU-icY">
                         <rect key="frame" x="0.0" y="0.0" width="510" height="206"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -1091,7 +1089,7 @@ Gw
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <tableView verticalHuggingPriority="750" tag="1" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnReordering="NO" columnSelection="YES" columnResizing="NO" multipleSelection="NO" emptySelection="NO" autosaveColumns="NO" typeSelect="NO" headerView="bF2-aI-j3K" id="J1R-Gw-uyD">
-                                            <rect key="frame" x="0.0" y="0.0" width="468" height="111"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="468" height="109"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <size key="intercellSpacing" width="3" height="2"/>
                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -1158,7 +1156,7 @@ Gw
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                                 <tableHeaderView key="headerView" id="bF2-aI-j3K">
-                                    <rect key="frame" x="0.0" y="0.0" width="468" height="23"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="468" height="25"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </tableHeaderView>
                             </scrollView>
@@ -1215,7 +1213,7 @@ Gw
         <!--File Preferences-->
         <scene sceneID="ZtV-4X-0yg">
             <objects>
-                <viewController identifier="filePreferences" storyboardIdentifier="filePreferences" id="2eB-1d-oWn" customClass="FilePreferences" customModule="SDRVoiceKeyer" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController identifier="filePreferences" storyboardIdentifier="filePreferences" id="2eB-1d-oWn" customClass="FilePreferences" customModule="xVoiceKeyer" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" id="KOI-Js-k2i">
                         <rect key="frame" x="0.0" y="0.0" width="607" height="373"/>
                         <autoresizingMask key="autoresizingMask"/>

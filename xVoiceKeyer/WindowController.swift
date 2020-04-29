@@ -1,4 +1,6 @@
 /**
+ * Copyright (c) 2019 Peter Bourget W6OP
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -27,70 +29,43 @@
  */
 
 /*
- PreferenceManager.swift
- SDRVoiceKeyer
+ WindowController.swift
+ xVoiceKeyer
  
- Created by Peter Bourget on 2/20/17.
+ Created by Peter Bourget on 1/29/2019.
  Copyright © 2019 Peter Bourget W6OP. All rights reserved.
+ Description: Window controller to capture events from the touchbar.
  
- Description: Opens preference panel.
+ https://spin.atomicobject.com/2017/11/18/nstouchbar-storyboards/
  */
 
 import Cocoa
 
-/**
-    Protocol to pass messages back to viewcontroller.
- */
-protocol PreferenceManagerDelegate: class {
-    // radio was discovered
-    func doConnectRadio(serialNumber: String, stationName: String, clientId: String, doConnect: Bool)
-    // buttons updated
-    func doUpdateButtons()
-    // update button labels
-    func doUpdateButtonLabels()
-    // turn on or off timer fo ID
-    func doSetTimer(isEnabled: Bool, interval: Int)
-}
-
-enum YesNo: String {
-    case No = "No"
-    case Yes = "Yes"
-}
-
-class PreferenceManager: NSObject {
-   
+internal class WindowController: NSWindowController {
+    
     /**
-        Delegate to pass messages back to viewcontroller.
+     Handle the Stop button on the touchbar
      */
-    var preferenceManagerDelegate:PreferenceManagerDelegate?
-    
-    // TODO: Make sure exception handling works
-    override init() {
-        super.init()
-    }
-    
-    @objc func updateButton(){
-        self.preferenceManagerDelegate?.doUpdateButtons()
-    }
-    
-    @objc func updateButtonLables()
-    {
-        self.preferenceManagerDelegate?.doUpdateButtonLabels()
-    }
-    
-    @objc func enableTimer(isEnabled: Bool, interval: Int) {
-        self.preferenceManagerDelegate?.doSetTimer(isEnabled: isEnabled, interval: interval)
+    @IBAction func stopButton(_ sender: NSButton) {
+        let viewController = contentViewController as! ViewController;
+        viewController.stopTransmitting()
     }
     
     /**
-        Send a message to delegate subscriber to call doConnectRadio() method
-        using the radio's serial number.
-        - parameter serialNumber: String
+     Handle the Segment control on the touchbar. Treat as an
+     array of buttons.
      */
-    @objc func connectToRadio(serialNumber: String, stationName: String, clientId: String){
+    @IBAction func segmentControl(_ sender: NSSegmentedCell) {
+        //print("Segment Test \(sender.selectedSegment)")
+        let segment = sender.selectedSegment
+        let buttonNumber: Int = segment + 1
         
-        self.preferenceManagerDelegate?.doConnectRadio(serialNumber: serialNumber, stationName: stationName, clientId: clientId, doConnect: true)
-        
+        let viewController = contentViewController as! ViewController;
+        viewController.voiceButtonSelected(buttonNumber: buttonNumber)
     }
-
-} // end class
+    
+    override func windowDidLoad() {
+        super.windowDidLoad()
+    }
+    
+}

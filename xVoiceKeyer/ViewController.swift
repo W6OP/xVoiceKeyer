@@ -30,11 +30,11 @@
 
 /*
  MainViewController.swift
- SDRVoiceKeyer
+ xVoiceKeyer
  
  Created by Peter Bourget on 2/10/17.
  Copyright © 2019 Peter Bourget W6OP. All rights reserved.
- Description: Main View Controller for the SDR Voice Keyer
+ Description: Main View Controller for the xVoiceKeyer
  */
 
 import Cocoa
@@ -42,11 +42,11 @@ import Repeat
 
 /*
  MainViewController.swift
- SDRVoiceKeyer
+ xVoiceKeyer
  
  Created by Peter Bourget on 2/10/17.
  Copyright © 2019 Peter Bourget W6OP. All rights reserved.
- Description: Main View Controller for the SDR Voice Keyer
+ Description: Main View Controller for the xVoiceKeyer
  */
 class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerDelegate, AudioManagerDelegate {
     
@@ -57,7 +57,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     // this is only used in showPreferences
     var guiClientView = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)]()
     
-  private var defaultStation = (model: "", nickname: "", stationName: "", default: "", serialNumber: "", clientId: "", handle: UInt32())
+    private var defaultStation = (model: "", nickname: "", stationName: "", default: "", serialNumber: "", clientId: "", handle: UInt32())
     
     // view of available slices for the view controller
     private var sliceView = [(sliceLetter: String, radioMode: radioMode, txEnabled: Bool, frequency: String, sliceHandle: UInt32)]()
@@ -242,7 +242,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      */
     func didDiscoverGUIClients(discoveredGUIClients: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)], isGuiClientUpdate: Bool) {
         
-        loadUserDefaults(isGuiClientUpdate: isGuiClientUpdate)
+        //loadUserDefaults(isGuiClientUpdate: isGuiClientUpdate)
         
         if guiClientView.filter({ $0.stationName == defaultStation.stationName }).isEmpty {
             guiClientView += discoveredGUIClients
@@ -329,7 +329,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         
         if self.radioManager.connectToRadio(serialNumber: serialNumber, station: stationName, clientId: clientId, didConnect: doConnect) == true {
             self.connectedStationName = stationName
-            self.view.window?.title = "SDR Voice Keyer - " + self.defaultStation.nickname
+            self.view.window?.title = "xVoiceKeyer - " + self.defaultStation.nickname
             self.isRadioConnected = true
             self.statusLabel.stringValue = "Connected"
         }
@@ -344,7 +344,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         connectedStationHandle = self.radioManager.bindToStation(clientId: clientId, station: station)
         
         if connectedStationHandle != 0 {
-            self.view.window?.title = "SDR Voice Keyer - " + self.defaultStation.nickname
+            self.view.window?.title = "xVoiceKeyer - " + self.defaultStation.nickname
             isBoundToClient = true
             connectedStationName = station
             

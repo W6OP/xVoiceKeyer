@@ -30,7 +30,7 @@
 
 /*
  AppDelegate.swift
- SDRVoiceKeyer
+ xVoiceKeyer
  
  Created by Peter Bourget on 2/20/17.
  Copyright © 2019 Peter Bourget W6OP. All rights reserved.
