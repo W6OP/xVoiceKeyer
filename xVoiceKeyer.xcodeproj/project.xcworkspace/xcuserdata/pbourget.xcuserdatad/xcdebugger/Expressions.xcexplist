@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VariablesViewState
+   version = "1.0">
+   <ContextStates>
+      <ContextState
+         contextName = "RadioManager.bindToStation(clientId:):RadioManager.swift">
+      </ContextState>
+      <ContextState
+         contextName = "closure #1 in ViewController.filterSlices(activeStationHandle:):ViewController.swift">
+      </ContextState>
+      <ContextState
+         contextName = "ViewController.didAddGUIClients(discoveredGUIClients:isGuiClientUpdate:):ViewController.swift">
+      </ContextState>
+      <ContextState
+         contextName = "ViewController.enableVoiceButtons(validSliceAvailable:):ViewController.swift">
+      </ContextState>
+      <ContextState
+         contextName = "RadioManager.clientsUpdated(_:):RadioManager.swift">
+      </ContextState>
+      <ContextState
+         contextName = "ViewController.didUpdateGUIClients(discoveredGUIClients:isGuiClientUpdate:):ViewController.swift">
+      </ContextState>
+      <ContextState
+         contextName = "ViewController.didUpdateSlice(sliceHandle:sliceStatus:newValue:):ViewController.swift">
+      </ContextState>
+      <ContextState
+         contextName = "ViewController.updateView():ViewController.swift">
+      </ContextState>
+      <ContextState
+         contextName = "RadioManager.getClientId(station:):RadioManager.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "activeRadio?.guiClients[0]">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "RadioManager.updateSliceStatus(_:sliceStatus:_:):RadioManager.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "api.radio?.boundClientId">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "RadioManager.clientsAdded(_:):RadioManager.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "client">
+            </PersistentString>
+            <PersistentString
+               value = "discovery.discoveredRadios">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "ViewController.didDiscoverGUIClients(discoveredGUIClients:isGuiClientUpdate:):ViewController.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "guiClientView[0]">
+            </PersistentString>
+            <PersistentString
+               value = "stationName">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "RadioManager.sliceHasBeenAdded(_:):RadioManager.swift">
+      </ContextState>
+      <ContextState
+         contextName = "RadioManager.discoveryPacketsReceived(_:):RadioManager.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "client[handle].station">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "ViewController.filterSlices(activeStationHandle:):ViewController.swift">
+      </ContextState>
+      <ContextState
+         contextName = "ViewController.doBindToStation(clientId:):ViewController.swift">
+      </ContextState>
+   </ContextStates>
+</VariablesViewState>

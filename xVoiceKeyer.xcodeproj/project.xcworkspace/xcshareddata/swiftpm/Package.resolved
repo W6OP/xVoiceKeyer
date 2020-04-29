@@ -1,0 +1,16 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "xLib6000",
+        "repositoryURL": "https://github.com/K3TZR/xLib6000.git",
+        "state": {
+          "branch": null,
+          "revision": "c806111297e410edd4735c914565876dddad5ef7",
+          "version": "1.2.12"
+        }
+      }
+    ]
+  },
+  "version": 1
+}
