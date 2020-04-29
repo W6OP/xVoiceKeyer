@@ -104,48 +104,47 @@ protocol RadioManagerDelegate: class {
     
     func didRemoveGUIClients(station: String)
     
-    func didAddSlice(slice: [(sliceLetter: String, radioMode: RadioMode, txEnabled: Bool, frequency: String, sliceHandle: UInt32)])
+    func didAddSlice(slice: [(sliceLetter: String, radioMode: radioMode, txEnabled: Bool, frequency: String, sliceHandle: UInt32)])
     
     func didRemoveSlice(sliceHandle: UInt32, sliceLetter: String)
     
-    func didUpdateSlice(sliceHandle: UInt32, sliceLetter: String, sliceStatus: SliceStatus, newValue: Any)
+    func didUpdateSlice(sliceHandle: UInt32, sliceLetter: String, sliceStatus: sliceStatus, newValue: Any)
     
     // notify the GUI the tcp connection to the radio was closed
     func didDisconnectFromRadio()
-    // send message to view controller
-    //func radioMessageReceived(messageKey: RadioManagerMessage)
-    // update slice, mode or frequency
-//    func updateView(components: (slice: String, mode: String, frequency: String, station: String))
 }
 
 // MARK: - Enums ------------------------------------------------------------------------------------------------
 
-/**
- Unify message nouns going to the view controller
+/*
+ case AM
+ case SAM
+ case CW
+ case USB
+ case LSB
+ case FM
+ case NFM
+ case DFM
+ case DIGU
+ case DIGL
+ case RTTY
  */
-//public enum RadioManagerMessage : String {
-//    case VALIDMODE = "Valid Mode"
-//    case INVALIDMODE = "Invalid Mode"
-//    case TXSLICEAVAILABLE = "TX Slice Available"
-//    case NOTXSLICE = "No TX Slice"
-//}
 
-public enum RadioMode : String {
+public enum radioMode : String {
     case am = "AM"
     case usb = "USB"
     case lsb = "LSB"
     case fm = "FM"
-    case other = "Invalid"
+    case invalid = "Invalid"
 }
 
+public enum sliceStatus : String {
+    case txEnabled
+    case active
+    case mode
+    case frequency
+}
 
-   public enum SliceStatus : String {
-       case txEnabled
-       case active
-       case mode
-       case frequency
-   }
-   
 
 // MARK: - Class Definition ------------------------------------------------------------------------------------------------
 
@@ -172,36 +171,29 @@ class RadioManager: NSObject, ApiDelegate {
     // delegate to pass messages back to viewcontroller
     weak var radioManagerDelegate:RadioManagerDelegate?
     
-    // MARK: - Internal properties ----------------------------------------------------------------------------
-    
-    // view of discovered radios - passed to the view controller to abstract it from the radio
-//    var guiClientView = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: String)]()
-//
     // MARK: - Internal Radio properties ----------------------------------------------------------------------------
     
     // Radio currently running
-    var activeRadio: DiscoveryPacket?
-    var activeStation: String
-    //var activeStationHandle: String
+    private var activeRadio: DiscoveryPacket?
     
     // this starts the discovery process - Api to the Radio
-    var api = Api.sharedInstance
-    let discovery = Discovery.sharedInstance
+    private var api = Api.sharedInstance
+    private let discovery = Discovery.sharedInstance
     
     // MARK: - Private properties ----------------------------------------------------------------------------
     
-    var audiomanager: AudioManager!
+    private var audiomanager: AudioManager!
     
-    // Notification observers
-    var notifications = [NSObjectProtocol]()
+    // Notification observers collection
+    private var notifications = [NSObjectProtocol]()
     
-    let clientProgram = "SDRVoiceKeyer"
-    var txAudioStream: DaxTxAudioStream!
-    var txAudioStreamId: StreamId 
-    var txAudioStreamRequested = false
-    var audioBuffer = [Float]()
-    var audioStreamTimer :Repeater? // timer to meter audio chunks to radio at 24khz sample rate
-    var xmitGain = 35
+    private let clientProgram = "SDRVoiceKeyer"
+    private var txAudioStream: DaxTxAudioStream!
+    private var txAudioStreamId: StreamId
+    private var txAudioStreamRequested = false
+    private var audioBuffer = [Float]()
+    private var audioStreamTimer :Repeater? // timer to meter audio chunks to radio at 24khz sample rate
+    private var xmitGain = 35
     
     // MARK: - RadioManager Initialization ----------------------------------------------------------------------------
     
@@ -211,8 +203,6 @@ class RadioManager: NSObject, ApiDelegate {
     override init() {
         
         audiomanager = AudioManager()
-        activeStation = ""
-        //activeStationHandle = ""
         txAudioStreamId = StreamId("0")
         
         super.init()
@@ -235,7 +225,7 @@ class RadioManager: NSObject, ApiDelegate {
         os_log("Message received.", log: RadioManager.model_log, type: .info)
         
     }
-   
+    
     func defaultReplyHandler(_ command: String, seqNum: String, responseValue: String, reply: String) {
         // unused in xVoiceKeyer
         os_log("defaultReplyHandler called.", log: RadioManager.model_log, type: .info)
@@ -270,7 +260,7 @@ class RadioManager: NSObject, ApiDelegate {
         nc.addObserver(forName:Notification.Name(rawValue:"guiClientHasBeenRemoved"),
                        object:nil, queue:nil,
                        using:guiClientsRemoved)
-
+        
         nc.addObserver(forName: Notification.Name(rawValue: "sliceHasBeenAdded"), object:nil, queue:nil,
                        using:sliceHasBeenAdded)
         
@@ -284,21 +274,23 @@ class RadioManager: NSObject, ApiDelegate {
      Exposed function for the GUI to indicate which radio to connect to.
      - parameters:
      - serialNumber: a string representing the serial number of the radio to connect
+     - station: station name for the connection
+     - clientId: client id if available
+     - doConnect: bool returning true if the connect was successful
      */
-    func connectToRadio(serialNumber: String, clientStation: String, clientId: String, doConnect: Bool) -> Bool {
+    func connectToRadio(serialNumber: String, station: String, clientId: String, didConnect: Bool) -> Bool {
         
         os_log("Connect to the Radio.", log: RadioManager.model_log, type: .info)
         
         // allow time to hear the UDP broadcasts
         usleep(1500)
         
-        if (doConnect){
+        if (didConnect){
             for (_, foundRadio) in discovery.discoveredRadios.enumerated() where foundRadio.serialNumber == serialNumber {
                 
                 activeRadio = foundRadio
                 
                 if api.connect(activeRadio!, programName: "SDRVoiceKeyer", clientId: nil, isGui: false) {
-                    
                     os_log("Connected to the Radio.", log: RadioManager.model_log, type: .info)
                     return true
                 }
@@ -309,17 +301,20 @@ class RadioManager: NSObject, ApiDelegate {
     
     /**
      Bind to a specific station so we get their messages and updates
+     - parameters:
+     - clientId: the client id to bind with represented as a string
+     - station: station name used to find the key which is the guiClient handle
      */
     func bindToStation(clientId: String, station: String) -> UInt32 {
         
         cleanUp()
         
         api.radio?.boundClientId = clientId
-            
+        
         for radio in discovery.discoveredRadios {
             
-            if let client = radio.guiClients.filter({ $0.value.station == station }).first {
-                let handle = client.key
+            if let guiClient = radio.guiClients.filter({ $0.value.station == station }).first {
+                let handle = guiClient.key
                 os_log("Bound to the Radio.", log: RadioManager.model_log, type: .info)
                 return handle
             }
@@ -351,9 +346,9 @@ class RadioManager: NSObject, ApiDelegate {
     func discoveryPacketsReceived(_ note: Notification) {
         // receive the updated list of Radios
         let discoveryPacket = (note.object as! [DiscoveryPacket])
-
+        
         var guiClientView = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)]()
-
+        
         // just collect the radio's gui clients
         for radio in discoveryPacket {
             for guiClient in radio.guiClients {
@@ -361,7 +356,7 @@ class RadioManager: NSObject, ApiDelegate {
                 guiClientView.append((radio.model, radio.nickname, guiClient.value.station, "No", radio.serialNumber, guiClient.value.clientId ?? "", handle))
             }
         }
-
+        
         if guiClientView.count > 0 {
             // let the view controller know a radio was discovered
             // this is the first thing to occur after xLib adds a radio
@@ -375,6 +370,8 @@ class RadioManager: NSObject, ApiDelegate {
     /**
      When another GUI client appears we receive a notification.
      Let the view controller know there has been an update.
+     - parameters:
+     - note: a Notification instance
      */
     func guiClientsAdded(_ note: Notification) {
         
@@ -399,11 +396,17 @@ class RadioManager: NSObject, ApiDelegate {
         }
     }
     
-    // Do bind after this
+    /**
+    When a GUI client is updated we receive a notification.
+    Let the view controller know there has been an update.
+    Do bind after this
+     - parameters:
+     - note: a Notification instance
+    */
     func guiClientsUpdated(_ note: Notification) {
         
         var guiClientView = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)]()
-
+        
         if let guiClient = note.object as? GuiClient {
             
             for radio in discovery.discoveredRadios {
@@ -423,11 +426,12 @@ class RadioManager: NSObject, ApiDelegate {
         }
     }
     
-    /**
-     Get the client id for a station name.
-     - parameter station: String
-     */
-    // get handle - TODO: this needs work
+     /**
+       When a GUI client is removed we receive a notification.
+       Let the view controller know there has been an update.
+     - parameters:
+     - note: a Notification instance
+       */
     func guiClientsRemoved(_ note: Notification) {
         
         if let guiClient = note.object as? GuiClient {
@@ -438,7 +442,7 @@ class RadioManager: NSObject, ApiDelegate {
             }
         }
     }
-        
+    
     // MARK: - Slice handling
     
     /**
@@ -450,19 +454,18 @@ class RadioManager: NSObject, ApiDelegate {
     func sliceHasBeenAdded(_ note: Notification){
         
         let slice: xLib6000.Slice = (note.object as! xLib6000.Slice)
-        let mode: RadioMode = RadioMode(rawValue: slice.mode) ?? RadioMode.other
+        let mode: radioMode = radioMode(rawValue: slice.mode) ?? radioMode.invalid
         let frequency: String = convertFrequencyToDecimalString (frequency: slice.frequency)
-          
-            var sliceView = [(sliceLetter: String, radioMode: RadioMode, txEnabled: Bool, frequency: String, sliceHandle: UInt32)]()
-            
-            addObservations(slice: slice)
-            
-            sliceView.append((sliceLetter: slice.sliceLetter ?? "Unknown", radioMode: mode, txEnabled: slice.txEnabled, frequency: frequency, sliceHandle: slice.clientHandle))
-            
-            // now notify the view controller
-            UI() {
-                self.radioManagerDelegate?.didAddSlice(slice: sliceView)
-            }
+        
+        var sliceView = [(sliceLetter: String, radioMode: radioMode, txEnabled: Bool, frequency: String, sliceHandle: UInt32)]()
+        
+        addObservations(slice: slice)
+        
+        sliceView.append((sliceLetter: slice.sliceLetter ?? "Unknown", radioMode: mode, txEnabled: slice.txEnabled, frequency: frequency, sliceHandle: slice.clientHandle))
+        
+        UI() {
+            self.radioManagerDelegate?.didAddSlice(slice: sliceView)
+        }
         
         os_log("Slice has been addded.", log: RadioManager.model_log, type: .info)
     }
@@ -476,10 +479,10 @@ class RadioManager: NSObject, ApiDelegate {
     func sliceWillBeRemoved(_ note: Notification){
         
         let slice: xLib6000.Slice = (note.object as! xLib6000.Slice)
-    
-         os_log("Slice has been removed.", log: RadioManager.model_log, type: .info)
-
-         UI() {
+        
+        os_log("Slice has been removed.", log: RadioManager.model_log, type: .info)
+        
+        UI() {
             self.radioManagerDelegate?.didRemoveSlice(sliceHandle: slice.clientHandle, sliceLetter: slice.sliceLetter ?? "")
         }
     }
@@ -490,47 +493,46 @@ class RadioManager: NSObject, ApiDelegate {
      - parameters:
      - slice:
      */
-    func updateSliceStatus(_ slice: xLib6000.Slice, sliceStatus: SliceStatus,  _ change: Any) {
+    func updateSliceStatus(_ slice: xLib6000.Slice, sliceStatus: sliceStatus,  _ change: Any) {
         
         var newValue: Any = change
         
         switch sliceStatus {
-         case .active:
-             newValue = "Active" // not used
-         case .mode:
-            newValue = RadioMode(rawValue: slice.mode) ?? RadioMode.other
-         case .txEnabled:
+        case .active:
+            newValue = "Active" // not used
+        case .mode:
+            newValue = radioMode(rawValue: slice.mode) ?? radioMode.invalid
+        case .txEnabled:
             newValue = slice.txEnabled
-         case .frequency:
+        case .frequency:
             newValue = convertFrequencyToDecimalString (frequency: slice.frequency)
-         }
-         
-         print ("Slice \(slice.sliceLetter ?? "Unknown") has changed.")
-         
-        //if String(slice.clientHandle) == activeStationHandle {
-             // need to send what changed and the slice handle to the View controller
-            UI() {
-                self.radioManagerDelegate?.didUpdateSlice(sliceHandle: slice.clientHandle, sliceLetter: slice.sliceLetter ?? "", sliceStatus: sliceStatus, newValue: newValue)
-             }
-        //}
+        }
+        
+        print ("Slice \(slice.sliceLetter ?? "Unknown") has changed.")
+        
+        UI() {
+            self.radioManagerDelegate?.didUpdateSlice(sliceHandle: slice.clientHandle, sliceLetter: slice.sliceLetter ?? "", sliceStatus: sliceStatus, newValue: newValue)
+        }
     }
-   
+    
     /**
-     Respond to a change in a Slice
+     Respond to a change in a slice
+     - parameters:
+     - slice:
      */
     func addObservations(slice: xLib6000.Slice ) {
-    
-    _observations.append( slice.observe(\.active, options: [.initial, .new]) { [weak self] (slice, change) in
-        self?.updateSliceStatus(slice,sliceStatus: SliceStatus.active, change) })
-    
-    _observations.append( slice.observe(\.mode, options: [.initial, .new]) { [weak self] (slice, change) in
-        self?.updateSliceStatus(slice, sliceStatus: SliceStatus.mode, change) })
-
-    _observations.append(  slice.observe(\.txEnabled, options: [.initial, .new]) { [weak self] (slice, change) in
-        self?.updateSliceStatus(slice,sliceStatus: SliceStatus.txEnabled, change) })
-
-    _observations.append( slice.observe(\.frequency, options: [.initial, .new]) { [weak self] (slice, change) in
-        self?.updateSliceStatus(slice,sliceStatus: SliceStatus.frequency, change) })
+        
+        _observations.append( slice.observe(\.active, options: [.initial, .new]) { [weak self] (slice, change) in
+            self?.updateSliceStatus(slice,sliceStatus: sliceStatus.active, change) })
+        
+        _observations.append( slice.observe(\.mode, options: [.initial, .new]) { [weak self] (slice, change) in
+            self?.updateSliceStatus(slice, sliceStatus: sliceStatus.mode, change) })
+        
+        _observations.append(  slice.observe(\.txEnabled, options: [.initial, .new]) { [weak self] (slice, change) in
+            self?.updateSliceStatus(slice,sliceStatus: sliceStatus.txEnabled, change) })
+        
+        _observations.append( slice.observe(\.frequency, options: [.initial, .new]) { [weak self] (slice, change) in
+            self?.updateSliceStatus(slice,sliceStatus: sliceStatus.frequency, change) })
     }
     
     // MARK: - Utlity Functions for Slices
@@ -559,39 +561,10 @@ class RadioManager: NSObject, ApiDelegate {
         }
     }
     
-    /**
-     Convert the slice number to a slice leter
-     */
-    //    private func convertSliceNumberToLetter (sliceNumber: String) -> String {
-    //
-    //        switch sliceNumber {
-    //        case "0":
-    //            return "A"
-    //        case "1":
-    //            return "B"
-    //        case "2":
-    //            return "C"
-    //        case "3":
-    //            return "D"
-    //        case "4":
-    //            return "E"
-    //        case "5":
-    //            return "F"
-    //        case "6":
-    //            return "G"
-    //        case "7":
-    //            return "H"
-    //        default:
-    //            return "??"
-    //        }
-    //    }
-    
-    
     // MARK: Transmit methods ----------------------------------------------------------------------------
     
     /**
      Prepare to key the selected Radio. Create the audio stream to be sent.
-     
      - parameters:
      - doTransmit: true create and send an audio stream, false will unkey MOX
      - buffer: an array of floats representing an audio sample in PCM format
@@ -621,14 +594,12 @@ class RadioManager: NSObject, ApiDelegate {
     
     /**
      Callback for the TX Stream Request command.
-     
      - Parameters:
      - command:        the original command
-     - seqNum:         the Sequence Number of the original command
+     - sequenceNumber: the Sequence Number of the original command
      - responseValue:  the response value
      - reply:          the reply
      */
-    // _ command: String, sequenceNumber: SequenceNumber, responseValue: String, reply: String
     func updateTxStreamId(_ command: String, sequenceNumber: UInt, responseValue: String, reply: String) {
         
         guard responseValue == "0" else {
@@ -673,7 +644,7 @@ class RadioManager: NSObject, ApiDelegate {
             
             return false
         }
-            return true
+        return true
     }
     
     /**
