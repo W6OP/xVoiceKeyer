@@ -48,16 +48,16 @@ import os
 
 // send message to view controller
 protocol AudioManagerDelegate: class {
-    func audioMessageReceived(messageKey: AudioMessage, message: String)
+    func audioMessageReceived(messageKey: audioMessage, message: String)
 }
 
 // enforce error literals
-public enum AudioMessage : String {
-    case ButtonNotConfigured = "BUTTON"
-    case Error = "ERROR"
-    case FileMissing = "FILE"
-    case InvalidFileType = "FILETYPE"
-    case InvalidSampleRate = "SAMPLERATE"
+public enum audioMessage : String {
+    case buttonNotConfigured = "BUTTON"
+    case error = "ERROR"
+    case fileMissing = "FILE"
+    case invalidFileType = "FILETYPE"
+    case invalidSampleRate = "SAMPLERATE"
 }
 
 // Start of class definition.
@@ -97,7 +97,7 @@ class AudioManager: NSObject {
         if let filePath = UserDefaults.standard.string(forKey: String(buttonNumber)) {
             
             if filePath.isEmpty {
-                notifyViewController(key: AudioMessage.ButtonNotConfigured, messageData: String(buttonNumber))
+                notifyViewController(key: audioMessage.buttonNotConfigured, messageData: String(buttonNumber))
                 return floatArray
             }
             
@@ -118,10 +118,10 @@ class AudioManager: NSObject {
                         buffers.removeValue(forKey: buttonNumber)
                     }
                 } catch{
-                    notifyViewController(key: AudioMessage.Error, messageData: String(error.localizedDescription))
+                    notifyViewController(key: audioMessage.error, messageData: String(error.localizedDescription))
                 }
             } else {
-                notifyViewController(key: AudioMessage.FileMissing, messageData: filePath)
+                notifyViewController(key: audioMessage.fileMissing, messageData: filePath)
             }
         }
         
@@ -139,7 +139,7 @@ class AudioManager: NSObject {
         
         // read the file to a stream
         guard let stream = try? AVAudioFile(forReading: audioURL as URL) else {
-            notifyViewController(key: AudioMessage.InvalidFileType, messageData: audioURL.absoluteString!)
+            notifyViewController(key: audioMessage.invalidFileType, messageData: audioURL.absoluteString!)
             return floatArray
         }
         
@@ -162,45 +162,24 @@ class AudioManager: NSObject {
         
         // if sample rate is less than 24khz, just notify user
         if sampleRate < AudioManager.Required_Sample_Rate {
-            notifyViewController(key: AudioMessage.InvalidSampleRate, messageData: "\(audioURL)", "\(sampleRate)")
+            notifyViewController(key: audioMessage.invalidSampleRate, messageData: "\(audioURL)", "\(sampleRate)")
             return floatArray
         }
         
         do {
             try stream.read(into: buffer!)
         } catch let error {
-            notifyViewController(key: AudioMessage.Error, messageData: audioURL.absoluteString! + "    \(error.localizedDescription)")
+            notifyViewController(key: audioMessage.error, messageData: audioURL.absoluteString! + "    \(error.localizedDescription)")
             return floatArray
         }
         
         // convert to 24khz if necessary
         if sampleRate > AudioManager.Required_Sample_Rate {
-            //if Int32(sampleRate.truncatingRemainder(dividingBy: AudioManager.Required_Sample_Rate)) == 0 {
             buffer = convertPCMBufferSampleRate(inBuffer: buffer!, inputFormat: format, inputSampleRate: sampleRate)
-            //            } else {
-            //                notifyViewController(key: AudioMessage.InvalidSampleRate, messageData: "\(audioURL)", "\(sampleRate)")
-            //
-            //                return floatArray
-            //            }
         }
         
         // swift 4
         floatArray = Array(UnsafeBufferPointer(start: buffer?.floatChannelData?[0], count: Int(buffer!.frameLength)))
-        //handle mono or stereo - divided by 2 because we only need one channel
-//        switch sourceDescription.mChannelsPerFrame {
-//        case 1:
-//            //floatArray = Array(UnsafeBufferPointer(start: buffer?.floatChannelData?[0], count: Int(buffer!.frameLength)))
-//            break
-//        case 2:
-//            // not needed if conversion happened
-////            if !isConverted {
-////                floatArray = Array(UnsafeBufferPointer(start: buffer?.floatChannelData?[0], count: Int(buffer!.frameLength))) // / 2
-////                print ("Stereo")
-////            }
-//            break
-//        default:
-//            break
-//        }
         
         return (floatArray)
     }
@@ -225,25 +204,21 @@ class AudioManager: NSObject {
         let modulo = inputSampleRate.truncatingRemainder(dividingBy: AudioManager.Required_Sample_Rate)
         
         let divisor: UInt32 = UInt32(inputSampleRate/AudioManager.Required_Sample_Rate)
+        
         // this works for most 44100
         let sampleRateConversionRatio: Double = inputSampleRate/AudioManager.Required_Sample_Rate
-//        print (sampleRateConversionRatio)
         
-        
-        var convertedBuffer: AVAudioPCMBuffer //(pcmFormat: outputFormat!, frameCapacity: AVAudioFrameCount(inBuffer.frameCapacity)/divisor) // :/divisor
+        var convertedBuffer: AVAudioPCMBuffer
         if modulo != 0 {
             let framelength = Double(inBuffer.frameCapacity)
             let newDivisor = framelength / sampleRateConversionRatio
-            //print (newDivisor)
-            //print("modulo: \(modulo)  divisor: \(sampleRateConversionRatio) new divisor: \(newDivisor) inbuffer length: \(inBuffer.frameCapacity)")
+          
             convertedBuffer = AVAudioPCMBuffer(pcmFormat: outputFormat!, frameCapacity: AVAudioFrameCount(newDivisor))! // THIS WORKS FOR A LONG FILE BUT NOT A SHORT ONE
         } else {
-            print("divisor: \(sampleRateConversionRatio) inbuffer length: \(inBuffer.frameCapacity)")
+            //print("divisor: \(sampleRateConversionRatio) inbuffer length: \(inBuffer.frameCapacity)")
             convertedBuffer = AVAudioPCMBuffer(pcmFormat: outputFormat!, frameCapacity: AVAudioFrameCount(inBuffer.frameCapacity)/divisor)! // /divisor
         }
-//        let convertedBuffer = AVAudioPCMBuffer(pcmFormat: outputFormat!, frameCapacity: AVAudioFrameCount(inBuffer.frameLength / UInt32(modulo))) // 230000
-        //print (modulo)
-        
+
         let inputBlock : AVAudioConverterInputBlock = {
             inNumPackets, outStatus in
             outStatus.pointee = AVAudioConverterInputStatus.haveData
@@ -262,7 +237,6 @@ class AudioManager: NSObject {
      */
     func printAudioStreamBasicDescription(_ asbd: AudioStreamBasicDescription) {
         print(String(format: "Sample Rate:         %10.0f",  asbd.mSampleRate))
-        //print(String(format: "Format ID:                 \(asbd.mFormatID.fourCharString)"))
         print(String(format: "Format Flags:        %10X",    asbd.mFormatFlags))
         print(String(format: "Bytes per Packet:    %10d",    asbd.mBytesPerPacket))
         print(String(format: "Frames per Packet:   %10d",    asbd.mFramesPerPacket))
@@ -274,23 +248,23 @@ class AudioManager: NSObject {
     
     /**
      pass messages to the view controller
-     - parameter key: AudioMessage - enum value for the message
+     - parameter key: audioMessage - enum value for the message
      - parameter messageData: String - data to be added to the message
      */
-    func notifyViewController(key: AudioMessage, messageData: String...){
+    func notifyViewController(key: audioMessage, messageData: String...){
         
         var message: String
         
         switch key {
-        case AudioMessage.FileMissing:
+        case .fileMissing:
             message = "The file \(NSString(string: messageData[0]).removingPercentEncoding!) could not be found."
-        case AudioMessage.InvalidFileType:
+        case .invalidFileType:
             message = "The file \(NSString(string: messageData[0]).removingPercentEncoding!) could not be read. It may be corrupt or an invalid file type."
-        case AudioMessage.ButtonNotConfigured  :
+        case .buttonNotConfigured  :
             message = "Button \(NSString(string: messageData[0]).removingPercentEncoding!) does not have an audio file configured."
-        case AudioMessage.Error:
+        case .error:
             message = "The file \(NSString(string: messageData[0]).removingPercentEncoding!) could not be read. It may be corrupt or an invalid file type."
-        case AudioMessage.InvalidSampleRate:
+        case .invalidSampleRate:
             message = "The file \(NSString(string: messageData[0]).removingPercentEncoding!) could not be processed. The sample rate should be 24000. This files sample rate is \(messageData[1])"
         }
         

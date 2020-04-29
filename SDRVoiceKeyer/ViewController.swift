@@ -195,19 +195,19 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      - parameter key: AudioMessage - enum value for the message
      - parameter messageData: String - data to be added to the message
      */
-    func audioMessageReceived(messageKey: AudioMessage, message: String) {
+    func audioMessageReceived(messageKey: audioMessage, message: String) {
         var heading: String
         
         switch messageKey {
-        case AudioMessage.FileMissing:
+        case audioMessage.fileMissing:
             heading = "Missing File"
-        case AudioMessage.InvalidFileType:
+        case audioMessage.invalidFileType:
             heading = "Invalid File Type"
-        case AudioMessage.ButtonNotConfigured:
+        case audioMessage.buttonNotConfigured:
             heading = "Button Not Configured"
-        case AudioMessage.Error:
+        case audioMessage.error:
             heading = "An Error Has Occurred"
-        case AudioMessage.InvalidSampleRate:
+        case audioMessage.invalidSampleRate:
             heading = "Invalid Sample Rate"
         }
         
