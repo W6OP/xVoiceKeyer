@@ -351,7 +351,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
             updateView(sliceHandle: connectedStationHandle)
           
             if sliceView.firstIndex(where: { $0.txEnabled == true && $0.radioMode != radioMode.invalid }) != nil {
-                enableVoiceButtons(validSliceAvailable: true)
+                //enableVoiceButtons(validSliceAvailable: true)
             }
         }
     }
@@ -389,6 +389,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
                 self.labelMode.stringValue = sliceView[index].radioMode.rawValue
                 self.labelSlice.stringValue = "Slice \(sliceView[index].sliceLetter)"
                 self.labelStation.stringValue = self.connectedStationName
+                enableVoiceButtons(validSliceAvailable: true)
             }
         } else {
             
@@ -398,6 +399,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
                 self.labelMode.stringValue = sliceView[index].radioMode.rawValue
                 self.labelSlice.stringValue = "Slice \(sliceView[index].sliceLetter)"
                 self.labelStation.stringValue = self.connectedStationName
+                disableVoiceButtons()
             }
         }
     }
@@ -435,13 +437,15 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
             }
         }
         
-        if sliceView.firstIndex(where: { $0.sliceHandle == connectedStationHandle && $0.txEnabled == true && $0.radioMode != radioMode.invalid }) != nil {
-            
-            updateView(sliceHandle: sliceHandle)
-            enableVoiceButtons(validSliceAvailable: true)
-        } else {
-            disableVoiceButtons()
-        }
+        updateView(sliceHandle: sliceHandle)
+        
+//        if sliceView.firstIndex(where: { $0.sliceHandle == connectedStationHandle && $0.txEnabled == true && $0.radioMode != radioMode.invalid }) != nil {
+//
+//            updateView(sliceHandle: sliceHandle)
+//            //enableVoiceButtons(validSliceAvailable: true)
+//        } else {
+//            disableVoiceButtons()
+//        }
     }
     
     /**
@@ -454,10 +458,10 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         }
         
         if sliceView.firstIndex(where: { $0.sliceHandle == connectedStationHandle && $0.txEnabled == true && $0.radioMode != radioMode.invalid }) != nil {
-            enableVoiceButtons(validSliceAvailable: true)
+            //enableVoiceButtons(validSliceAvailable: true)
             updateView(sliceHandle: sliceHandle)
         } else {
-            disableVoiceButtons()
+            //disableVoiceButtons()
             updateView(sliceHandle: 0)
         }
     }
@@ -515,7 +519,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      Refresh the voice buttons.
      */
     func doUpdateButtons() {
-        enableVoiceButtons(validSliceAvailable: true)
+        //enableVoiceButtons(validSliceAvailable: true)
     }
     
     /**
@@ -525,7 +529,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         updateButtonTitles(view: self.view)
         audiomanager.clearFileCache()
         
-        enableVoiceButtons(validSliceAvailable: true)
+        //enableVoiceButtons(validSliceAvailable: true)
     }
     
     /**
@@ -560,7 +564,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
                 }
             }
         } else {
-            disableVoiceButtons()
+            //disableVoiceButtons()
         }
     }
     

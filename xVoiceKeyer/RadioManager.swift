@@ -397,12 +397,12 @@ class RadioManager: NSObject, ApiDelegate {
     }
     
     /**
-    When a GUI client is updated we receive a notification.
-    Let the view controller know there has been an update.
-    Do bind after this
+     When a GUI client is updated we receive a notification.
+     Let the view controller know there has been an update.
+     Do bind after this
      - parameters:
      - note: a Notification instance
-    */
+     */
     func guiClientsUpdated(_ note: Notification) {
         
         var guiClientView = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)]()
@@ -426,12 +426,12 @@ class RadioManager: NSObject, ApiDelegate {
         }
     }
     
-     /**
-       When a GUI client is removed we receive a notification.
-       Let the view controller know there has been an update.
+    /**
+     When a GUI client is removed we receive a notification.
+     Let the view controller know there has been an update.
      - parameters:
      - note: a Notification instance
-       */
+     */
     func guiClientsRemoved(_ note: Notification) {
         
         if let guiClient = note.object as? GuiClient {
@@ -580,10 +580,8 @@ class RadioManager: NSObject, ApiDelegate {
                 api.radio!.requestDaxTxAudioStream(callback: updateTxStreamId)
             }
             else{
-                if clearToTransmit(){
-                    DispatchQueue.global(qos: .userInteractive).async {
-                        self.sendTxAudioStream()
-                    }
+                DispatchQueue.global(qos: .userInteractive).async {
+                    self.sendTxAudioStream()
                 }
             }
         } else{
@@ -620,51 +618,10 @@ class RadioManager: NSObject, ApiDelegate {
             
             self.txAudioStream = api.radio?.daxTxAudioStreams[streamId]
             
-            if clearToTransmit(){
-                DispatchQueue.global(qos: .userInteractive).async {
-                    self.sendTxAudioStream()
-                }
+            DispatchQueue.global(qos: .userInteractive).async {
+                self.sendTxAudioStream()
             }
         }
-    }
-    
-    /**
-     Check to see if there is any reason we can't transmit.
-     */
-    func clearToTransmit() -> Bool {
-        
-        // see if the GUI has gone away and cleanup if it has
-        if api.radio == nil {
-            UI() {
-                self.radioManagerDelegate?.didDisconnectFromRadio()
-            }
-            
-            activeRadio = nil
-            self.txAudioStream = nil
-            
-            return false
-        }
-        return true
-    }
-    
-    /**
-     Check to see if a valid mode for phone is selected.
-     */
-    func checkForValidMode() -> Bool {
-        
-        for (_, slice) in (api.radio?.slices)! {
-            if slice.txEnabled {
-                let modeEnum = Slice.Mode(rawValue: slice.mode)!
-                switch (modeEnum){
-                case .USB, .LSB, .AM, .FM:
-                    return true
-                default:
-                    return false
-                }
-            }
-        }
-        
-        return false
     }
     
     /**
@@ -674,11 +631,7 @@ class RadioManager: NSObject, ApiDelegate {
     func sendTxAudioStream(){
         var frameCount: Int = 0
         let result = self.audioBuffer.chunked(into: 128)
-        
-        //print("Chunks: \(result.count)")
-        
-        
-        //api.radio?.localPttEnabled = true // set to true and then check if true - how do I know it worked - look to see if enabled
+     
         // this is new and turns on button - can't get status
         api.radio?.transmit.daxEnabled = true
         api.radio?.mox = true
