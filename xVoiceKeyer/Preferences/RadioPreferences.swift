@@ -62,10 +62,10 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
     // MARK: actions
     
     /**
-        Close this view.
+        Close this view. This is the Cancel button.
      */
     @IBAction func buttonOk(_ sender: Any) {
-        saveUserDefaults()
+        //saveUserDefaults()
         preferenceManager.updateButton()
         self.dismiss(self)
     }
@@ -89,7 +89,7 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
      */
     @IBAction func buttonConnect(_ sender: NSButton) {
         if defaultStation.default == YesNo.Yes.rawValue {
-            saveUserDefaults()
+            //saveUserDefaults()
             self.dismiss(self)
             preferenceManager.connectToRadio(serialNumber: defaultStation.serialNumber, stationName: defaultStation.stationName, clientId: defaultStation.clientId)
         }
@@ -130,7 +130,7 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
     override func viewWillDisappear() {
         
         isDefaultSet = false // don't save radio on exit
-        saveUserDefaults()
+        //saveUserDefaults()
     }
     
     /**

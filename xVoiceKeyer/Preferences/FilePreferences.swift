@@ -107,7 +107,7 @@ class FilePreferences: NSViewController {
         super.viewDidLoad()
         
         findTextfieldByIndex(view: self.view)
-        retrieveUserDefaults()
+        retrieveUserFileDefaults()
         
         #if DEBUG
         print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
@@ -130,7 +130,7 @@ class FilePreferences: NSViewController {
     }
     
     override func viewWillDisappear() {
-        saveUserDefaults()
+        //saveUserDefaults()
         preferenceManager.updateButtonLables()
         
             #if DEBUG
@@ -212,7 +212,7 @@ class FilePreferences: NSViewController {
      Retrieve the user settings. File paths and the default radio.
      Populate the fields and the tableview
      */
-    func retrieveUserDefaults() {
+    func retrieveUserFileDefaults() {
         
         for item in allTextFields
         {
@@ -230,7 +230,7 @@ class FilePreferences: NSViewController {
     /**
      Persist the user settings. File paths and the button labels.
      */
-    func saveUserDefaults() {
+    func saveUserFileDefaults() {
         
         for item in allTextFields
         {

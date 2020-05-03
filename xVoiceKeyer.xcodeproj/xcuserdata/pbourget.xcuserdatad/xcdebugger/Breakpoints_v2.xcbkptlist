@@ -30,8 +30,8 @@
             filePath = "xVoiceKeyer/ViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "639"
-            endingLineNumber = "639"
+            startingLineNumber = "636"
+            endingLineNumber = "636"
             landmarkName = "loadUserDefaults(isGuiClientUpdate:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -48,8 +48,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "172"
             endingLineNumber = "172"
-            landmarkName = "unknown"
-            landmarkType = "0">
+            landmarkName = "saveUserDefaults()"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -62,8 +62,8 @@
             filePath = "xVoiceKeyer/ViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "390"
-            endingLineNumber = "390"
+            startingLineNumber = "387"
+            endingLineNumber = "387"
             landmarkName = "updateView(sliceHandle:)"
             landmarkType = "7">
             <Locations>
@@ -110,8 +110,8 @@
             filePath = "xVoiceKeyer/ViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "400"
-            endingLineNumber = "400"
+            startingLineNumber = "397"
+            endingLineNumber = "397"
             landmarkName = "updateView(sliceHandle:)"
             landmarkType = "7">
             <Locations>
@@ -206,22 +206,6 @@
             filePath = "xVoiceKeyer/ViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "329"
-            endingLineNumber = "329"
-            landmarkName = "doConnectRadio(serialNumber:stationName:clientId:doConnect:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "D4A83AC6-BCE0-45DA-BCE9-4707D2E416C0"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "xVoiceKeyer/ViewController.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
             startingLineNumber = "326"
             endingLineNumber = "326"
             landmarkName = "doConnectRadio(serialNumber:stationName:clientId:doConnect:)"
@@ -238,8 +222,8 @@
             filePath = "xVoiceKeyer/ViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "348"
-            endingLineNumber = "348"
+            startingLineNumber = "345"
+            endingLineNumber = "345"
             landmarkName = "doBindToStation(clientId:station:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -257,6 +241,22 @@
             startingLineNumber = "288"
             endingLineNumber = "288"
             landmarkName = "didUpdateGUIClients(discoveredGUIClients:isGuiClientUpdate:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "3FF4F441-3057-4895-91EE-323662252AAB"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "xVoiceKeyer/Preferences/RadioPreferences.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "173"
+            endingLineNumber = "173"
+            landmarkName = "saveUserDefaults()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

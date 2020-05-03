@@ -322,9 +322,6 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      */
     func doConnectRadio(serialNumber: String, stationName: String, clientId: String, doConnect: Bool) {
         
-        
-        //let newClientId = getClientId(station: stationName)
-
         // if already connected we need to cleanup before connecting again
         if isRadioConnected {
             doBindToStation(clientId: clientId, station: stationName)
