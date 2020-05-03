@@ -271,11 +271,12 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      */
     func didUpdateGUIClients(discoveredGUIClients: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)], isGuiClientUpdate: Bool) {
         
-        if guiClientView.filter({ $0.stationName == connectedStationName }).isEmpty {
+        if let index = guiClientView.firstIndex(where: {$0.stationName == discoveredGUIClients[0].stationName}) {
             
+            guiClientView.remove(at: index)
             guiClientView += discoveredGUIClients
         }
-        
+
         // this makes it version 3 only
         if let index = discoveredGUIClients.firstIndex(where: {$0.stationName == connectedStationName}) {
             
@@ -321,6 +322,9 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
      */
     func doConnectRadio(serialNumber: String, stationName: String, clientId: String, doConnect: Bool) {
         
+        
+        //let newClientId = getClientId(station: stationName)
+
         // if already connected we need to cleanup before connecting again
         if isRadioConnected {
             doBindToStation(clientId: clientId, station: stationName)

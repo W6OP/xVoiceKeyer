@@ -188,9 +188,9 @@ class RadioManager: NSObject, ApiDelegate {
     private var notifications = [NSObjectProtocol]()
     
     private let clientProgram = "xVoiceKeyer"
-    private var txAudioStream: DaxTxAudioStream!
-    private var txAudioStreamId: StreamId
-    private var txAudioStreamRequested = false
+    //private var daxTxAudioStream: DaxTxAudioStream!
+    private var daxTxAudioStreamId: StreamId
+    private var daxTxAudioStreamRequested = false
     private var audioBuffer = [Float]()
     private var audioStreamTimer :Repeater? // timer to meter audio chunks to radio at 24khz sample rate
     private var xmitGain = 35
@@ -203,7 +203,7 @@ class RadioManager: NSObject, ApiDelegate {
     override init() {
         
         audiomanager = AudioManager()
-        txAudioStreamId = StreamId("0")
+        daxTxAudioStreamId = StreamId()
         
         super.init()
         
@@ -310,22 +310,19 @@ class RadioManager: NSObject, ApiDelegate {
         cleanUp()
         
         api.radio?.boundClientId = clientId
+        print("bound clientId: \(clientId)")
         
         for radio in discovery.discoveredRadios {
             
             if let guiClient = radio.guiClients.filter({ $0.value.station == station }).first {
                 let handle = guiClient.key
                 os_log("Bound to the Radio.", log: RadioManager.model_log, type: .info)
+                print("handle: \(handle)")
                 return handle
             }
         }
         
         return 0
-    }
-    
-    // cleanup so we can bind with another station
-    func cleanUp() {
-        api.radio?.boundClientId = nil
     }
     
     /**
@@ -575,13 +572,18 @@ class RadioManager: NSObject, ApiDelegate {
         
         if doTransmit  {
             self.audioBuffer = buffer!
-            if txAudioStreamRequested == false {
-                txAudioStreamRequested = true
-                api.radio!.requestDaxTxAudioStream(callback: updateTxStreamId)
+            if daxTxAudioStreamRequested == false {
+                api.radio!.requestDaxTxAudioStream(callback: updateDaxTxStreamId)
+                daxTxAudioStreamRequested = true
+                 print("requestDaxTxAudioStream")
             }
             else{
                 DispatchQueue.global(qos: .userInteractive).async {
-                    self.sendTxAudioStream()
+                    if self.daxTxAudioStreamId != 0
+                    {
+                        self.sendDaxTxAudioStream(streamId: self.daxTxAudioStreamId)
+                        print("sendDaxTxAudioStream")
+                    }
                 }
             }
         } else{
@@ -589,6 +591,17 @@ class RadioManager: NSObject, ApiDelegate {
             api.radio?.mox = false
         }
     }
+    
+    // cleanup so we can bind with another station
+       func cleanUp() {
+           if daxTxAudioStreamId != 0 {
+                api.radio?.daxTxAudioStreams[daxTxAudioStreamId]?.remove()
+                daxTxAudioStreamId = StreamId()
+           }
+           print("cleanUp")
+           daxTxAudioStreamRequested = false
+           api.radio?.boundClientId = nil
+       }
     
     /**
      Callback for the TX Stream Request command.
@@ -598,7 +611,7 @@ class RadioManager: NSObject, ApiDelegate {
      - responseValue:  the response value
      - reply:          the reply
      */
-    func updateTxStreamId(_ command: String, sequenceNumber: UInt, responseValue: String, reply: String) {
+    func updateDaxTxStreamId(_ command: String, sequenceNumber: UInt, responseValue: String, reply: String) {
         
         guard responseValue == "0" else {
             // Anything other than 0 is an error, log it and ignore the Reply
@@ -608,18 +621,16 @@ class RadioManager: NSObject, ApiDelegate {
         }
         
         // check if we have a stream requested
-        if !self.txAudioStreamRequested {
+        if !self.daxTxAudioStreamRequested {
             os_log("Unsolicited audio stream received.", log: RadioManager.model_log, type: .error)
             return
         }
         
-        // can be optional
         if let streamId = reply.streamId {
-            
-            self.txAudioStream = api.radio?.daxTxAudioStreams[streamId]
-            
+            self.daxTxAudioStreamId = streamId
+            print ("new streamId: \(streamId)")
             DispatchQueue.global(qos: .userInteractive).async {
-                self.sendTxAudioStream()
+                self.sendDaxTxAudioStream(streamId: self.daxTxAudioStreamId)
             }
         }
     }
@@ -628,19 +639,22 @@ class RadioManager: NSObject, ApiDelegate {
      Send the audio buffer in 128 frame chunks for the Vita parser. This must be
      sent at a 24 khz rate (5300 microseconds).
      */
-    func sendTxAudioStream(){
+    func sendDaxTxAudioStream(streamId: StreamId){
         var frameCount: Int = 0
         let result = self.audioBuffer.chunked(into: 128)
+        let daxTxAudioStream = self.api.radio?.daxTxAudioStreams[streamId]
+        
+        print ("streamId: \(streamId)")
      
         // this is new and turns on button - can't get status
         api.radio?.transmit.daxEnabled = true
         api.radio?.mox = true
-        txAudioStream.isTransmitChannel = true // WAS .transmit
-        txAudioStream.txGain = self.xmitGain
+        daxTxAudioStream?.isTransmitChannel = true
+        daxTxAudioStream?.txGain = self.xmitGain
         
         // define the repeating timer for 24000 hz - why 5300, seems it should be 4160
         self.audioStreamTimer = Repeater.every(.microseconds(5300), count: result.count, tolerance: .nanoseconds(1), queue: DispatchQueue(label: "com.w6op", qos: .userInteractive)) { _ in
-            let _ = self.txAudioStream.sendTXAudio(left: result[frameCount], right: result[frameCount], samples: Int(result[frameCount].count))
+            let _ = daxTxAudioStream?.sendTXAudio(left: result[frameCount], right: result[frameCount], samples: Int(result[frameCount].count))
             frameCount += 1
         }
         
