@@ -117,7 +117,7 @@ class FilePreferences: NSViewController {
     /**
      View will appear.
      */
-    override   func viewWillAppear() {
+    override func viewWillAppear() {
         self.view.window?.titleVisibility = .hidden
         self.view.window?.titlebarAppearsTransparent = true
         
@@ -130,7 +130,7 @@ class FilePreferences: NSViewController {
     }
     
     override func viewWillDisappear() {
-        //saveUserDefaults()
+        saveUserFileDefaults()
         preferenceManager.updateButtonLables()
         
             #if DEBUG

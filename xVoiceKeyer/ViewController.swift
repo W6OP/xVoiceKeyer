@@ -168,6 +168,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     //deleteUserDefaults()
     
     loadUserDefaults(isGuiClientUpdate: false)
+    print("defaults loaded 1:")
   }
   
   // don't allow full screen
@@ -231,7 +232,8 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
    */
   func didDiscoverGUIClients(discoveredGUIClients: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)], isGuiClientUpdate: Bool) {
     
-    //loadUserDefaults(isGuiClientUpdate: isGuiClientUpdate)
+    print("defaults loaded 2:")
+    loadUserDefaults(isGuiClientUpdate: isGuiClientUpdate)
     
     if guiClientView.filter({ $0.stationName == defaultStation.stationName }).isEmpty {
       guiClientView += discoveredGUIClients
@@ -242,13 +244,13 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     
     // find if a default is set and connect if it is else show preference panel
     if let index = discoveredGUIClients.firstIndex(where: {$0.stationName == defaultStation.stationName}) {
-      
+
       defaultStation.model = discoveredGUIClients[index].model
       defaultStation.nickname = discoveredGUIClients[index].nickname
       defaultStation.stationName = discoveredGUIClients[index].stationName
-      
+
       if !isRadioConnected  {
-        doConnectRadio(serialNumber: defaultStation.serialNumber,stationName: defaultStation.stationName, clientId: defaultStation.clientId,  doConnect: true)
+        doConnectRadio(serialNumber: defaultStation.serialNumber,stationName: defaultStation.stationName, clientId: defaultStation.clientId, IsDefaultStation: Bool(defaultStation.default) ?? false,  doConnect: true)
       }
     } else {
       showPreferences("" as AnyObject)
@@ -309,7 +311,17 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
    - parameter serialNumber: String
    - parameter doConnect: Bool
    */
-  func doConnectRadio(serialNumber: String, stationName: String, clientId: String, doConnect: Bool) {
+  func doConnectRadio(serialNumber: String, stationName: String, clientId: String, IsDefaultStation: Bool, doConnect: Bool) {
+    
+    print("defaults loaded 3:")
+    //loadUserDefaults(isGuiClientUpdate: true)
+    if IsDefaultStation == true{
+      defaultStation.serialNumber = serialNumber
+      defaultStation.stationName = stationName
+      defaultStation.clientId = clientId
+      defaultStation.default = "Yes"
+      updateUserDefaults()
+    }
     
     // if already connected we need to cleanup before connecting again
     if isRadioConnected {
@@ -600,6 +612,8 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
   // if defaults exists then retrieve them and update them
   // if one of the guiClients matches one of these set default to yes in guiClients
   func loadUserDefaults(isGuiClientUpdate: Bool) {
+    
+    //print("defaults loaded:")
     
     if let defaults = UserDefaults.standard.dictionary(forKey: radioKey) {
       defaultStation.model = defaults["model"] as! String

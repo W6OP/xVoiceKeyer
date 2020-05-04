@@ -89,9 +89,10 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
      */
     @IBAction func buttonConnect(_ sender: NSButton) {
         if defaultStation.default == YesNo.Yes.rawValue {
-            //saveUserDefaults()
+            saveUserDefaults()
             self.dismiss(self)
-            preferenceManager.connectToRadio(serialNumber: defaultStation.serialNumber, stationName: defaultStation.stationName, clientId: defaultStation.clientId)
+          
+          preferenceManager.connectToRadio(serialNumber: defaultStation.serialNumber, stationName: defaultStation.stationName, clientId: defaultStation.clientId, IsDefaultStation: Bool(self.defaultStation.default) ?? false)
         }
     }
     
@@ -175,6 +176,7 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
                 defaults["nickname"] = defaultStation.nickname
                 defaults["stationName"] = defaultStation.stationName
                 defaults["default"] = YesNo.Yes.rawValue
+              print("default: \(String(describing: defaults["default"]))")
                 defaults["serialNumber"] = defaultStation.serialNumber
                 defaults["clientId"] = defaultStation.clientId
 
@@ -189,6 +191,8 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
                         station[i].default = YesNo.No.rawValue
                     }
                 }
+              
+              //UserDefaults.standard.set(defaults, forKey: radioKey)
             }
         }
     }
