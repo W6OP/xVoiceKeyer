@@ -310,14 +310,14 @@ class RadioManager: NSObject, ApiDelegate {
     cleanUp()
     
     api.radio?.boundClientId = clientId
-    print("bound clientId: \(clientId)")
-    
+   
     for radio in discovery.discoveredRadios {
       
       if let guiClient = radio.guiClients.filter({ $0.value.station == station }).first {
         let handle = guiClient.key
+        
         os_log("Bound to the Radio.", log: RadioManager.model_log, type: .info)
-        print("handle: \(handle)")
+
         return handle
       }
     }
@@ -504,9 +504,7 @@ class RadioManager: NSObject, ApiDelegate {
     case .frequency:
       newValue = convertFrequencyToDecimalString (frequency: slice.frequency)
     }
-    
-    print ("Slice \(slice.sliceLetter ?? "Unknown") has changed.")
-    
+   
     UI() {
       self.radioManagerDelegate?.didUpdateSlice(sliceHandle: slice.clientHandle, sliceLetter: slice.sliceLetter ?? "", sliceStatus: sliceStatus, newValue: newValue)
     }
@@ -575,14 +573,12 @@ class RadioManager: NSObject, ApiDelegate {
       if daxTxAudioStreamRequested == false {
         api.radio!.requestDaxTxAudioStream(callback: updateDaxTxStreamId)
         daxTxAudioStreamRequested = true
-        print("requestDaxTxAudioStream")
       }
       else{
         DispatchQueue.global(qos: .userInteractive).async {
           if self.daxTxAudioStreamId != 0
           {
             self.sendDaxTxAudioStream(streamId: self.daxTxAudioStreamId)
-            print("sendDaxTxAudioStream")
           }
         }
       }
@@ -598,7 +594,7 @@ class RadioManager: NSObject, ApiDelegate {
       api.radio?.daxTxAudioStreams[daxTxAudioStreamId]?.remove()
       daxTxAudioStreamId = StreamId()
     }
-    print("cleanUp")
+
     daxTxAudioStreamRequested = false
     api.radio?.boundClientId = nil
   }
@@ -627,8 +623,9 @@ class RadioManager: NSObject, ApiDelegate {
     }
     
     if let streamId = reply.streamId {
+      
       daxTxAudioStreamId = streamId
-      print ("new streamId: \(streamId)")
+
       DispatchQueue.global(qos: .userInteractive).async {
         self.sendDaxTxAudioStream(streamId: self.daxTxAudioStreamId)
       }
@@ -644,9 +641,6 @@ class RadioManager: NSObject, ApiDelegate {
     let result = audioBuffer.chunked(into: 128)
     let daxTxAudioStream = api.radio?.daxTxAudioStreams[streamId]
     
-    print ("streamId: \(streamId)")
-    
-    // this is new and turns on button - can't get status
     api.radio?.transmit.daxEnabled = true
     api.radio?.mox = true
     daxTxAudioStream?.isTransmitChannel = true
@@ -662,7 +656,6 @@ class RadioManager: NSObject, ApiDelegate {
     audioStreamTimer!.onStateChanged = { (_ timer: Repeater, _ state: Repeater.State) in
       if self.audioStreamTimer!.state.isFinished {
         self.api.radio?.mox = false
-        // this is new and turns on button - can't get status
         self.api.radio?.transmit.daxEnabled = false
         self.audioStreamTimer = nil
       }
