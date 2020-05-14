@@ -58,6 +58,7 @@ public enum audioMessage : String {
     case fileMissing = "FILE"
     case invalidFileType = "FILETYPE"
     case invalidSampleRate = "SAMPLERATE"
+    case KeyRadio = "KeyRadio"
 }
 
 // Start of class definition.
@@ -100,6 +101,13 @@ class AudioManager: NSObject {
                 notifyViewController(key: audioMessage.buttonNotConfigured, messageData: String(buttonNumber))
                 return floatArray
             }
+          
+          // temp code
+          if filePath == "KeyRadio" {
+            notifyViewController(key: audioMessage.KeyRadio, messageData: String(buttonNumber))
+              return floatArray
+          }
+          
             
             // check cache first
             if buffers[buttonNumber] != nil {
@@ -266,7 +274,9 @@ class AudioManager: NSObject {
             message = "The file \(NSString(string: messageData[0]).removingPercentEncoding!) could not be read. It may be corrupt or an invalid file type."
         case .invalidSampleRate:
             message = "The file \(NSString(string: messageData[0]).removingPercentEncoding!) could not be processed. The sample rate should be 24000. This files sample rate is \(messageData[1])"
-        }
+        case .KeyRadio:
+          message = "Key Radio"
+      }
         
         UI() {
             self.audioManagerDelegate?.audioMessageReceived(messageKey: key, message: message)

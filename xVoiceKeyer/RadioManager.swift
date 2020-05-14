@@ -182,13 +182,10 @@ class RadioManager: NSObject, ApiDelegate {
   
   // MARK: - Private properties ----------------------------------------------------------------------------
   
-  private var audiomanager: AudioManager!
-  
   // Notification observers collection
   private var notifications = [NSObjectProtocol]()
   
   private let clientProgram = "xVoiceKeyer"
-  //private var daxTxAudioStream: DaxTxAudioStream!
   private var daxTxAudioStreamId: StreamId
   private var daxTxAudioStreamRequested = false
   private var audioBuffer = [Float]()
@@ -201,8 +198,6 @@ class RadioManager: NSObject, ApiDelegate {
    Initialize the class, create the RadioFactory, add notification listeners
    */
   override init() {
-    
-    audiomanager = AudioManager()
     daxTxAudioStreamId = StreamId()
     
     super.init()
@@ -220,8 +215,6 @@ class RadioManager: NSObject, ApiDelegate {
   }
   
   func receivedMessage(_ text: String) {
-    // get all except the first character // unused in xVoiceKeyer
-    //_ = String(text.dropFirst())
     os_log("Message received.", log: RadioManager.model_log, type: .info)
     
   }
@@ -567,6 +560,18 @@ class RadioManager: NSObject, ApiDelegate {
   func keyRadio(doTransmit: Bool, buffer: [Float]? = nil, xmitGain: Int) {
     
     self.xmitGain = xmitGain
+    
+    // temp code
+    if buffer == nil {
+      if doTransmit  {
+        if (api.radio?.mox == false)  {
+          api.radio?.mox = true
+        } else {
+          api.radio?.mox = false
+        }
+        return
+      }
+    }
     
     if doTransmit  {
       audioBuffer = buffer!

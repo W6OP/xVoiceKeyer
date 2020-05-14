@@ -178,7 +178,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     window.level = NSWindow.Level.statusBar
   }
   
-  // MARK: GUIClients Message Handling ---------------------------------------------------------------------------
+  // MARK: Audio Message Handling ---------------------------------------------------------------------------
   
   /**
    receive messages from the audio manager
@@ -199,6 +199,10 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
       heading = "An Error Has Occurred"
     case audioMessage.invalidSampleRate:
       heading = "Invalid Sample Rate"
+    case audioMessage.KeyRadio:
+      heading = "Key Radio"
+      radioManager.keyRadio(doTransmit: true, buffer: nil, xmitGain: 35)
+      return
     }
     
     let alert = NSAlert()
@@ -210,6 +214,8 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
       if response == NSApplication.ModalResponse.alertFirstButtonReturn { return }
     })
   }
+  
+  // MARK: GUIClients Message Handling ---------------------------------------------------------------------------
   
   /**
    A new GUIClient has appeared on the network. We want to add it to our list
@@ -468,7 +474,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     }
   }
   
-  // MARK: Button Handling ---------------------------------------------------------------------------
+  // MARK: Voice Button Handling ---------------------------------------------------------------------------
   
   /**
    Handle button clicks etc. from any voice button
