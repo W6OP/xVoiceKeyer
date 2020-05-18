@@ -62,6 +62,7 @@ class FilePreferences: NSViewController {
     
     var allTextFields: Dictionary = [Int: NSTextField]()
     var timerState: String = "ON"
+  
     
     @IBOutlet weak var timerInterval: NSTextField!
     @IBOutlet weak var fileSelector: NSButton!

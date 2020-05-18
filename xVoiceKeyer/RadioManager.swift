@@ -169,7 +169,7 @@ class RadioManager: NSObject, ApiDelegate {
   static let model_log = OSLog(subsystem: "com.w6op.RadioManager-Swift", category: "xVoiceKeyer")
   
   // delegate to pass messages back to viewcontroller
-  weak var radioManagerDelegate:RadioManagerDelegate?
+  weak var radioManagerDelegate: RadioManagerDelegate?
   
   // MARK: - Internal Radio properties ----------------------------------------------------------------------------
   
