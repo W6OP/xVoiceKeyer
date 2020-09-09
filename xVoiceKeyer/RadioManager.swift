@@ -283,7 +283,7 @@ class RadioManager: NSObject, ApiDelegate {
         
         activeRadio = foundRadio
         
-        if api.connect(activeRadio!, programName: clientProgram, clientId: nil, isGui: false) {
+        if api.connect(activeRadio!, program: clientProgram, clientId: nil, isGui: false) {
           os_log("Connected to the Radio.", log: RadioManager.model_log, type: .info)
           return true
         }
