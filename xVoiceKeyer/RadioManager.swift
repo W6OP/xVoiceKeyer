@@ -279,14 +279,17 @@ class RadioManager: NSObject, ApiDelegate {
     usleep(1500)
     
     if (didConnect){
-      for (_, foundRadio) in discovery.discoveredRadios.enumerated() where foundRadio.serialNumber == serialNumber {
+      for (_, foundRadio) in discovery.discoveryPackets.enumerated() where foundRadio.serialNumber == serialNumber {
         
         activeRadio = foundRadio
         
-        if api.connect(activeRadio!, program: clientProgram, clientId: nil, isGui: false) {
+        //if api.connect(activeRadio!, program: clientProgram, clientId: nil, isGui: false) {
+        // TODO: How do I know it connected?
+          api.connect(activeRadio!, program: clientProgram, clientId: nil, isGui: false)
           os_log("Connected to the Radio.", log: RadioManager.model_log, type: .info)
+          // check if radio is null
           return true
-        }
+        //}
       }
     }
     return false
@@ -304,10 +307,11 @@ class RadioManager: NSObject, ApiDelegate {
     
     api.radio?.boundClientId = clientId
    
-    for radio in discovery.discoveredRadios {
+    for radio in discovery.discoveryPackets {
       
-      if let guiClient = radio.guiClients.filter({ $0.value.station == station }).first {
-        let handle = guiClient.key
+      //if let guiClient = radio.guiClients.filter({ $0.value.station == station }).first {
+      if let guiClient = radio.guiClients.filter({ $0.station == station }).first {
+        let handle = guiClient.handle //.key
         
         os_log("Bound to the Radio.", log: RadioManager.model_log, type: .info)
 
@@ -342,8 +346,9 @@ class RadioManager: NSObject, ApiDelegate {
     // just collect the radio's gui clients
     for radio in discoveryPacket {
       for guiClient in radio.guiClients {
-        let handle = guiClient.key
-        guiClientView.append((radio.model, radio.nickname, guiClient.value.station, "No", radio.serialNumber, guiClient.value.clientId ?? "", handle))
+        let handle = guiClient.handle //.key
+        // guiClient.value.station  guiClient.value.clientId
+        guiClientView.append((radio.model, radio.nickname, guiClient.station, "No", radio.serialNumber, guiClient.clientId ?? "", handle))
       }
     }
     
@@ -369,9 +374,10 @@ class RadioManager: NSObject, ApiDelegate {
     
     if let guiClient = note.object as? GuiClient {
       
-      for radio in discovery.discoveredRadios {
-        if let client = radio.guiClients.first(where: { $0.value.station == guiClient.station} ){
-          let handle = client.key
+      for radio in discovery.discoveryPackets {
+        //if let client = radio.guiClients.first(where: { $0.value.station == guiClient.station} ){
+        if let client = radio.guiClients.first(where: { $0.station == guiClient.station} ){
+          let handle = client.handle //.key
           guiClientView.append((radio.model, radio.nickname, guiClient.station, "No", radio.serialNumber, String(guiClient.clientId ?? ""), handle))
         }
       }
@@ -399,9 +405,10 @@ class RadioManager: NSObject, ApiDelegate {
     
     if let guiClient = note.object as? GuiClient {
       
-      for radio in discovery.discoveredRadios {
-        if let client = radio.guiClients.first(where: { $0.value.station == guiClient.station} ){
-          let handle = client.key
+      for radio in discovery.discoveryPackets {
+        //if let client = radio.guiClients.first(where: { $0.value.station == guiClient.station} ){
+        if let client = radio.guiClients.first(where: { $0.station == guiClient.station} ){
+          let handle = client.handle //.key
           guiClientView.append((radio.model, radio.nickname, guiClient.station, "No", radio.serialNumber, String(guiClient.clientId ?? ""), handle))
         }
       }

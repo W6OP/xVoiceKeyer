@@ -3,7 +3,7 @@
    version = "1.0">
    <ContextStates>
       <ContextState
-         contextName = "RadioManager.bindToStation(clientId:):RadioManager.swift">
+         contextName = "RadioManager.clientsUpdated(_:):RadioManager.swift">
       </ContextState>
       <ContextState
          contextName = "closure #1 in ViewController.filterSlices(activeStationHandle:):ViewController.swift">
@@ -12,10 +12,10 @@
          contextName = "ViewController.didAddGUIClients(discoveredGUIClients:isGuiClientUpdate:):ViewController.swift">
       </ContextState>
       <ContextState
-         contextName = "ViewController.enableVoiceButtons(validSliceAvailable:):ViewController.swift">
+         contextName = "ViewController.filterSlices(activeStationHandle:):ViewController.swift">
       </ContextState>
       <ContextState
-         contextName = "RadioManager.clientsUpdated(_:):RadioManager.swift">
+         contextName = "ViewController.doBindToStation(clientId:):ViewController.swift">
       </ContextState>
       <ContextState
          contextName = "ViewController.didUpdateGUIClients(discoveredGUIClients:isGuiClientUpdate:):ViewController.swift">
@@ -76,10 +76,10 @@
          </PersistentStrings>
       </ContextState>
       <ContextState
-         contextName = "ViewController.filterSlices(activeStationHandle:):ViewController.swift">
+         contextName = "ViewController.enableVoiceButtons(validSliceAvailable:):ViewController.swift">
       </ContextState>
       <ContextState
-         contextName = "ViewController.doBindToStation(clientId:):ViewController.swift">
+         contextName = "RadioManager.bindToStation(clientId:):RadioManager.swift">
       </ContextState>
    </ContextStates>
 </VariablesViewState>

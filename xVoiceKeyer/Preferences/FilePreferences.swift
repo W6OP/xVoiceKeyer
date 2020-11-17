@@ -134,9 +134,9 @@ class FilePreferences: NSViewController {
         saveUserFileDefaults()
         preferenceManager.updateButtonLables()
         
-            #if DEBUG
-            print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-            #endif
+//            #if DEBUG
+//            print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
+//            #endif
     }
     
     /**
@@ -149,17 +149,33 @@ class FilePreferences: NSViewController {
         
         let textField: NSTextField = allTextFields[sender.tag]!
         let labelField: NSTextField = allTextFields[sender.tag + offset]!
-        let label = labelField.stringValue
+        //let label = labelField.stringValue
         
         if !filePath.isEmpty {
             textField.stringValue = filePath
         }
         
-        if (label.isEmpty) {
+        //if (label.isEmpty) {
             let fileName = NSURL(fileURLWithPath: filePath).deletingPathExtension!.lastPathComponent
             labelField.stringValue = fileName
-        }
+        //}
+      
+      let fileUrl = self.getDocumentsDirectory()
+      let destURL = fileUrl.appendingPathComponent(NSURL(fileURLWithPath: filePath).lastPathComponent!)
+      
+      if FileManager.default.secureCopyItem(at: URL(fileURLWithPath: filePath), to: destURL) {
+        print("file \(filePath) saved to \(destURL)")
+      }
+      // I should do something to let the user know if this fails
     }
+  
+  func getDocumentsDirectory() -> URL {
+      // find all possible documents directories for this user
+      let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+
+      // just send back the first one, which ought to be the only one
+      return paths[0]
+  }
     
     /**
      Collect all the textfields from view and subviews at load time
