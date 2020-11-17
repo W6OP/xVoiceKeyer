@@ -43,233 +43,230 @@ import Cocoa
  Extension to open a preference panel.
  */
 extension NSOpenPanel {
-    var selectUrl: URL? {
-        title = "Select Audio File"
-        allowsMultipleSelection = false
-        canChooseDirectories = false
-        canChooseFiles = true
-        canCreateDirectories = false
-        allowedFileTypes = ["wav", "mp3", "m4a", "aac", "aiff"]
-        // This works with Swift 4
-        return runModal() == NSApplication.ModalResponse.OK ? urls.first : nil
-    }
+  var selectUrl: URL? {
+    title = "Select Audio File"
+    allowsMultipleSelection = false
+    canChooseDirectories = false
+    canChooseFiles = true
+    canCreateDirectories = false
+    allowedFileTypes = ["wav", "mp3", "m4a", "aac", "aiff"]
+    // This works with Swift 4
+    return runModal() == NSApplication.ModalResponse.OK ? urls.first : nil
+  }
 }
 
 class FilePreferences: NSViewController {
-    
-    // class variables
-    var preferenceManager: PreferenceManager!
-    
-    var allTextFields: Dictionary = [Int: NSTextField]()
-    var timerState: String = "ON"
   
+  // class variables
+  var preferenceManager: PreferenceManager!
+  
+  var allTextFields: Dictionary = [Int: NSTextField]()
+  var timerState: String = "ON"
+  
+  
+  @IBOutlet weak var timerInterval: NSTextField!
+  @IBOutlet weak var fileSelector: NSButton!
+  @IBOutlet weak var timerAudioFile: NSTextField!
+  @IBOutlet weak var timerEnabler: NSButton!
+  
+  /**
+   Enable call ID reminder timer.
+   - parameters:
+   - button: Handle to the button clicked.
+   */
+  @IBAction func setTimerState(_ sender: NSButton) {
     
-    @IBOutlet weak var timerInterval: NSTextField!
-    @IBOutlet weak var fileSelector: NSButton!
-    @IBOutlet weak var timerAudioFile: NSTextField!
-    @IBOutlet weak var timerEnabler: NSButton!
+    switch sender.state {
+    case .on:
+      preferenceManager.enableTimer(isEnabled: true, interval: Int(timerInterval.stringValue) ?? 10)
+    case .off:
+      preferenceManager.enableTimer(isEnabled: false, interval: Int(timerInterval.stringValue) ?? 10)
+    default: break
+    }
+  }
+  
+  /**
+   Select the file to be used for the ID timer.
+   - parameters:
+   - button: Handle to the button clicked.
+   */
+  @IBAction func selectTimerFile(_ sender: NSButton) {
+    let filePath = self.getFilePath()
     
-    /**
-     Enable call ID reminder timer.
-     - parameters:
-     - button: Handle to the button clicked.
-     */
-    @IBAction func setTimerState(_ sender: NSButton) {
-        
-        switch sender.state {
-        case .on:
-            preferenceManager.enableTimer(isEnabled: true, interval: Int(timerInterval.stringValue) ?? 10)
-        case .off:
-            preferenceManager.enableTimer(isEnabled: false, interval: Int(timerInterval.stringValue) ?? 10)
-        default: break
-        }
+    let textField: NSTextField = allTextFields[sender.tag]!
+    
+    if !filePath.isEmpty {
+      textField.stringValue = filePath
+    }
+  }
+  
+  
+  /**
+   View loaded.
+   */
+  override func viewDidLoad() {
+    super.viewDidLoad()
+    
+    findTextfieldByIndex(view: self.view)
+    retrieveUserFileDefaults()
+    
+//    #if DEBUG
+//    print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
+//    #endif
+  }
+  
+  /**
+   View will appear.
+   */
+  override func viewWillAppear() {
+    self.view.window?.titleVisibility = .hidden
+    self.view.window?.titlebarAppearsTransparent = true
+    
+    self.view.window?.styleMask.insert(.fullSizeContentView)
+    
+    //self.view.window?.styleMask.remove(.closable)
+    self.view.window?.styleMask.remove(.fullScreen)
+    self.view.window?.styleMask.remove(.miniaturizable)
+    self.view.window?.styleMask.remove(.resizable)
+  }
+  
+  override func viewWillDisappear() {
+    saveUserFileDefaults()
+    preferenceManager.updateButtonLables()
+    
+    //            #if DEBUG
+    //            print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
+    //            #endif
+  }
+  
+  /**
+   Find the correct field using the tag value and populate it.
+   */
+  @IBAction func loadFileNameClicked(_ sender: NSButton) {
+    
+    let filePath = self.getFilePath()
+    let offset = 10
+    
+    let textField: NSTextField = allTextFields[sender.tag]!
+    let labelField: NSTextField = allTextFields[sender.tag + offset]!
+    
+    if !filePath.isEmpty {
+      textField.stringValue = filePath
     }
     
-    /**
-     Select the file to be used for the ID timer.
-     - parameters:
-     - button: Handle to the button clicked.
-     */
-    @IBAction func selectTimerFile(_ sender: NSButton) {
-        let filePath = self.getFilePath()
-        
-        let textField: NSTextField = allTextFields[sender.tag]!
-        
-        if !filePath.isEmpty {
-            textField.stringValue = filePath
-        }
-    }
+    let fileName = NSURL(fileURLWithPath: filePath).deletingPathExtension!.lastPathComponent
+    labelField.stringValue = fileName
     
+    let fileUrl = self.getDocumentsDirectory()
+    let destURL = fileUrl.appendingPathComponent(NSURL(fileURLWithPath: filePath).lastPathComponent!)
     
-    /**
-     View loaded.
-     */
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        findTextfieldByIndex(view: self.view)
-        retrieveUserFileDefaults()
-        
-        #if DEBUG
-        print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-        #endif
+    if FileManager.default.secureCopyItem(at: URL(fileURLWithPath: filePath), to: destURL) {
+      print("file \(filePath) saved to \(destURL)")
     }
-    
-    /**
-     View will appear.
-     */
-    override func viewWillAppear() {
-        self.view.window?.titleVisibility = .hidden
-        self.view.window?.titlebarAppearsTransparent = true
-        
-        self.view.window?.styleMask.insert(.fullSizeContentView)
-        
-        //self.view.window?.styleMask.remove(.closable)
-        self.view.window?.styleMask.remove(.fullScreen)
-        self.view.window?.styleMask.remove(.miniaturizable)
-        self.view.window?.styleMask.remove(.resizable)
-    }
-    
-    override func viewWillDisappear() {
-        saveUserFileDefaults()
-        preferenceManager.updateButtonLables()
-        
-//            #if DEBUG
-//            print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-//            #endif
-    }
-    
-    /**
-     Find the correct field using the tag value and populate it.
-     */
-    @IBAction func loadFileNameClicked(_ sender: NSButton) {
-        
-        let filePath = self.getFilePath()
-        let offset = 10
-        
-        let textField: NSTextField = allTextFields[sender.tag]!
-        let labelField: NSTextField = allTextFields[sender.tag + offset]!
-        //let label = labelField.stringValue
-        
-        if !filePath.isEmpty {
-            textField.stringValue = filePath
-        }
-        
-        //if (label.isEmpty) {
-            let fileName = NSURL(fileURLWithPath: filePath).deletingPathExtension!.lastPathComponent
-            labelField.stringValue = fileName
-        //}
-      
-      let fileUrl = self.getDocumentsDirectory()
-      let destURL = fileUrl.appendingPathComponent(NSURL(fileURLWithPath: filePath).lastPathComponent!)
-      
-      if FileManager.default.secureCopyItem(at: URL(fileURLWithPath: filePath), to: destURL) {
-        print("file \(filePath) saved to \(destURL)")
-      }
-      // I should do something to let the user know if this fails
-    }
+    // I should do something to let the user know if this fails
+  }
   
   func getDocumentsDirectory() -> URL {
-      // find all possible documents directories for this user
-      let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-
-      // just send back the first one, which ought to be the only one
-      return paths[0]
+    // find all possible documents directories for this user
+    let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+    
+    // just send back the first one, which ought to be the only one
+    return paths[0]
   }
+  
+  /**
+   Collect all the textfields from view and subviews at load time
+   - parameter view: - the view to search
+   */
+  func findTextfieldByIndex(view: NSView) {
     
-    /**
-     Collect all the textfields from view and subviews at load time
-     - parameter view: - the view to search
-     */
-    func findTextfieldByIndex(view: NSView) {
-        
-        for subview in view.subviews as [NSView] {
-            if let textField = subview as? NSTextField {
-                allTextFields[textField.tag] = textField
-            } else {
-                findTextfieldByIndex(view: subview)
-            }
-        }
+    for subview in view.subviews as [NSView] {
+      if let textField = subview as? NSTextField {
+        allTextFields[textField.tag] = textField
+      } else {
+        findTextfieldByIndex(view: subview)
+      }
+    }
+  }
+  
+  /**
+   Collect all the textfields from view and subviews
+   - parameter view: - the view to search
+   - returns: array of NSTextField
+   */
+  func findTextfield(view: NSView) -> [NSTextField] {
+    
+    var results = [NSTextField]()
+    
+    for subview in view.subviews as [NSView] {
+      if let textField = subview as? NSTextField {
+        results += [textField]
+      } else {
+        results += findTextfield(view: subview)
+      }
+    }
+    return results
+  }
+  
+  /**
+   Get the file path from the selected item.
+   - returns: String
+   */
+  func getFilePath() -> String {
+    var filePath = ""
+    
+    if let url = NSOpenPanel().selectUrl {
+      filePath = url.path
     }
     
-    /**
-     Collect all the textfields from view and subviews
-     - parameter view: - the view to search
-     - returns: array of NSTextField
-     */
-    func findTextfield(view: NSView) -> [NSTextField] {
-        
-        var results = [NSTextField]()
-        
-        for subview in view.subviews as [NSView] {
-            if let textField = subview as? NSTextField {
-                results += [textField]
-            } else {
-                results += findTextfield(view: subview)
-            }
-        }
-        return results
-    }
+    return filePath
+  }
+  
+  /**
+   Retrieve the user settings. File paths and the default radio.
+   Populate the fields and the tableview
+   */
+  func retrieveUserFileDefaults() {
     
-    /**
-     Get the file path from the selected item.
-     - returns: String
-     */
-    func getFilePath() -> String {
-        var filePath = ""
-        
-        if let url = NSOpenPanel().selectUrl {
-            filePath = url.path
+    for item in allTextFields
+    {
+      let tag = item.key
+      
+      // this takes care of timer interval too since it is duplicated as a tag and TimerInterval
+      if let filePath = UserDefaults.standard.string(forKey: String(tag)) {
+        if tag != 0 { // skip labels
+          allTextFields[tag]!.stringValue = filePath
         }
-        
-        return filePath
+      }
     }
+  }
+  
+  /**
+   Persist the user settings. File paths and the button labels.
+   */
+  func saveUserFileDefaults() {
     
-    /**
-     Retrieve the user settings. File paths and the default radio.
-     Populate the fields and the tableview
-     */
-    func retrieveUserFileDefaults() {
-        
-        for item in allTextFields
-        {
-            let tag = item.key
-            
-            // this takes care of timer interval too since it is duplicated as a tag and TimerInterval
-            if let filePath = UserDefaults.standard.string(forKey: String(tag)) {
-                if tag != 0 { // skip labels
-                    allTextFields[tag]!.stringValue = filePath
-                }
-            }
+    for item in allTextFields
+    {
+      let tag = item.key
+      
+      if tag == 0 {
+        continue
+      }
+      
+      if allTextFields[tag]!.stringValue.isEmpty
+      {
+        UserDefaults.standard.set("", forKey: String(tag))
+        if tag == 101 {
+          UserDefaults.standard.set("10", forKey: "TimerInterval")
         }
-    }
-    
-    /**
-     Persist the user settings. File paths and the button labels.
-     */
-    func saveUserFileDefaults() {
-        
-        for item in allTextFields
-        {
-            let tag = item.key
-            
-            if tag == 0 {
-                continue
-            }
-            
-            if allTextFields[tag]!.stringValue.isEmpty
-            {
-                UserDefaults.standard.set("", forKey: String(tag))
-                if tag == 101 {
-                    UserDefaults.standard.set("10", forKey: "TimerInterval")
-                }
-            } else {
-                UserDefaults.standard.set(allTextFields[tag]!.stringValue, forKey: String(tag))
-                if tag == 101 {
-                    UserDefaults.standard.set(allTextFields[tag]!.stringValue, forKey: "TimerInterval")
-                }
-            }
+      } else {
+        UserDefaults.standard.set(allTextFields[tag]!.stringValue, forKey: String(tag))
+        if tag == 101 {
+          UserDefaults.standard.set(allTextFields[tag]!.stringValue, forKey: "TimerInterval")
         }
+      }
     }
-    
+  }
+  
 } // end class
