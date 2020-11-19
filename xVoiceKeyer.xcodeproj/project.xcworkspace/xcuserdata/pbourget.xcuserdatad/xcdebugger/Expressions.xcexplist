@@ -12,10 +12,10 @@
          contextName = "ViewController.didAddGUIClients(discoveredGUIClients:isGuiClientUpdate:):ViewController.swift">
       </ContextState>
       <ContextState
-         contextName = "ViewController.filterSlices(activeStationHandle:):ViewController.swift">
+         contextName = "ViewController.enableVoiceButtons(validSliceAvailable:):ViewController.swift">
       </ContextState>
       <ContextState
-         contextName = "ViewController.doBindToStation(clientId:):ViewController.swift">
+         contextName = "RadioManager.bindToStation(clientId:):RadioManager.swift">
       </ContextState>
       <ContextState
          contextName = "ViewController.didUpdateGUIClients(discoveredGUIClients:isGuiClientUpdate:):ViewController.swift">
@@ -39,6 +39,14 @@
          <PersistentStrings>
             <PersistentString
                value = "api.radio?.boundClientId">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "RadioManager.guiClientsAdded(_:):RadioManager.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "discovery.discoveryPackets">
             </PersistentString>
          </PersistentStrings>
       </ContextState>
@@ -68,6 +76,9 @@
          contextName = "RadioManager.sliceHasBeenAdded(_:):RadioManager.swift">
       </ContextState>
       <ContextState
+         contextName = "ViewController.filterSlices(activeStationHandle:):ViewController.swift">
+      </ContextState>
+      <ContextState
          contextName = "RadioManager.discoveryPacketsReceived(_:):RadioManager.swift">
          <PersistentStrings>
             <PersistentString
@@ -76,10 +87,7 @@
          </PersistentStrings>
       </ContextState>
       <ContextState
-         contextName = "ViewController.enableVoiceButtons(validSliceAvailable:):ViewController.swift">
-      </ContextState>
-      <ContextState
-         contextName = "RadioManager.bindToStation(clientId:):RadioManager.swift">
+         contextName = "ViewController.doBindToStation(clientId:):ViewController.swift">
       </ContextState>
    </ContextStates>
 </VariablesViewState>

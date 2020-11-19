@@ -95,8 +95,8 @@
 				996B9D71220635F20055D0F4 /* Storyboards */,
 				996AC0841E4E3D4800C20AA8 /* Info.plist */,
 				99D64A2E1E5B9BEB0053ED1F /* AudioManager.swift */,
-				996B9D70220634B60055D0F4 /* Preferences */,
 				99EC95A11F1523B100E539E8 /* RadioManager.swift */,
+				996B9D70220634B60055D0F4 /* Preferences */,
 				99C211021F297279003B47F1 /* LICENSE */,
 				99931584220243F30017C05A /* WindowController.swift */,
 			);

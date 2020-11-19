@@ -55,7 +55,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
   var preferenceManager: PreferenceManager!
   
   // this is only used in showPreferences
-  var guiClientView = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)]()
+  var stationView = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)]()
   
   private var defaultStation = (model: "", nickname: "", stationName: "", default: "", serialNumber: "", clientId: "", handle: UInt32())
   
@@ -221,11 +221,13 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
    A new GUIClient has appeared on the network. We want to add it to our list
    in case the user wants to select a new radio/station.
    */
-  func didAddGUIClients(discoveredGUIClients: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)], isGuiClientUpdate: Bool) {
+  func didAddStations(discoveredStations: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)], isGuiClientUpdate: Bool) {
     
-    if guiClientView.filter({ $0.stationName == defaultStation.stationName }).isEmpty {
-      guiClientView += discoveredGUIClients
-    }
+    stationView = discoveredStations
+    
+//    if stationView.filter({ $0.stationName == defaultStation.stationName }).isEmpty {
+//      stationView += discoveredGUIClients
+//    }
   }
   
   /**
@@ -236,24 +238,25 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
    otherwise pop the preferences pane.
    This is the normal flow. When the Connect button is clicked it goes straight to doConnectToradio()
    */
-  func didDiscoverGUIClients(discoveredGUIClients: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)], isGuiClientUpdate: Bool) {
+  func didDiscoverStations(discoveredStations: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)], isGuiClientUpdate: Bool) {
     
     print("defaults loaded 2:")
     loadUserDefaults(isGuiClientUpdate: isGuiClientUpdate)
     
-    if guiClientView.filter({ $0.stationName == defaultStation.stationName }).isEmpty {
-      guiClientView += discoveredGUIClients
-    } else {
-      guiClientView.removeAll(where: { $0.stationName == defaultStation.stationName })
-      guiClientView += discoveredGUIClients
-    }
+    stationView = discoveredStations
+//    if stationView.filter({ $0.stationName == defaultStation.stationName }).isEmpty {
+//      stationView += discoveredStations
+//    } else {
+//      stationView.removeAll(where: { $0.stationName == defaultStation.stationName })
+//      stationView += discoveredStations
+//    }
     
     // find if a default is set and connect if it is else show preference panel
-    if let index = discoveredGUIClients.firstIndex(where: {$0.stationName == defaultStation.stationName}) {
+    if let index = discoveredStations.firstIndex(where: {$0.stationName == defaultStation.stationName}) {
 
-      defaultStation.model = discoveredGUIClients[index].model
-      defaultStation.nickname = discoveredGUIClients[index].nickname
-      defaultStation.stationName = discoveredGUIClients[index].stationName
+      defaultStation.model = discoveredStations[index].model
+      defaultStation.nickname = discoveredStations[index].nickname
+      defaultStation.stationName = discoveredStations[index].stationName
 
       if !isRadioConnected  {
         doConnectRadio(serialNumber: defaultStation.serialNumber,stationName: defaultStation.stationName, clientId: defaultStation.clientId, IsDefaultStation: Bool(defaultStation.default) ?? false,  doConnect: true)
@@ -266,40 +269,60 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
   /**
    After the initial discovery we need to wait for updates to get the client id
    */
-  func didUpdateGUIClients(discoveredGUIClients: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)], isGuiClientUpdate: Bool) {
+  func didUpdateStations(discoveredStations: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)], isStationUpdate: Bool) {
     
-    if let index = guiClientView.firstIndex(where: {$0.stationName == discoveredGUIClients[0].stationName}) {
-      
-      guiClientView.remove(at: index)
-      guiClientView += discoveredGUIClients
-    }
+    stationView = discoveredStations
+//    if let index = stationView.firstIndex(where: {$0.stationName == discoveredStations[0].stationName}) {
+//      stationView.remove(at: index)
+//      stationView += discoveredStations
+//    }
     
     // this makes it version 3 only
-    if let index = discoveredGUIClients.firstIndex(where: {$0.stationName == connectedStationName}) {
+    if let index = discoveredStations.firstIndex(where: {$0.stationName == connectedStationName}) {
       
-      if discoveredGUIClients[index].clientId != "" {
-        defaultStation.clientId = discoveredGUIClients[index].clientId
+      if discoveredStations[index].clientId != "" {
+        defaultStation.clientId = discoveredStations[index].clientId
         updateUserDefaults()
         
         if !isBoundToClient {
-          doBindToStation(clientId: discoveredGUIClients[index].clientId, station: discoveredGUIClients[index].stationName)
+          doBindToStation(clientId: discoveredStations[index].clientId, station: discoveredStations[index].stationName)
         }
       }
     }
   }
   
   /**
+   A station has disappeared from the network so we will remove it from our collection.
+   First get the handle so we can remove the slices too
+   */
+  func didRemoveStation(discoveredStations: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)], isStationUpdate: Bool) {
+    
+    for station in discoveredStations {
+        sliceView.removeAll( where: { $0.sliceHandle == station.handle})
+        stationView.removeAll(where: { $0.stationName == station.stationName})
+      
+      if (station.stationName == connectedStationName){
+        connectedStationName = ""
+        connectedStationHandle = 0
+        isBoundToClient = false
+        
+        updateView(sliceHandle: 0)
+      }
+    }
+  }
+  /**
    A GUIClient has disappeared from the network so we will remove it from our collection.
    First get the handle so we can remove the slices too
+   DEPRECATED
    */
   func didRemoveGUIClients(station: String) {
     
-    if !guiClientView.filter({ $0.stationName == station }).isEmpty {
-      let handle = guiClientView.first( where: { $0.stationName == station })?.handle
+    if !stationView.filter({ $0.stationName == station }).isEmpty {
+      let handle = stationView.first( where: { $0.stationName == station })?.handle
       sliceView.removeAll( where: { $0.sliceHandle == handle})
     }
     
-    guiClientView.removeAll(where: { $0.stationName == station})
+    stationView.removeAll(where: { $0.stationName == station})
     
     if (station == connectedStationName){
       connectedStationName = ""
@@ -313,14 +336,12 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
   
   // MARK: Radio Methods ---------------------------------------------------------------------------
   /**
-   Select the desired radio and instruct the RadioManager to start the connect process.
+   Select the desired radio/station and instruct the RadioManager to start the connect process.
    - parameter serialNumber: String
    - parameter doConnect: Bool
    */
   func doConnectRadio(serialNumber: String, stationName: String, clientId: String, IsDefaultStation: Bool, doConnect: Bool) {
     
-    print("defaults loaded 3:")
-    //loadUserDefaults(isGuiClientUpdate: true)
     if IsDefaultStation == true{
       defaultStation.serialNumber = serialNumber
       defaultStation.stationName = stationName
@@ -751,7 +772,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     let SB = NSStoryboard(name: "Main", bundle: nil)
     let PVC: RadioPreferences = SB.instantiateController(withIdentifier: "radioSelection") as! RadioPreferences
     //PVC.buildStationList(radios: radios)
-    PVC.station = guiClientView
+    PVC.station = stationView
     PVC.preferenceManager = preferenceManager
     
     presentAsSheet(PVC)
