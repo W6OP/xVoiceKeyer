@@ -49,7 +49,7 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
     // Array of available radios per station name
     var station = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)]()
     
-    private var defaultStation = (model: "", nickname: "", stationName: "", default: "", serialNumber: "", clientId: "", handle: UInt32())
+    private var selectedStation = (model: "", nickname: "", stationName: "", default: "", serialNumber: "", clientId: "", handle: UInt32())
     
     private let radioKey = "defaultRadio"
     private var isDefaultSet = false
@@ -65,7 +65,6 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
         Close this view. This is the Cancel button.
      */
     @IBAction func buttonOk(_ sender: Any) {
-        //saveUserDefaults()
         preferenceManager.updateButton()
         self.dismiss(self)
     }
@@ -84,16 +83,30 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
         buttonConnectControl.isEnabled = true
     }
     
-    /**
+  /**
+   Clear the default radio.
+   */
+  @IBAction func buttonClearDefault(_ sender: NSButton) {
+    
+    isDefaultSet = false
+    
+    clearDefaultRadio()
+    
+    tableViewRadioPicker.reloadData()
+    
+  }
+  /**
         Connect the radio in the main view controller by calling delegate in preference manager.
      */
     @IBAction func buttonConnect(_ sender: NSButton) {
-        if defaultStation.default == YesNo.Yes.rawValue {
-            saveUserDefaults()
+        //if defaultStation.default == YesNo.Yes.rawValue {
+            //saveUserDefaults()
             self.dismiss(self)
           
-          preferenceManager.connectToRadio(serialNumber: defaultStation.serialNumber, stationName: defaultStation.stationName, clientId: defaultStation.clientId, IsDefaultStation: Bool(self.defaultStation.default) ?? false)
-        }
+          selectedStation = station[tableViewRadioPicker.selectedRow]
+      
+          preferenceManager.connectToRadio(serialNumber: selectedStation.serialNumber, stationName: selectedStation.stationName, clientId: selectedStation.clientId, IsDefaultStation: Bool(self.selectedStation.default) ?? false)
+        //}
     }
     
     // MARK: generated code
@@ -131,7 +144,6 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
     override func viewWillDisappear() {
         
         isDefaultSet = false // don't save radio on exit
-        //saveUserDefaults()
     }
     
     /**
@@ -141,16 +153,16 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
     func retrieveUserDefaults() {
         
         if let defaults = UserDefaults.standard.dictionary(forKey: radioKey) {
-            self.defaultStation.model = defaults["model"] as! String
-            self.defaultStation.nickname = defaults["nickname"] as! String
-            self.defaultStation.stationName = defaults["stationName"] as! String
-            self.defaultStation.default = defaults["default"] as! String
-            self.defaultStation.serialNumber = defaults["serialNumber"] as! String
-            self.defaultStation.clientId = "" //defaults["clientId"] as! String
+            self.selectedStation.model = defaults["model"] as! String
+            self.selectedStation.nickname = defaults["nickname"] as! String
+            self.selectedStation.stationName = defaults["stationName"] as! String
+            self.selectedStation.default = defaults["default"] as! String
+            self.selectedStation.serialNumber = defaults["serialNumber"] as! String
+            self.selectedStation.clientId = "" //defaults["clientId"] as! String
         }
         
         for i in 0..<station.count {
-            if station[i].nickname == defaultStation.nickname && station[i].model == defaultStation.model && station[i].stationName == defaultStation.stationName {
+            if station[i].nickname == selectedStation.nickname && station[i].model == selectedStation.model && station[i].stationName == selectedStation.stationName {
                 station[i].default = YesNo.Yes.rawValue  //YES
             } else {
                 station[i].default = YesNo.No.rawValue //NO
@@ -168,34 +180,42 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
     
         if (station.count > 0) {
             //for client in radios
-            defaultStation = station[tableViewRadioPicker.selectedRow]
+            selectedStation = station[tableViewRadioPicker.selectedRow]
 
             if isDefaultSet == true {
                 var defaults = [String : String]()
-                defaults["model"] = defaultStation.model
-                defaults["nickname"] = defaultStation.nickname
-                defaults["stationName"] = defaultStation.stationName
+                defaults["model"] = selectedStation.model
+                defaults["nickname"] = selectedStation.nickname
+                defaults["stationName"] = selectedStation.stationName
                 defaults["default"] = YesNo.Yes.rawValue
-              print("default: \(String(describing: defaults["default"]))")
-                defaults["serialNumber"] = defaultStation.serialNumber
-                defaults["clientId"] = defaultStation.clientId
+                defaults["serialNumber"] = selectedStation.serialNumber
+                defaults["clientId"] = selectedStation.clientId
 
                 UserDefaults.standard.set(defaults, forKey: radioKey)
 
-                defaultStation.default = YesNo.Yes.rawValue
+                selectedStation.default = YesNo.Yes.rawValue
 
                 for i in 0..<station.count {
-                    if station[i].nickname == defaultStation.nickname && station[i].model == defaultStation.model && station[i].stationName == defaultStation.stationName {
+                    if station[i].nickname == selectedStation.nickname && station[i].model == selectedStation.model && station[i].stationName == selectedStation.stationName {
                         station[i].default = YesNo.Yes.rawValue
                     } else {
                         station[i].default = YesNo.No.rawValue
                     }
                 }
-              
-              //UserDefaults.standard.set(defaults, forKey: radioKey)
             }
         }
     }
+  
+  func clearDefaultRadio() {
+    
+    UserDefaults.standard.set(nil, forKey: radioKey)
+    
+    selectedStation.default = YesNo.No.rawValue
+    
+    for i in 0..<station.count {
+        station[i].default = YesNo.No.rawValue
+    }
+  }
 
     // ----------------------------------------------------------------------------
     // MARK: - NSTableView DataSource methods
