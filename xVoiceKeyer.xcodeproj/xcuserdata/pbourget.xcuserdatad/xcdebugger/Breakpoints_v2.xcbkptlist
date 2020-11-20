@@ -7,38 +7,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "2677060B-7109-4880-8946-637299D27270"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "xVoiceKeyer/ViewController.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "170"
-            endingLineNumber = "170"
-            landmarkName = "viewDidLoad()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "14F9F0E7-62CB-423C-841C-25DA420F5B1D"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "xVoiceKeyer/ViewController.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "666"
-            endingLineNumber = "666"
-            landmarkName = "loadUserDefaults(isGuiClientUpdate:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "1667EA1B-5916-4321-A9C3-AE43456E1549"
             shouldBeEnabled = "No"
             ignoreCount = "0"
@@ -46,10 +14,10 @@
             filePath = "xVoiceKeyer/RadioManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "652"
-            endingLineNumber = "652"
-            landmarkName = "unknown"
-            landmarkType = "0">
+            startingLineNumber = "647"
+            endingLineNumber = "647"
+            landmarkName = "updateDaxTxStreamId(_:sequenceNumber:responseValue:reply:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -78,10 +46,10 @@
             filePath = "xVoiceKeyer/RadioManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "310"
-            endingLineNumber = "310"
-            landmarkName = "unknown"
-            landmarkType = "0">
+            startingLineNumber = "306"
+            endingLineNumber = "306"
+            landmarkName = "bindToStation(clientId:station:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -97,54 +65,6 @@
             startingLineNumber = "79"
             endingLineNumber = "79"
             landmarkName = "buttonDefault(_:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "109BAABE-C017-4AF2-9DCC-FE11D4A2025C"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "xVoiceKeyer/ViewController.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "647"
-            endingLineNumber = "647"
-            landmarkName = "loadUserDefaults(isGuiClientUpdate:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "CE92C445-627C-4271-ADD3-F2687D8A2D72"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "xVoiceKeyer/ViewController.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "676"
-            endingLineNumber = "676"
-            landmarkName = "updateUserDefaults()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "7DA65241-F395-4AA2-A4B4-757C5912B08E"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "xVoiceKeyer/ViewController.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "165"
-            endingLineNumber = "165"
-            landmarkName = "viewDidLoad()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -174,8 +94,8 @@
             filePath = "xVoiceKeyer/Preferences/FilePreferences.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "153"
-            endingLineNumber = "153"
+            startingLineNumber = "145"
+            endingLineNumber = "145"
             landmarkName = "loadFileNameClicked(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -238,25 +158,9 @@
             filePath = "xVoiceKeyer/Preferences/FilePreferences.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "164"
-            endingLineNumber = "164"
+            startingLineNumber = "156"
+            endingLineNumber = "156"
             landmarkName = "loadFileNameClicked(_:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "2F60B356-9A07-44BE-876E-2468C73E8387"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "xVoiceKeyer/ViewController.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "469"
-            endingLineNumber = "469"
-            landmarkName = "didUpdateSlice(sliceHandle:sliceLetter:sliceStatus:newValue:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -270,8 +174,8 @@
             filePath = "xVoiceKeyer/Preferences/RadioPreferences.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "264"
-            endingLineNumber = "264"
+            startingLineNumber = "258"
+            endingLineNumber = "258"
             landmarkName = "tableView(_:objectValueFor:row:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -286,8 +190,8 @@
             filePath = "xVoiceKeyer/Preferences/RadioPreferences.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "185"
-            endingLineNumber = "185"
+            startingLineNumber = "182"
+            endingLineNumber = "182"
             landmarkName = "saveUserDefaults()"
             landmarkType = "7">
          </BreakpointContent>
@@ -302,8 +206,8 @@
             filePath = "xVoiceKeyer/Preferences/RadioPreferences.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "155"
-            endingLineNumber = "155"
+            startingLineNumber = "153"
+            endingLineNumber = "153"
             landmarkName = "retrieveUserDefaults()"
             landmarkType = "7">
          </BreakpointContent>
@@ -318,25 +222,9 @@
             filePath = "xVoiceKeyer/Preferences/RadioPreferences.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "108"
-            endingLineNumber = "108"
+            startingLineNumber = "107"
+            endingLineNumber = "107"
             landmarkName = "buttonConnect(_:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "FDB6AFB5-BAEC-485C-8C8F-2671611D1BF8"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "xVoiceKeyer/ViewController.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "345"
-            endingLineNumber = "345"
-            landmarkName = "doConnectRadio(serialNumber:stationName:clientId:IsDefaultStation:doConnect:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

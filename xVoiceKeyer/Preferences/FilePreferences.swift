@@ -109,10 +109,6 @@ class FilePreferences: NSViewController {
     
     findTextfieldByIndex(view: self.view)
     retrieveUserFileDefaults()
-    
-//    #if DEBUG
-//    print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-//    #endif
   }
   
   /**
@@ -133,10 +129,6 @@ class FilePreferences: NSViewController {
   override func viewWillDisappear() {
     saveUserFileDefaults()
     preferenceManager.updateButtonLables()
-    
-    //            #if DEBUG
-    //            print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-    //            #endif
   }
   
   /**

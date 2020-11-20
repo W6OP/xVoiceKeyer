@@ -99,14 +99,12 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
         Connect the radio in the main view controller by calling delegate in preference manager.
      */
     @IBAction func buttonConnect(_ sender: NSButton) {
-        //if defaultStation.default == YesNo.Yes.rawValue {
-            //saveUserDefaults()
-            self.dismiss(self)
+
+          self.dismiss(self)
           
           selectedStation = station[tableViewRadioPicker.selectedRow]
       
           preferenceManager.connectToRadio(serialNumber: selectedStation.serialNumber, stationName: selectedStation.stationName, clientId: selectedStation.clientId, IsDefaultStation: Bool(self.selectedStation.default) ?? false)
-        //}
     }
     
     // MARK: generated code
@@ -158,7 +156,7 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
             self.selectedStation.stationName = defaults["stationName"] as! String
             self.selectedStation.default = defaults["default"] as! String
             self.selectedStation.serialNumber = defaults["serialNumber"] as! String
-            self.selectedStation.clientId = "" //defaults["clientId"] as! String
+            self.selectedStation.clientId = ""
         }
         
         for i in 0..<station.count {
@@ -169,7 +167,6 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
             }
         }
         
-        // why did this stop working elsewhere
         buttonDefaultControl.isEnabled = true
     }
     
@@ -226,9 +223,6 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
         - returns: number of rows
      */
     func numberOfRows(in aTableView: NSTableView) -> Int {
-        
-        // get the number of rows
-        //print ("rows: ")
         return station.count
     }
     

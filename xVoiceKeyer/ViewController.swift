@@ -168,7 +168,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     //deleteUserDefaults()
     
     loadUserDefaults(isGuiClientUpdate: false)
-    print("defaults loaded 1:")
+
   }
   
   // don't allow full screen
@@ -224,10 +224,6 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
   func didAddStations(discoveredStations: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)], isGuiClientUpdate: Bool) {
     
     stationView = discoveredStations
-    
-//    if stationView.filter({ $0.stationName == defaultStation.stationName }).isEmpty {
-//      stationView += discoveredGUIClients
-//    }
   }
   
   /**
@@ -240,17 +236,10 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
    */
   func didDiscoverStations(discoveredStations: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)], isGuiClientUpdate: Bool) {
     
-    print("defaults loaded 2:")
     loadUserDefaults(isGuiClientUpdate: isGuiClientUpdate)
     
     stationView = discoveredStations
-//    if stationView.filter({ $0.stationName == defaultStation.stationName }).isEmpty {
-//      stationView += discoveredStations
-//    } else {
-//      stationView.removeAll(where: { $0.stationName == defaultStation.stationName })
-//      stationView += discoveredStations
-//    }
-    
+
     // find if a default is set and connect if it is else show preference panel
     if let index = discoveredStations.firstIndex(where: {$0.stationName == defaultStation.stationName}) {
 
@@ -272,10 +261,6 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
   func didUpdateStations(discoveredStations: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)], isStationUpdate: Bool) {
     
     stationView = discoveredStations
-//    if let index = stationView.firstIndex(where: {$0.stationName == discoveredStations[0].stationName}) {
-//      stationView.remove(at: index)
-//      stationView += discoveredStations
-//    }
     
     // this makes it version 3 only
     if let index = discoveredStations.firstIndex(where: {$0.stationName == connectedStationName}) {
@@ -310,6 +295,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
       }
     }
   }
+  
   /**
    A GUIClient has disappeared from the network so we will remove it from our collection.
    First get the handle so we can remove the slices too
@@ -331,7 +317,6 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
       
       updateView(sliceHandle: 0)
     }
-    
   }
   
   // MARK: Radio Methods ---------------------------------------------------------------------------
@@ -468,13 +453,6 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     
     updateView(sliceHandle: sliceHandle)
     
-    //        if sliceView.firstIndex(where: { $0.sliceHandle == connectedStationHandle && $0.txEnabled == true && $0.radioMode != radioMode.invalid }) != nil {
-    //
-    //            updateView(sliceHandle: sliceHandle)
-    //            //enableVoiceButtons(validSliceAvailable: true)
-    //        } else {
-    //            disableVoiceButtons()
-    //        }
   }
   
   /**
@@ -487,10 +465,8 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     }
     
     if sliceView.firstIndex(where: { $0.sliceHandle == connectedStationHandle && $0.txEnabled == true && $0.radioMode != radioMode.invalid }) != nil {
-      //enableVoiceButtons(validSliceAvailable: true)
       updateView(sliceHandle: sliceHandle)
     } else {
-      //disableVoiceButtons()
       updateView(sliceHandle: 0)
     }
   }
@@ -557,8 +533,6 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
   func doUpdateButtonLabels() {
     updateButtonTitles(view: view)
     audiomanager.clearFileCache()
-    
-    //enableVoiceButtons(validSliceAvailable: true)
   }
   
   /**
@@ -592,8 +566,6 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
           buttonSendID.isEnabled = false
         }
       }
-    } else {
-      //disableVoiceButtons()
     }
   }
   
@@ -640,8 +612,6 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
   // if one of the guiClients matches one of these set default to yes in guiClients
   func loadUserDefaults(isGuiClientUpdate: Bool) {
     
-    //print("defaults loaded:")
-    
     if let defaults = UserDefaults.standard.dictionary(forKey: radioKey) {
       defaultStation.model = defaults["model"] as! String
       defaultStation.nickname = defaults["nickname"] as! String
@@ -650,11 +620,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
       
       defaultStation.default = defaults["default"] as! String
       defaultStation.serialNumber = defaults["serialNumber"] as! String
-      // only happens after connect
-      if isGuiClientUpdate {
-        //defaultStation.clientId = defaults["clientId"] as! String
-      }
-      
+
       if defaults["xmitGain"] != nil {
         gainSlider.intValue = Int32(defaults["xmitGain"] as! String) ?? 35
         gainLabel.stringValue = defaults["xmitGain"] as! String
@@ -678,7 +644,6 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     defaults["stationName"] = defaultStation.stationName
     defaults["default"] = defaultStation.default
     defaults["serialNumber"] = defaultStation.serialNumber
-    //defaults["clientId"] = defaultStation.clientId
     defaults["xmitGain"] = "\(gainSlider.intValue)"
     
     UserDefaults.standard.set(defaults, forKey: radioKey)
@@ -713,10 +678,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
   func doSetTimer(isEnabled: Bool, interval: Int) {
     idTimer = Repeater(interval: .minutes(interval), mode: .infinite) { _ in
       print("timer fired = \(interval)")
-      //selectAudioFile(buttonNumber: 102, transmitGain: transmitGain)
       UI{
-        //labelSendID.backgroundColor = NSColor.green
-        //labelSendID.isHidden = false
         self.startLabelTimer()
       }
     }
@@ -730,15 +692,10 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
       UI{
         if self.timerExpired {
           self.timerExpired = false
-          //if labelSendID.isHidden {
-          //labelSendID.backgroundColor = NSColor.green
           self.buttonSendID.wantsLayer = true
           self.buttonSendID.layer?.backgroundColor = NSColor.windowBackgroundColor.cgColor
-          //labelSendID.isHidden = false
         } else {
           self.timerExpired = true
-          //labelSendID.isHidden = true
-          //labelSendID.backgroundColor = NSColor.red
           self.buttonSendID.wantsLayer = true
           self.buttonSendID.layer?.backgroundColor = NSColor.green.cgColor
         }
@@ -756,12 +713,9 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
   func showFilePreferences(_ sender: AnyObject) {
     let SB = NSStoryboard(name: "Main", bundle: nil)
     let PVC: FilePreferences = SB.instantiateController(withIdentifier: "filePreferences") as! FilePreferences
+    
     PVC.preferenceManager = preferenceManager
-    
-    //presentViewControllerAsSheet(PVC)
     presentAsModalWindow(PVC)
-    // present(_ PVC: NSViewController, asPopoverRelativeTo positioningRect: NSRect, of positioningView: NSView, preferredEdge: NSRectEdge, behavior: NSPopover.Behavior)
-    
   }
   
   
@@ -771,14 +725,11 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
   func showPreferences(_ sender: AnyObject) {
     let SB = NSStoryboard(name: "Main", bundle: nil)
     let PVC: RadioPreferences = SB.instantiateController(withIdentifier: "radioSelection") as! RadioPreferences
-    //PVC.buildStationList(radios: radios)
+
     PVC.station = stationView
     PVC.preferenceManager = preferenceManager
     
     presentAsSheet(PVC)
-    // presentAsModalWindow(PVC)
-    // present(_ PVC: NSViewController, asPopoverRelativeTo positioningRect: NSRect, of positioningView: NSView, preferredEdge: NSRectEdge, behavior: NSPopover.Behavior)
-    
   }
   
 } // end class

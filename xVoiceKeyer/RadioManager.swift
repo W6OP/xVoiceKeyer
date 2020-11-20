@@ -101,9 +101,7 @@ protocol RadioManagerDelegate: class {
   func didAddStations(discoveredStations: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)], isGuiClientUpdate: Bool)
   
   func didUpdateStations(discoveredStations: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)], isStationUpdate: Bool)
-  
-  //func didRemoveGUIClients(station: String)
-  
+ 
   func didRemoveStation(discoveredStations: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)], isStationUpdate: Bool)
   
   func didAddSlice(slice: [(sliceLetter: String, radioMode: radioMode, txEnabled: Bool, frequency: String, sliceHandle: UInt32)])
@@ -285,13 +283,11 @@ class RadioManager: NSObject, ApiDelegate {
         
         activeRadio = foundRadio
         
-        //if api.connect(activeRadio!, program: clientProgram, clientId: nil, isGui: false) {
         // TODO: How do I know it connected?
         api.connect(activeRadio!, program: clientProgram, clientId: nil, isGui: false)
         os_log("Connected to the Radio.", log: RadioManager.model_log, type: .info)
         // check if radio is null
         return true
-        //}
       }
     }
     return false
@@ -311,7 +307,6 @@ class RadioManager: NSObject, ApiDelegate {
     
     for radio in discovery.discoveryPackets {
       
-      //if let guiClient = radio.guiClients.filter({ $0.value.station == station }).first {
       if let guiClient = radio.guiClients.filter({ $0.station == station }).first {
         let handle = guiClient.handle //.key
         
