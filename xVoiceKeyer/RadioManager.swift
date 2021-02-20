@@ -1,39 +1,9 @@
-/**
- * Copyright (c) 2019 Peter Bourget W6OP
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * Notwithstanding the foregoing, you may not use, copy, modify, merge, publish,
- * distribute, sublicense, create a derivative work, and/or sell copies of the
- * Software in any work that is designed, intended, or marketed for pedagogical or
- * instructional purposes related to programming, coding, application development,
- * or information technology.  Permission for such use, copying, modification,
- * merger, publication, distribution, sublicensing, creation of derivative works,
- * or sale is expressly withheld.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
-
 /*
  RadioManager.swift
- xVoiceKeyer
+ xCW
  
- Created by Peter Bourget on 7/11/17.
- Copyright © 2019 Peter Bourget W6OP. All rights reserved.
+ Created by Peter Bourget on 5/14/20.
+ Copyright © 2020 Peter Bourget W6OP. All rights reserved.
  
  Description: This is a wrapper for the xLib6000 framework written by Doug Adams K3TZR
  The purpose is to simplify the interface into the API and allow the GUI to function
@@ -42,7 +12,6 @@
 
 import Foundation
 import xLib6000
-import Repeat
 import os
 
 // MARK: Extensions ------------------------------------------------------------------------------------------------
@@ -92,7 +61,7 @@ func UI(_ block: @escaping ()->Void) {
 // MARK: Event Delegates ------------------------------------------------------------------------------------------------
 
 /**
- Implement in your viewcontroller to receive messages from the radio manager
+ Implement in your View Controller to receive messages from the radio manager (legacy)
  */
 protocol RadioManagerDelegate: class {
   // radio and gui clients were discovered - notify GUI
@@ -116,26 +85,16 @@ protocol RadioManagerDelegate: class {
 
 // MARK: - Enums ------------------------------------------------------------------------------------------------
 
-/*
- case AM
- case SAM
- case CW
- case USB
- case LSB
- case FM
- case NFM
- case DFM
- case DIGU
- case DIGL
- case RTTY
- */
-
 public enum radioMode : String {
   case am = "AM"
   case usb = "USB"
   case lsb = "LSB"
   case fm = "FM"
-  case invalid = "Invalid"
+  case cw = "CW"
+  case digu = "DIGU"
+  case digl = "DIGL"
+  case rtty = "RTTY"
+  case invalid = "Unknown"
 }
 
 public enum sliceStatus : String {
@@ -145,15 +104,55 @@ public enum sliceStatus : String {
   case frequency
 }
 
+// MARK: - Models ----------------------------------------------------------------------------
+
+/**
+ Data model for a radio and station selection in the Radio Picker.
+ */
+struct StationModel: Identifiable, Equatable {
+  var id = UUID()
+  
+  var radioModel: String = ""
+  var radioNickname: String = ""
+  var stationName: String = ""
+  var serialNumber: String = ""
+  var clientId: String = ""
+  var handle: UInt32 = 0
+  var isDefaultStation: Bool = false
+}
+
+/**
+ Data model for the text in the freeform text section.
+ */
+struct CWMemoryModel: Identifiable {
+  var id: Int
+  var tag: String = ""
+  var line: String = ""
+}
+
+/**
+ var sliceView = [(sliceLetter: String, radioMode: radioMode, txEnabled: Bool, frequency: String, sliceHandle: UInt32)]()
+ */
+struct SliceModel: Identifiable {
+  var id = UUID()
+  
+  var sliceId: UInt16 = 99
+  var sliceLetter: String = ""
+  var radioMode: radioMode
+  var txEnabled: Bool = false
+  var frequency: String = "00.000"
+  var clientHandle: UInt32 = 0
+  var associatedStationName = ""
+}
 
 // MARK: - Class Definition ------------------------------------------------------------------------------------------------
 
 /**
  Wrapper class for the FlexAPI Library xLib6000 written for the Mac by Doug Adams K3TZR.
- This class will isolate other apps from the API implemenation allowing reuse by multiple
+ This class will isolate other apps from the API implementation allowing reuse by multiple
  programs.
  */
-class RadioManager: NSObject, ApiDelegate {
+class RadioManager:  ApiDelegate, ObservableObject {
   
   func addReplyHandler(_ sequenceNumber: SequenceNumber, replyTuple: ReplyTuple) {
     os_log("addReplyHandler added.", log: RadioManager.model_log, type: .info)
@@ -166,9 +165,9 @@ class RadioManager: NSObject, ApiDelegate {
   private var _observations = [NSKeyValueObservation]()
   
   // setup logging for the RadioManager
-  static let model_log = OSLog(subsystem: "com.w6op.RadioManager-Swift", category: "xVoiceKeyer")
+  static let model_log = OSLog(subsystem: "com.w6op.RadioManager-Swift", category: "xCW")
   
-  // delegate to pass messages back to viewcontroller
+  // delegate to pass messages back to View Controller (legacy)
   weak var radioManagerDelegate: RadioManagerDelegate?
   
   // MARK: - Internal Radio properties ----------------------------------------------------------------------------
@@ -180,16 +179,35 @@ class RadioManager: NSObject, ApiDelegate {
   private var api = Api.sharedInstance
   private let discovery = Discovery.sharedInstance
   
+  // MARK: - Published properties ----------------------------------------------------------------------------
+  
+  @Published var stationModels = [StationModel]()
+  @Published var sliceModel = SliceModel(radioMode: radioMode.invalid, clientHandle: 0)
+  @Published var cwMemoryModels = [CWMemoryModel]()
+  @Published var cwSpeed = 25
+  
+  var isConnected = false // should I publish this ?
+  var isBoundToClient = false
+  var boundStationName = ""
+  var connectedStationName = ""
+  var defaultStationName = ""
+  var boundStationHandle: UInt32 = 0
+  // internal collection for my use here only
+  var sliceModels = [SliceModel]()
+  
   // MARK: - Private properties ----------------------------------------------------------------------------
   
   // Notification observers collection
   private var notifications = [NSObjectProtocol]()
   
-  private let clientProgram = "xVoiceKeyer"
+  //private let clientProgram = "xCW"
+  private let clientProgramName = Bundle.main.infoDictionary?["CFBundleName"] as? String
+  
   private var daxTxAudioStreamId: StreamId
   private var daxTxAudioStreamRequested = false
   private var audioBuffer = [Float]()
-  private var audioStreamTimer :Repeater? // timer to meter audio chunks to radio at 24khz sample rate
+  // not used in this program
+  //private var audioStreamTimer :Repeater? // timer to meter audio chunks to radio at 24khz sample rate
   private var xmitGain = 35
   
   // MARK: - RadioManager Initialization ----------------------------------------------------------------------------
@@ -197,16 +215,101 @@ class RadioManager: NSObject, ApiDelegate {
   /**
    Initialize the class, create the RadioFactory, add notification listeners
    */
-  override init() {
-    daxTxAudioStreamId = StreamId()
+   init() {
     
-    super.init()
+    daxTxAudioStreamId = StreamId()
     
     // add notification subscriptions
     addNotificationListeners()
     
     api.delegate = self
+    
+    retrieveUserDefaults()
   }
+  
+   // MARK: - xCW Specific ----------------------------------------------------------------------------
+  
+  /**
+   Save the memory set by the user.
+   - parameters:
+   - message: text entered by user
+   - tag: key for UserDefaults
+   */
+  func saveCWMemory(message: String, tag: String) {
+  
+    let index = Int(tag)!
+    
+    cwMemoryModels[index - 1].line = String(message.prefix(50))
+    cwMemoryModels[index - 1].tag = tag
+    
+    UserDefaults.standard.set(message, forKey: String(tag))
+  }
+  
+  /**
+  Save the speed set by the user.
+  - parameters:
+  - speed: speed in wpm.
+  */
+  func saveCWSpeed(speed: Int){
+    UserDefaults.standard.set(speed, forKey: "cwSpeed")
+  }
+  
+  /**
+  Save the default station to UserDefaults.
+  - parameters:
+  - stationName: name of the station to save.
+  */
+  func setDefaultRadio(stationName: String) {
+    
+    var oldClientStationName = ""
+    
+    // find the station that is set to true - remove it
+    // now set it to false and add it back
+    if var client = stationModels.first(where: { $0.isDefaultStation == true} ){
+      oldClientStationName = client.stationName
+      self.stationModels.removeAll(where: { $0.isDefaultStation == true })
+      client.isDefaultStation = false
+      self.stationModels.append((client))
+      UserDefaults.standard.set("", forKey: "defaultRadio")
+    }
+    
+    // now find the guiClient where the station name matches but isn't the last one
+    if var client = stationModels.first(where: { $0.stationName == stationName && $0.stationName != oldClientStationName} ){
+      UI() {
+        self.stationModels.removeAll(where: { $0.stationName == stationName })
+        client.isDefaultStation = true
+        self.stationModels.append((client))
+      }
+      UserDefaults.standard.set(stationName, forKey: "defaultRadio")
+    }
+  }
+  
+  /**
+  Retrieve a CW message from UserDefaults.
+  - parameters:
+  - tag: key for UserDefaults.
+  */
+  func retrieveCWMemory(tag: String) -> String {
+    return(UserDefaults.standard.string(forKey: String(tag)) ?? "")
+  }
+  
+  /**
+   Retrieve all of the memories at startup.
+   - parameters:
+   */
+  func retrieveUserDefaults() {
+    
+    for index in 1...10 {
+      let cwTextModel = CWMemoryModel(id: index, tag: String(index), line: UserDefaults.standard.string(forKey: String(index)) ?? "")
+      cwMemoryModels.append(cwTextModel)
+    }
+    
+    cwSpeed = UserDefaults.standard.integer(forKey: "cwSpeed")
+    defaultStationName = UserDefaults.standard.string(forKey: "defaultRadio") ?? ""
+  }
+  
+  // MARK: xCWReader Specific
+  
   
   // MARK: - Open and Close Radio Methods - Required by xLib6000 - Not Used ----------------------------------------------------------------------------
   
@@ -215,6 +318,8 @@ class RadioManager: NSObject, ApiDelegate {
   }
   
   func receivedMessage(_ text: String) {
+    // get all except the first character // unused in xVoiceKeyer
+    //_ = String(text.dropFirst())
     os_log("Message received.", log: RadioManager.model_log, type: .info)
     
   }
@@ -278,13 +383,28 @@ class RadioManager: NSObject, ApiDelegate {
     // allow time to hear the UDP broadcasts
     usleep(1500)
     
+    if isConnected {
+      _ = bindToStation(clientId: clientId, station: station)
+      return false
+    }
+    
+    isConnected = false
+    connectedStationName = ""
+    boundStationName = ""
+    
+    os_log("Connect to the Radio.", log: RadioManager.model_log, type: .info)
+    
     if (didConnect){
       for (_, foundRadio) in discovery.discoveryPackets.enumerated() where foundRadio.serialNumber == serialNumber {
         
         activeRadio = foundRadio
         
         // TODO: How do I know it connected?
-        api.connect(activeRadio!, program: clientProgram, clientId: nil, isGui: false)
+        api.connect(activeRadio!, program: clientProgramName ?? "my program", clientId: nil, isGui: false)
+        
+        isConnected = true
+        connectedStationName = station
+        
         os_log("Connected to the Radio.", log: RadioManager.model_log, type: .info)
         // check if radio is null
         return true
@@ -292,7 +412,7 @@ class RadioManager: NSObject, ApiDelegate {
     }
     return false
   }
-  
+ 
   /**
    Bind to a specific station so we get their messages and updates
    - parameters:
@@ -309,14 +429,21 @@ class RadioManager: NSObject, ApiDelegate {
       
       if let guiClient = radio.guiClients.filter({ $0.station == station }).first {
         let handle = guiClient.handle //.key
+      //let handle = guiClient.key
+        
+        boundStationName = station
+        boundStationHandle = handle
+        connectedStationName = station
+        
+        updateSliceModel()
         
         os_log("Bound to the Radio.", log: RadioManager.model_log, type: .info)
         
-        return handle
       }
     }
     
-    return 0
+    // legacy for xVoiceKeyer
+    return boundStationHandle
   }
   
   /**
@@ -327,7 +454,7 @@ class RadioManager: NSObject, ApiDelegate {
     activeRadio = nil
   }
   
-  // MARK: - Dicovery Methods ----------------------------------------------------------------------------
+  // MARK: - Discovery Methods ----------------------------------------------------------------------------
   
   /**
    Notification that one or more radios were discovered. Each station for each radio
@@ -339,51 +466,70 @@ class RadioManager: NSObject, ApiDelegate {
     // receive the updated list of Radios
     let discoveryPackets = (note.object as! [DiscoveryPacket])
     
-    var stationView = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)]()
-    
     // just collect the radio's gui clients
     for radio in discoveryPackets {
       for station in radio.guiClients {
-        stationView.append((radio.model, radio.nickname, station.station, "No", radio.serialNumber, station.clientId ?? "", station.handle))
+        let stationModel = StationModel(radioModel: radio.model, radioNickname: radio.nickname, stationName: station.station, serialNumber: radio.serialNumber, clientId: station.clientId ?? "", handle: station.handle, isDefaultStation: self.isDefaultStation(stationName: station.station))
+        UI {
+          if !self.stationModels.contains(stationModel) { self.stationModels.append(stationModel) }
+
+          if station.station == self.defaultStationName {
+            _ = self.connectToRadio(serialNumber: radio.serialNumber, station: station.station, clientId: station.clientId ?? "", didConnect: true)
+          }
+        }
       }
     }
     
-    if stationView.count > 0 {
-      // let the view controller know a radio was discovered
-      // this is the first thing to occur after xLib adds a radio
-      UI() {
-        os_log("Radios updated.", log: RadioManager.model_log, type: .info)
-        self.radioManagerDelegate?.didDiscoverStations(discoveredStations: stationView, isGuiClientUpdate: false)
-      }
+    os_log("Discovery packets received.", log: RadioManager.model_log, type: .info)
+    
+  }
+  
+  /**
+   For debugging
+   */
+  func printStations(stationModel: StationModel, source: String) {
+    print("Source: \(source)")
+    print("clientID: \(stationModel.clientId)")
+    print("handle: \(stationModel.handle)")
+    print("model: \(stationModel.radioModel)")
+    print("nickName: \(stationModel.radioNickname)")
+    print("stationName: \(stationModel.stationName)")
+  }
+  
+  /**
+   Return true if this is the default station
+   */
+  func isDefaultStation (stationName: String) -> Bool {
+    
+    let defaultStation = UserDefaults.standard.string(forKey: "defaultRadio") ?? ""
+    
+    if stationName == defaultStation {
+      return true
     }
+    
+    return false
   }
   
   /**
    When another GUI client appears we receive a notification.
-   Let the view controller know there has been an update.
+   Let the view controller know there has been an add.
    - parameters:
    - note: a Notification instance
    */
   func guiClientsAdded(_ note: Notification) {
     
-    var stationView = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)]()
-    
     if (note.object as? [GuiClient]) != nil {
       
       for radio in discovery.discoveryPackets {
-        let stations = radio.guiClients
-        for station in stations {
-          stationView.append((radio.model, radio.nickname, station.station, "No", radio.serialNumber, String(station.clientId ?? ""), station.handle))
+        for station in radio.guiClients {
+          let stationModel = StationModel(radioModel: radio.model, radioNickname: radio.nickname, stationName: station.station, serialNumber: radio.serialNumber, clientId: station.clientId ?? "", handle: station.handle, isDefaultStation: self.isDefaultStation(stationName: station.station))
+          UI {
+            if !self.stationModels.contains(stationModel) { self.stationModels.append(stationModel) }
+          }
         }
       }
       
-      if stationView.count > 0 {
-        // let the view controller know a radio was added
-        UI() {
-          os_log("GUI clients have been added.", log: RadioManager.model_log, type: .info)
-          self.radioManagerDelegate?.didAddStations(discoveredStations: stationView, isGuiClientUpdate: true)
-        }
-      }
+      os_log("GUI clients have been added.", log: RadioManager.model_log, type: .info)
     }
   }
   
@@ -395,24 +541,21 @@ class RadioManager: NSObject, ApiDelegate {
    */
   func guiClientsUpdated(_ note: Notification) {
     
-    var stationView = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)]()
+    //var stationView = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)]()
     
     if (note.object as? [GuiClient]) != nil {
   
       for radio in discovery.discoveryPackets {
-        let stations = radio.guiClients
-        for station in stations {
-          stationView.append((radio.model, radio.nickname, station.station, "No", radio.serialNumber, String(station.clientId ?? ""), station.handle))
+        for station in radio.guiClients {
+          let stationModel = StationModel(radioModel: radio.model, radioNickname: radio.nickname, stationName: station.station, serialNumber: radio.serialNumber, clientId: station.clientId ?? "", handle: station.handle, isDefaultStation: self.isDefaultStation(stationName: station.station))
+          UI {
+            self.stationModels.removeAll { $0.stationName == stationModel.stationName }
+            self.stationModels.append(stationModel)
+          }
         }
       }
       
-      if stationView.count > 0 {
-        // let the view controller know a radio was updated
-        UI() {
-          os_log("GUI clients have been updated.", log: RadioManager.model_log, type: .info)
-          self.radioManagerDelegate?.didUpdateStations(discoveredStations: stationView, isStationUpdate: true)
-        }
-      }
+      os_log("GUI clients have been updated.", log: RadioManager.model_log, type: .info)
     }
   }
   
@@ -424,28 +567,16 @@ class RadioManager: NSObject, ApiDelegate {
    */
   func guiClientsRemoved(_ note: Notification) {
     
-    var stationView = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)]()
-    
-    if (note.object as? [GuiClient]) != nil {
-
-      for radio in discovery.discoveryPackets {
-        let stations = radio.guiClients
-        for station in stations {
-          stationView.append((radio.model, radio.nickname, station.station, "No", radio.serialNumber, String(station.clientId ?? ""), station.handle))
-        }
+    if let guiClient = note.object as? GuiClient {
+      UI() {
+        self.stationModels.removeAll(where: { $0.stationName == guiClient.station })
       }
+      os_log("GUI clients have been removed.", log: RadioManager.model_log, type: .info)
       
-      if stationView.count > 0 {
-        // let the view controller know a radio was removed
-        UI() {
-          os_log("GUI clients have been removed.", log: RadioManager.model_log, type: .info)
-          self.radioManagerDelegate?.didRemoveStation(discoveredStations: stationView, isStationUpdate: true)
-        }
-      }
     }
   }
   
-  // MARK: - Slice handling
+  // MARK: - Slice handling ----------------------------------------------------------------------------
   
   /**
    Notification that one or more slices were added.
@@ -458,15 +589,31 @@ class RadioManager: NSObject, ApiDelegate {
     let slice: xLib6000.Slice = (note.object as! xLib6000.Slice)
     let mode: radioMode = radioMode(rawValue: slice.mode) ?? radioMode.invalid
     let frequency: String = convertFrequencyToDecimalString (frequency: slice.frequency)
-    
-    var sliceView = [(sliceLetter: String, radioMode: radioMode, txEnabled: Bool, frequency: String, sliceHandle: UInt32)]()
+    var stationName = ""
     
     addObservations(slice: slice)
     
-    sliceView.append((sliceLetter: slice.sliceLetter ?? "Unknown", radioMode: mode, txEnabled: slice.txEnabled, frequency: frequency, sliceHandle: slice.clientHandle))
+    // get the station this slice belongs to
+    if let index = self.stationModels.firstIndex(where: {$0.handle == slice.clientHandle}) {
+      stationName = stationModels[index].stationName
+    }
     
-    UI() {
-      self.radioManagerDelegate?.didAddSlice(slice: sliceView)
+    // check if it already exists, may have been left on a crash
+    if let index = self.sliceModels.firstIndex(where: {$0.sliceId == slice.id && $0.clientHandle == slice.clientHandle}) {
+      self.sliceModels.remove(at: index)
+    }
+    
+    // build and add the new one
+    let sliceModel = SliceModel(sliceId: slice.id, sliceLetter: slice.sliceLetter ?? "Unknown", radioMode: mode, txEnabled: slice.txEnabled, frequency: frequency, clientHandle: slice.clientHandle, associatedStationName: stationName)
+    
+    sliceModels.append(sliceModel)
+    
+    // probably don't care when addded
+    // I really only care about a slice that is tx enabled
+    if slice.txEnabled && sliceModel.clientHandle == slice.clientHandle {
+      UI() {
+          self.sliceModel = sliceModel
+      }
     }
     
     os_log("Slice has been addded.", log: RadioManager.model_log, type: .info)
@@ -481,39 +628,91 @@ class RadioManager: NSObject, ApiDelegate {
   func sliceWillBeRemoved(_ note: Notification){
     
     let slice: xLib6000.Slice = (note.object as! xLib6000.Slice)
+    let clientHandle = slice.clientHandle
+    let sliceId = slice.id
     
     os_log("Slice has been removed.", log: RadioManager.model_log, type: .info)
     
+    if let index = self.sliceModels.firstIndex(where: {$0.clientHandle == clientHandle && $0.sliceId == sliceId}) {
+      self.sliceModels.remove(at: index)
+    }
+    
     UI() {
-      self.radioManagerDelegate?.didRemoveSlice(sliceHandle: slice.clientHandle, sliceLetter: slice.sliceLetter ?? "")
+      if self.sliceModel.clientHandle == clientHandle && self.sliceModel.sliceId == sliceId {
+        self.sliceModel = SliceModel(radioMode: radioMode.invalid)
+      }
     }
   }
   
   /**
    Observer handler to update the slice information for the labels on the GUI
-   when a new slice is added.
+   when a slice is updated.
    - parameters:
    - slice:
    */
   func updateSliceStatus(_ slice: xLib6000.Slice, sliceStatus: sliceStatus,  _ change: Any) {
     
-    var newValue: Any = change
+    let mode: radioMode = radioMode(rawValue: slice.mode) ?? radioMode.invalid
+    let frequency: String = convertFrequencyToDecimalString (frequency: slice.frequency)
     
-    switch sliceStatus {
-    case .active:
-      newValue = "Active" // not used
-    case .mode:
-      newValue = radioMode(rawValue: slice.mode) ?? radioMode.invalid
-    case .txEnabled:
-      newValue = slice.txEnabled
-    case .frequency:
-      newValue = convertFrequencyToDecimalString (frequency: slice.frequency)
+    // find the slice, update it
+      if let index = self.sliceModels.firstIndex(where: {$0.sliceId == slice.id && $0.clientHandle == slice.clientHandle}) {
+      
+      switch sliceStatus {
+      case .active:
+        break
+      case .frequency:
+        self.sliceModels[index].frequency = frequency
+      case .mode:
+        self.sliceModels[index].radioMode = mode
+      case .txEnabled:
+        self.sliceModels[index].txEnabled = slice.txEnabled
+      }
+     
+      UI() {
+        if self.sliceModels[index].clientHandle == self.sliceModel.clientHandle {
+          
+          self.sliceModel = self.getTxEnabledSlice(clientHandle: self.sliceModels[index].clientHandle)
+        }
+      }
+    }
+    os_log("Slice has been updated.", log: RadioManager.model_log, type: .info)
+  }
+  
+  /**
+   Return the current slice that is txEnabled or an invalid slice
+   */
+  func getTxEnabledSlice(clientHandle: UInt32) -> SliceModel {
+
+    if let model = sliceModels.first(where: { $0.clientHandle == clientHandle && $0.txEnabled}) {
+      return model
     }
     
-    UI() {
-      self.radioManagerDelegate?.didUpdateSlice(sliceHandle: slice.clientHandle, sliceLetter: slice.sliceLetter ?? "", sliceStatus: sliceStatus, newValue: newValue)
+    return sliceModels.first(where: { $0.clientHandle == clientHandle }) ?? SliceModel(radioMode: .invalid)
+  }
+  
+  /**
+   Update the slice model for the GUI when the bound station is changed
+   */
+  func updateSliceModel(){
+    
+    for sliceModel in sliceModels {
+      if sliceModel.clientHandle == boundStationHandle {
+        if sliceModel.txEnabled {
+          UI() {
+            self.sliceModel = SliceModel(sliceId: sliceModel.sliceId, sliceLetter: sliceModel.sliceLetter, radioMode: sliceModel.radioMode, txEnabled: sliceModel.txEnabled, frequency: sliceModel.frequency, clientHandle: sliceModel.clientHandle, associatedStationName: self.boundStationName)
+          }
+          break
+        } else {
+          UI() {
+            self.sliceModel = SliceModel(sliceId: sliceModel.sliceId, sliceLetter: sliceModel.sliceLetter, radioMode: sliceModel.radioMode, txEnabled: sliceModel.txEnabled, frequency: sliceModel.frequency, clientHandle: sliceModel.clientHandle, associatedStationName: self.boundStationName)
+          }
+        }
+      }
     }
   }
+  
+  // MARK: - Utility Functions for Slices
   
   /**
    Respond to a change in a slice
@@ -523,19 +722,17 @@ class RadioManager: NSObject, ApiDelegate {
   func addObservations(slice: xLib6000.Slice ) {
     
     _observations.append( slice.observe(\.active, options: [.initial, .new]) { [weak self] (slice, change) in
-                            self?.updateSliceStatus(slice,sliceStatus: sliceStatus.active, change) })
+      self?.updateSliceStatus(slice,sliceStatus: sliceStatus.active, change) })
     
     _observations.append( slice.observe(\.mode, options: [.initial, .new]) { [weak self] (slice, change) in
-                            self?.updateSliceStatus(slice, sliceStatus: sliceStatus.mode, change) })
+      self?.updateSliceStatus(slice, sliceStatus: sliceStatus.mode, change) })
     
     _observations.append(  slice.observe(\.txEnabled, options: [.initial, .new]) { [weak self] (slice, change) in
-                            self?.updateSliceStatus(slice,sliceStatus: sliceStatus.txEnabled, change) })
+      self?.updateSliceStatus(slice,sliceStatus: sliceStatus.txEnabled, change) })
     
     _observations.append( slice.observe(\.frequency, options: [.initial, .new]) { [weak self] (slice, change) in
-                            self?.updateSliceStatus(slice,sliceStatus: sliceStatus.frequency, change) })
+      self?.updateSliceStatus(slice,sliceStatus: sliceStatus.frequency, change) })
   }
-  
-  // MARK: - Utlity Functions for Slices
   
   /**
    Convert the frequency (10136000) to a string with a decimal place (10136.000)
@@ -584,107 +781,57 @@ class RadioManager: NSObject, ApiDelegate {
         return
       }
     }
+  }
     
-    if doTransmit  {
-      audioBuffer = buffer!
-      if daxTxAudioStreamRequested == false {
-        api.radio!.requestDaxTxAudioStream(callback: updateDaxTxStreamId)
-        daxTxAudioStreamRequested = true
-      }
-      else{
-        DispatchQueue.global(qos: .userInteractive).async {
-          if self.daxTxAudioStreamId != 0
-          {
-            self.sendDaxTxAudioStream(streamId: self.daxTxAudioStreamId)
-          }
-        }
-      }
-    } else{
-      audioStreamTimer = nil
+  // cleanup so we can bind with another station
+  func cleanUp() {
+    
+    boundStationName = ""
+    api.radio?.boundClientId = nil
+    
+    self.sliceModel = SliceModel(radioMode: .invalid)
+  }
+  
+  /*
+   Tune button was clicked
+   */
+  func tuneRadio() {
+    if api.radio?.transmit.tune == false {
+      api.radio?.transmit.tune = true
+    } else {
+      api.radio?.transmit.tune = false
+    }
+  }
+  
+  /*
+   MOX button clicked
+   */
+  func setMox() {
+    if (api.radio?.mox == false)  {
+      api.radio?.mox = true
+    } else {
       api.radio?.mox = false
     }
   }
   
-  // cleanup so we can bind with another station
-  func cleanUp() {
-    if daxTxAudioStreamId != 0 {
-      api.radio?.daxTxAudioStreams[daxTxAudioStreamId]?.remove()
-      daxTxAudioStreamId = StreamId()
-    }
-    
-    daxTxAudioStreamRequested = false
-    api.radio?.boundClientId = nil
+  func stopTransmitting() {
+    api.radio?.cwx.clearBuffer()
   }
-  
   /**
-   Callback for the TX Stream Request command.
-   - Parameters:
-   - command:        the original command
-   - sequenceNumber: the Sequence Number of the original command
-   - responseValue:  the response value
-   - reply:          the reply
+   Send a CW message to the radio
    */
-  func updateDaxTxStreamId(_ command: String, sequenceNumber: UInt, responseValue: String, reply: String) {
-    
-    guard responseValue == "0" else {
-      // Anything other than 0 is an error, log it and ignore the Reply
-      os_log("Error requesting tx audio stream ID.", log: RadioManager.model_log, type: .error)
-      // TODO: notify GUI
-      return
-    }
-    
-    // check if we have a stream requested
-    if !daxTxAudioStreamRequested {
-      os_log("Unsolicited audio stream received.", log: RadioManager.model_log, type: .error)
-      return
-    }
-    
-    if let streamId = reply.streamId {
-      
-      daxTxAudioStreamId = streamId
-      
-      DispatchQueue.global(qos: .userInteractive).async {
-        self.sendDaxTxAudioStream(streamId: self.daxTxAudioStreamId)
-      }
-    }
-  }
-  
-  /**
-   Send the audio buffer in 128 frame chunks for the Vita parser. This must be
-   sent at a 24 khz rate (5300 microseconds).
-   */
-  func sendDaxTxAudioStream(streamId: StreamId){
-    var frameCount: Int = 0
-    let result = audioBuffer.chunked(into: 128)
-    let daxTxAudioStream = api.radio?.daxTxAudioStreams[streamId]
-    
-    api.radio?.transmit.daxEnabled = true
-    api.radio?.mox = true
-    daxTxAudioStream?.isTransmitChannel = true
-    daxTxAudioStream?.txGain = xmitGain
-    
-    // define the repeating timer for 24000 hz - why 5300?, seems it should be 4160
-    audioStreamTimer = Repeater.every(.microseconds(5300), count: result.count, tolerance: .nanoseconds(1), queue: DispatchQueue(label: "com.w6op", qos: .userInteractive)) { _ in
-      let _ = daxTxAudioStream?.sendTXAudio(left: result[frameCount], right: result[frameCount], samples: Int(result[frameCount].count))
-      frameCount += 1
-    }
-    
-    // stop transmitting when you run out of audio - could also be interrupted by STOP button
-    audioStreamTimer!.onStateChanged = { (_ timer: Repeater, _ state: Repeater.State) in
-      if self.audioStreamTimer!.state.isFinished {
-        self.api.radio?.mox = false
-        self.api.radio?.transmit.daxEnabled = false
-        self.audioStreamTimer = nil
-      }
-    }
-    // start the timer
-    audioStreamTimer?.start()
-  }
-  
-  func sendCWMessage(message: String)
+  func sendCWMessage(tag: String, freeText: String)
   {
+    var message = UserDefaults.standard.string(forKey: String(tag)) ?? ""
     
-    api.radio?.cwx.send("w6op")
+    if tag == "0" {
+      message = freeText
+    }
+   
+    if message != "" {
+      api.radio?.cwx.wpm = cwSpeed
+      api.radio?.cwx.send(message)
+    }
     
   }
 } // end class
