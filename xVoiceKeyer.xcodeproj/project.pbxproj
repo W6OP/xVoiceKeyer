@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -16,9 +16,8 @@
 		996B9D732206364B0055D0F4 /* FilePreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 996B9D722206364B0055D0F4 /* FilePreferences.swift */; };
 		996C4736245A2ADA0024CBAB /* xLib6000 in Frameworks */ = {isa = PBXBuildFile; productRef = 996C4735245A2ADA0024CBAB /* xLib6000 */; };
 		99931585220243F30017C05A /* WindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99931584220243F30017C05A /* WindowController.swift */; };
+		99A9AAE22645C2910061DA84 /* Repeat in Frameworks */ = {isa = PBXBuildFile; productRef = 99A9AAE12645C2910061DA84 /* Repeat */; };
 		99C211031F297279003B47F1 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 99C211021F297279003B47F1 /* LICENSE */; };
-		99CEBF8121F7724A00C7ED74 /* Repeat.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 99BCEC3A21261EED0040C101 /* Repeat.framework */; };
-		99CEBF8221F7724A00C7ED74 /* Repeat.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 99BCEC3A21261EED0040C101 /* Repeat.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		99D64A2F1E5B9BEB0053ED1F /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D64A2E1E5B9BEB0053ED1F /* AudioManager.swift */; };
 		99EC95A21F1523B100E539E8 /* RadioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99EC95A11F1523B100E539E8 /* RadioManager.swift */; };
 /* End PBXBuildFile section */
@@ -30,7 +29,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				99CEBF8221F7724A00C7ED74 /* Repeat.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -49,7 +47,6 @@
 		996AC0841E4E3D4800C20AA8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		996B9D722206364B0055D0F4 /* FilePreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilePreferences.swift; sourceTree = "<group>"; };
 		99931584220243F30017C05A /* WindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowController.swift; sourceTree = "<group>"; };
-		99BCEC3A21261EED0040C101 /* Repeat.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Repeat.framework; path = ../../Library/Frameworks/Repeat.framework; sourceTree = "<group>"; };
 		99C211021F297279003B47F1 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		99D64A2E1E5B9BEB0053ED1F /* AudioManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioManager.swift; sourceTree = "<group>"; };
 		99EC95A11F1523B100E539E8 /* RadioManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadioManager.swift; sourceTree = "<group>"; };
@@ -60,8 +57,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				99CEBF8121F7724A00C7ED74 /* Repeat.framework in Frameworks */,
 				996C4736245A2ADA0024CBAB /* xLib6000 in Frameworks */,
+				99A9AAE22645C2910061DA84 /* Repeat in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -124,7 +121,6 @@
 		99E84E6A1F1144A500C8660C /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				99BCEC3A21261EED0040C101 /* Repeat.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -148,6 +144,7 @@
 			name = xVoiceKeyer;
 			packageProductDependencies = (
 				996C4735245A2ADA0024CBAB /* xLib6000 */,
+				99A9AAE12645C2910061DA84 /* Repeat */,
 			);
 			productName = SDRVoiceKeyer;
 			productReference = 996AC0781E4E3D4800C20AA8 /* xVoiceKeyer.app */;
@@ -178,7 +175,7 @@
 				};
 			};
 			buildConfigurationList = 996AC0731E4E3D4800C20AA8 /* Build configuration list for PBXProject "xVoiceKeyer" */;
-			compatibilityVersion = "Xcode 11.0";
+			compatibilityVersion = "Xcode 12.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -188,6 +185,7 @@
 			mainGroup = 996AC06F1E4E3D4800C20AA8;
 			packageReferences = (
 				99A4CBDC2457266000079F28 /* XCRemoteSwiftPackageReference "xLib6000" */,
+				99A9AAE02645C2910061DA84 /* XCRemoteSwiftPackageReference "Repeat" */,
 			);
 			productRefGroup = 996AC0791E4E3D4800C20AA8 /* Products */;
 			projectDirPath = "";
@@ -452,6 +450,14 @@
 				minimumVersion = 1.3.0;
 			};
 		};
+		99A9AAE02645C2910061DA84 /* XCRemoteSwiftPackageReference "Repeat" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/malcommac/Repeat";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.6.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -459,6 +465,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 99A4CBDC2457266000079F28 /* XCRemoteSwiftPackageReference "xLib6000" */;
 			productName = xLib6000;
+		};
+		99A9AAE12645C2910061DA84 /* Repeat */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 99A9AAE02645C2910061DA84 /* XCRemoteSwiftPackageReference "Repeat" */;
+			productName = Repeat;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

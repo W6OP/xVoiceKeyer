@@ -6,17 +6,17 @@
         "repositoryURL": "https://github.com/robbiehanson/CocoaAsyncSocket",
         "state": {
           "branch": null,
-          "revision": "0e00c967a010fc43ce528bd633d032f17158d393",
-          "version": "7.6.4"
+          "revision": "dbdc00669c1ced63b27c3c5f052ee4d28f10150c",
+          "version": "7.6.5"
         }
       },
       {
-        "package": "XCGLogger",
-        "repositoryURL": "https://github.com/DaveWoodCom/XCGLogger.git",
+        "package": "Repeat",
+        "repositoryURL": "https://github.com/malcommac/Repeat",
         "state": {
           "branch": null,
-          "revision": "a9c4667b247928a29bdd41be2ec2c8d304215a54",
-          "version": "7.0.1"
+          "revision": "9df757d0936c15dfd9d01067766fab87e927f838",
+          "version": "0.6.0"
         }
       },
       {
@@ -24,8 +24,8 @@
         "repositoryURL": "https://github.com/K3TZR/xLib6000.git",
         "state": {
           "branch": null,
-          "revision": "2b727d57495b4747c9053c92876f3f1c4bc001ec",
-          "version": "1.6.3"
+          "revision": "f0f48548b0182835f0d20045ab3fc35dd074b494",
+          "version": "1.7.1"
         }
       }
     ]

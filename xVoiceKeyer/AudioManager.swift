@@ -47,7 +47,7 @@ import AudioToolbox
 import os
 
 // send message to view controller
-protocol AudioManagerDelegate: class {
+protocol AudioManagerDelegate: AnyObject {
   func audioMessageReceived(messageKey: audioMessage, message: String)
 }
 

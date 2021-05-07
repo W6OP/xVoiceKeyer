@@ -94,7 +94,7 @@ func UI(_ block: @escaping ()->Void) {
 /**
  Implement in your viewcontroller to receive messages from the radio manager
  */
-protocol RadioManagerDelegate: class {
+protocol RadioManagerDelegate: AnyObject {
   // radio and gui clients were discovered - notify GUI
   func didDiscoverStations(discoveredStations: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)], isGuiClientUpdate: Bool)
   
@@ -116,25 +116,14 @@ protocol RadioManagerDelegate: class {
 
 // MARK: - Enums ------------------------------------------------------------------------------------------------
 
-/*
- case AM
- case SAM
- case CW
- case USB
- case LSB
- case FM
- case NFM
- case DFM
- case DIGU
- case DIGL
- case RTTY
- */
-
 public enum radioMode : String {
   case am = "AM"
+  case sam = "SAM"
   case usb = "USB"
   case lsb = "LSB"
   case fm = "FM"
+  case nfm = "NFM"
+  case dfm = "DFM"
   case invalid = "Invalid"
 }
 

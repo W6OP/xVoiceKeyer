@@ -39,9 +39,9 @@
 import Cocoa
 
 /**
-    Protocol to pass messages back to viewcontroller.
+    Protocol to pass messages back to view controller.
  */
-protocol PreferenceManagerDelegate: class {
+protocol PreferenceManagerDelegate: AnyObject {
     // radio was discovered
     func doConnectRadio(serialNumber: String, stationName: String, clientId: String,IsDefaultStation: Bool, doConnect: Bool)
     // buttons updated
