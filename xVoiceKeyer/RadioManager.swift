@@ -96,13 +96,13 @@ func UI(_ block: @escaping ()->Void) {
  */
 protocol RadioManagerDelegate: AnyObject {
   // radio and gui clients were discovered - notify GUI
-  func didDiscoverStations(discoveredStations: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)], isGuiClientUpdate: Bool)
+  func didDiscoverStations(discoveredStations: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)])
   
-  func didAddStations(discoveredStations: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)], isGuiClientUpdate: Bool)
+  func didAddStations(discoveredStations: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)])
   
-  func didUpdateStations(discoveredStations: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)], isStationUpdate: Bool)
+  func didUpdateStations(discoveredStations: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)])
  
-  func didRemoveStation(discoveredStations: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)], isStationUpdate: Bool)
+  func didRemoveStation(discoveredStations: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)])
   
   func didAddSlice(slice: [(sliceLetter: String, radioMode: radioMode, txEnabled: Bool, frequency: String, sliceHandle: UInt32)])
   
@@ -139,7 +139,7 @@ public enum sliceStatus : String {
 
 /**
  Wrapper class for the FlexAPI Library xLib6000 written for the Mac by Doug Adams K3TZR.
- This class will isolate other apps from the API implemenation allowing reuse by multiple
+ This class will isolate other apps from the API implementation allowing reuse by multiple
  programs.
  */
 class RadioManager: NSObject, ApiDelegate {
@@ -291,11 +291,11 @@ class RadioManager: NSObject, ApiDelegate {
   func bindToStation(clientId: String, station: String) -> UInt32 {
     
     cleanUp()
-    
+
+    print("ClientID: \(clientId)")
     api.radio?.boundClientId = clientId
     
     for radio in discovery.discoveryPackets {
-      
       if let guiClient = radio.guiClients.filter({ $0.station == station }).first {
         let handle = guiClient.handle //.key
         
@@ -342,7 +342,7 @@ class RadioManager: NSObject, ApiDelegate {
       // this is the first thing to occur after xLib adds a radio
       UI() {
         os_log("Radios updated.", log: RadioManager.model_log, type: .info)
-        self.radioManagerDelegate?.didDiscoverStations(discoveredStations: stationView, isGuiClientUpdate: false)
+        self.radioManagerDelegate?.didDiscoverStations(discoveredStations: stationView)
       }
     }
   }
@@ -357,7 +357,7 @@ class RadioManager: NSObject, ApiDelegate {
     
     var stationView = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)]()
     
-    if (note.object as? [GuiClient]) != nil {
+    if (note.object as? GuiClient) != nil {
       
       for radio in discovery.discoveryPackets {
         let stations = radio.guiClients
@@ -370,7 +370,7 @@ class RadioManager: NSObject, ApiDelegate {
         // let the view controller know a radio was added
         UI() {
           os_log("GUI clients have been added.", log: RadioManager.model_log, type: .info)
-          self.radioManagerDelegate?.didAddStations(discoveredStations: stationView, isGuiClientUpdate: true)
+          self.radioManagerDelegate?.didAddStations(discoveredStations: stationView)
         }
       }
     }
@@ -386,8 +386,7 @@ class RadioManager: NSObject, ApiDelegate {
     
     var stationView = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)]()
     
-    if (note.object as? [GuiClient]) != nil {
-  
+    if (note.object as? GuiClient) != nil {
       for radio in discovery.discoveryPackets {
         let stations = radio.guiClients
         for station in stations {
@@ -399,7 +398,7 @@ class RadioManager: NSObject, ApiDelegate {
         // let the view controller know a radio was updated
         UI() {
           os_log("GUI clients have been updated.", log: RadioManager.model_log, type: .info)
-          self.radioManagerDelegate?.didUpdateStations(discoveredStations: stationView, isStationUpdate: true)
+          self.radioManagerDelegate?.didUpdateStations(discoveredStations: stationView)
         }
       }
     }
@@ -415,7 +414,7 @@ class RadioManager: NSObject, ApiDelegate {
     
     var stationView = [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)]()
     
-    if (note.object as? [GuiClient]) != nil {
+    if (note.object as? GuiClient) != nil {
 
       for radio in discovery.discoveryPackets {
         let stations = radio.guiClients
@@ -428,7 +427,7 @@ class RadioManager: NSObject, ApiDelegate {
         // let the view controller know a radio was removed
         UI() {
           os_log("GUI clients have been removed.", log: RadioManager.model_log, type: .info)
-          self.radioManagerDelegate?.didRemoveStation(discoveredStations: stationView, isStationUpdate: true)
+          self.radioManagerDelegate?.didRemoveStation(discoveredStations: stationView)
         }
       }
     }
@@ -561,7 +560,7 @@ class RadioManager: NSObject, ApiDelegate {
   func keyRadio(doTransmit: Bool, buffer: [Float]? = nil, xmitGain: Int) {
     
     self.xmitGain = xmitGain
-    
+
     // temp code
     if buffer == nil {
       if doTransmit  {
@@ -577,6 +576,7 @@ class RadioManager: NSObject, ApiDelegate {
     if doTransmit  {
       audioBuffer = buffer!
       if daxTxAudioStreamRequested == false {
+        print("Audio Stream Requested")
         api.radio!.requestDaxTxAudioStream(callback: updateDaxTxStreamId)
         daxTxAudioStreamRequested = true
       }
@@ -629,7 +629,7 @@ class RadioManager: NSObject, ApiDelegate {
     }
     
     if let streamId = reply.streamId {
-      
+      print("Audio Stream Callback \(streamId)")
       daxTxAudioStreamId = streamId
       
       DispatchQueue.global(qos: .userInteractive).async {
@@ -646,12 +646,14 @@ class RadioManager: NSObject, ApiDelegate {
     var frameCount: Int = 0
     let result = audioBuffer.chunked(into: 128)
     let daxTxAudioStream = api.radio?.daxTxAudioStreams[streamId]
-    
-    api.radio?.transmit.daxEnabled = true
+
+    // removed 05/08/2021 - changes in SmartSDR for Mac
+    //api.radio?.transmit.daxEnabled = true
+
     api.radio?.mox = true
     daxTxAudioStream?.isTransmitChannel = true
     daxTxAudioStream?.txGain = xmitGain
-    
+
     // define the repeating timer for 24000 hz - why 5300?, seems it should be 4160
     audioStreamTimer = Repeater.every(.microseconds(5300), count: result.count, tolerance: .nanoseconds(1), queue: DispatchQueue(label: "com.w6op", qos: .userInteractive)) { _ in
       let _ = daxTxAudioStream?.sendTXAudio(left: result[frameCount], right: result[frameCount], samples: Int(result[frameCount].count))
@@ -662,7 +664,10 @@ class RadioManager: NSObject, ApiDelegate {
     audioStreamTimer!.onStateChanged = { (_ timer: Repeater, _ state: Repeater.State) in
       if self.audioStreamTimer!.state.isFinished {
         self.api.radio?.mox = false
-        self.api.radio?.transmit.daxEnabled = false
+
+        // removed 05/08/2021 - changes in SmartSDR for Mac timing
+        //self.api.radio?.transmit.daxEnabled = false
+
         self.audioStreamTimer = nil
       }
     }
