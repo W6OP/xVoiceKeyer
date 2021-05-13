@@ -14,10 +14,10 @@
             filePath = "xVoiceKeyer/RadioManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "636"
-            endingLineNumber = "636"
+            startingLineNumber = "645"
+            endingLineNumber = "645"
             landmarkName = "updateDaxTxStreamId(_:sequenceNumber:responseValue:reply:)"
-            landmarkType = "7">
+            landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -431,9 +431,25 @@
             filePath = "xVoiceKeyer/ViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "273"
-            endingLineNumber = "273"
+            startingLineNumber = "284"
+            endingLineNumber = "284"
             landmarkName = "didUpdateStations(discoveredStations:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "EEDE081B-5011-4E6D-9BB9-9A5A783C800B"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "xVoiceKeyer/ViewController.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "360"
+            endingLineNumber = "360"
+            landmarkName = "doConnectRadio(serialNumber:stationName:clientId:IsDefaultStation:doConnect:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

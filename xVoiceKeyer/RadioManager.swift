@@ -550,7 +550,16 @@ class RadioManager: NSObject, ApiDelegate {
   }
   
   // MARK: Transmit methods ----------------------------------------------------------------------------
-  
+
+
+  func setDAX(isOn: Bool) {
+    if isOn {
+      api.radio?.transmit.daxEnabled = true
+    } else {
+      self.api.radio?.transmit.daxEnabled = false
+    }
+  }
+
   /**
    Prepare to key the selected Radio. Create the audio stream to be sent.
    - parameters:
@@ -677,9 +686,8 @@ class RadioManager: NSObject, ApiDelegate {
   
   func sendCWMessage(message: String)
   {
-    
     api.radio?.cwx.send("w6op")
-    
+
   }
 } // end class
 
