@@ -155,27 +155,28 @@ class FilePreferences: NSViewController {
     
     if FileManager.default.secureCopyItem(at: URL(fileURLWithPath: filePath), to: destURL, message: &message) {
       print("file \(filePath) saved to \(destURL)")
-    }
-    // I should do something to let the user know if this fails
-    let alert = NSAlert()
-    alert.messageText = "Cannot copy item"
-    alert.informativeText = "Cannot copy item at \(filePath) to \(destURL): \(message)"
+    } else {
+      // let the user know if this fails
+      let alert = NSAlert()
+      alert.messageText = "Cannot copy item"
+      alert.informativeText = "Cannot copy item at \(filePath) to \(destURL) - Error: \(message)"
 
-    alert.addButton(withTitle: "Cancel")
-    alert.alertStyle = .warning
-    var w: NSWindow?
-    if let window = view.window{
+      alert.addButton(withTitle: "Cancel")
+      alert.alertStyle = .warning
+      var w: NSWindow?
+      if let window = view.window{
         w = window
-    }
-    else if let window = NSApplication.shared.windows.first{
+      }
+      else if let window = NSApplication.shared.windows.first{
         w = window
-    }
-    if let window = w{
-      alert.beginSheetModal(for: window){ (modalResponse) in
-            if modalResponse == .alertFirstButtonReturn {
-                print("alert handled")
-            }
+      }
+      if let window = w{
+        alert.beginSheetModal(for: window){ (modalResponse) in
+          if modalResponse == .alertFirstButtonReturn {
+            print("alert handled")
+          }
         }
+      }
     }
   }
   
