@@ -135,7 +135,8 @@ class FilePreferences: NSViewController {
    Find the correct field using the tag value and populate it.
    */
   @IBAction func loadFileNameClicked(_ sender: NSButton) {
-    
+
+    var message = ""
     let filePath = self.getFilePath()
     let offset = 10
     
@@ -152,10 +153,30 @@ class FilePreferences: NSViewController {
     let fileUrl = self.getDocumentsDirectory()
     let destURL = fileUrl.appendingPathComponent(NSURL(fileURLWithPath: filePath).lastPathComponent!)
     
-    if FileManager.default.secureCopyItem(at: URL(fileURLWithPath: filePath), to: destURL) {
+    if FileManager.default.secureCopyItem(at: URL(fileURLWithPath: filePath), to: destURL, message: &message) {
       print("file \(filePath) saved to \(destURL)")
     }
     // I should do something to let the user know if this fails
+    let alert = NSAlert()
+    alert.messageText = "Cannot copy item"
+    alert.informativeText = "Cannot copy item at \(filePath) to \(destURL): \(message)"
+
+    alert.addButton(withTitle: "Cancel")
+    alert.alertStyle = .warning
+    var w: NSWindow?
+    if let window = view.window{
+        w = window
+    }
+    else if let window = NSApplication.shared.windows.first{
+        w = window
+    }
+    if let window = w{
+      alert.beginSheetModal(for: window){ (modalResponse) in
+            if modalResponse == .alertFirstButtonReturn {
+                print("alert handled")
+            }
+        }
+    }
   }
   
   func getDocumentsDirectory() -> URL {

@@ -17,7 +17,7 @@
             startingLineNumber = "645"
             endingLineNumber = "645"
             landmarkName = "updateDaxTxStreamId(_:sequenceNumber:responseValue:reply:)"
-            landmarkType = "9">
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -88,7 +88,7 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "C3C98387-B526-4580-9CF0-86F5E842DFA9"
-            shouldBeEnabled = "No"
+            shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "xVoiceKeyer/AudioManager.swift"
@@ -450,6 +450,38 @@
             startingLineNumber = "360"
             endingLineNumber = "360"
             landmarkName = "doConnectRadio(serialNumber:stationName:clientId:IsDefaultStation:doConnect:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "7B6E8A2D-6CF5-489F-8B14-9BFA6D48E4FE"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "xVoiceKeyer/Preferences/FilePreferences.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "143"
+            endingLineNumber = "143"
+            landmarkName = "loadFileNameClicked(_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "123594CC-122B-4B3A-B036-765EB795A78E"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "xVoiceKeyer/AudioManager.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "175"
+            endingLineNumber = "175"
+            landmarkName = "loadAudioSignal(audioURL:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

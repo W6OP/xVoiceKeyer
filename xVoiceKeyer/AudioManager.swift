@@ -63,19 +63,19 @@ public enum audioMessage : String {
 
 extension FileManager {
   
-  open func secureCopyItem(at srcURL: URL, to dstURL: URL) -> Bool {
+  open func secureCopyItem(at srcURL: URL, to dstURL: URL, message: inout String) -> Bool {
     do {
       if FileManager.default.fileExists(atPath: dstURL.path) {
         try FileManager.default.removeItem(at: dstURL)
       }
       try FileManager.default.copyItem(at: srcURL, to: dstURL)
     } catch (let error) {
+      message = error.localizedDescription
       print("Cannot copy item at \(srcURL) to \(dstURL): \(error)")
       return false
     }
     return true
   }
-  
 }
 
 // Start of class definition.
