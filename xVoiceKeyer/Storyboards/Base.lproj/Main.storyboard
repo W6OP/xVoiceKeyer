@@ -691,8 +691,8 @@
                         <touchBarItems>
                             <touchBarItem id="VSA-aW-Cmj">
                                 <viewController key="viewController" id="Km9-cl-wQC">
-                                    <button key="view" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="7zL-nQ-2nY">
-                                        <rect key="frame" x="0.0" y="0.0" width="72" height="30"/>
+                                    <button key="view" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="7zL-nQ-2nY">
+                                        <rect key="frame" x="7" y="-5" width="72" height="30"/>
                                         <buttonCell key="cell" type="push" title="Stop" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="iDU-9V-sx9">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" usesAppearanceFont="YES"/>
@@ -706,8 +706,8 @@
                             </touchBarItem>
                             <touchBarItem id="blz-n6-gIM">
                                 <viewController key="viewController" id="l2Z-oY-eRF">
-                                    <segmentedControl key="view" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="jFD-bj-Vnf">
-                                        <rect key="frame" x="0.0" y="0.0" width="527" height="30"/>
+                                    <segmentedControl key="view" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="jFD-bj-Vnf">
+                                        <rect key="frame" x="3" y="-2" width="527" height="30"/>
                                         <segmentedCell key="cell" borderStyle="border" alignment="left" tag="1" segmentDistribution="fillEqually" style="rounded" trackingMode="momentary" id="Dkx-0L-Esg">
                                             <font key="font" metaFont="system"/>
                                             <segments>
@@ -1028,17 +1028,15 @@ Gw
                                     <real value="3.4028234663852886e+38"/>
                                 </customSpacing>
                             </stackView>
-                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1s6-Lk-GWP">
-                                <rect key="frame" x="511" y="42" width="61" height="32"/>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="rPw-rI-FWw">
+                                <rect key="frame" x="472" y="53" width="95" height="16"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <buttonCell key="cell" type="push" title="DAX" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="d8M-DH-EjS">
-                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
+                                <textFieldCell key="cell" lineBreakMode="clipping" placeholderString="Status" id="SsU-rD-YXH">
                                     <font key="font" metaFont="system"/>
-                                </buttonCell>
-                                <connections>
-                                    <action selector="daxButtonClicked:" target="XfG-lQ-9wD" id="FpC-qY-Ygy"/>
-                                </connections>
-                            </button>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
                         </subviews>
                     </view>
                     <connections>
@@ -1052,6 +1050,7 @@ Gw
                         <outlet property="labelMode" destination="rUu-m4-gOc" id="RJ3-h3-JC2"/>
                         <outlet property="labelSlice" destination="Lwi-oo-ONC" id="MzR-Y9-JrS"/>
                         <outlet property="labelStation" destination="2Kp-vf-qhJ" id="Jnn-sg-x8A"/>
+                        <outlet property="labelStatus" destination="rPw-rI-FWw" id="lUz-RR-0hw"/>
                         <outlet property="serialNumberLabel" destination="SiB-HI-Og7" id="t3d-J6-miG"/>
                     </connections>
                 </viewController>

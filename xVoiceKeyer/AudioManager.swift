@@ -103,13 +103,67 @@ class AudioManager: NSObject {
     buffers.removeAll()
   }
   
-  func getDocumentsDirectory() -> URL {
-    // find all possible documents directories for this user
-    let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-    
-    // just send back the first one, which ought to be the only one
-    return paths[0]
-  }
+//  func getDocumentsDirectory() -> URL {
+//    // find all possible documents directories for this user
+//    let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+//
+//    // just send back the first one, which ought to be the only one
+//    return paths[0]
+//  }
+
+  /**
+   Retrieve the file from the user preferences that matches this buttonNumber (tag).
+   Pass it on the the method that will load the file and send it to the radio
+   - parameter buttonNumber: the tag associated with the button
+   - returns: PCM encoded audio as an array of floats at 24khz bit rate
+   */
+//  func selectAudioFile(buttonNumber: Int) -> [Float] {
+//    var floatArray = [Float]()
+//
+//    if let filePath = UserDefaults.standard.string(forKey: String(buttonNumber)) {
+//
+//      if filePath.isEmpty {
+//        notifyViewController(key: audioMessage.buttonNotConfigured, messageData: String(buttonNumber))
+//        return floatArray
+//      }
+//
+//      // temp code
+//      if filePath == "KeyRadio" {
+//        notifyViewController(key: audioMessage.KeyRadio, messageData: String(buttonNumber))
+//        return floatArray
+//      }
+//
+//      //  check cache first
+//      if buffers[buttonNumber] != nil {
+//        return buffers[buttonNumber]!
+//      }
+//
+//      let fileName = NSURL(fileURLWithPath: filePath).lastPathComponent
+//      let soundUrl = self.getDocumentsDirectory().appendingPathComponent(fileName!)
+//
+//      if FileManager.default.fileExists(atPath: soundUrl.path) {
+//        do{
+//          floatArray = try loadAudioSignal(audioURL: soundUrl as NSURL)
+//          if floatArray.count > 0 // if buffer does not contain value already
+//          {
+//            buffers.updateValue(floatArray, forKey: buttonNumber)
+//          } else {
+//            buffers.removeValue(forKey: buttonNumber)
+//          }
+//        } catch{
+//          notifyViewController(key: audioMessage.error, messageData: String(error.localizedDescription))
+//        }
+//      }
+//      else {
+//        notifyViewController(key: audioMessage.fileMissing, messageData: filePath)
+//      }
+//    }
+//
+//    return floatArray
+//  }
+
+  /// Mark: - Legacy
+
   /**
    Retrieve the file from the user preferences that matches this buttonNumber (tag).
    Pass it on the the method that will load the file and send it to the radio
@@ -117,50 +171,52 @@ class AudioManager: NSObject {
    - returns: PCM encoded audio as an array of floats at 24khz bit rate
    */
   func selectAudioFile(buttonNumber: Int) -> [Float] {
-    var floatArray = [Float]()
-    
-    if let filePath = UserDefaults.standard.string(forKey: String(buttonNumber)) {
-      
-      if filePath.isEmpty {
-        notifyViewController(key: audioMessage.buttonNotConfigured, messageData: String(buttonNumber))
-        return floatArray
-      }
-      
-      // temp code
-      if filePath == "KeyRadio" {
-        notifyViewController(key: audioMessage.KeyRadio, messageData: String(buttonNumber))
-        return floatArray
-      }
-      
-      //  check cache first
-      if buffers[buttonNumber] != nil {
-        return buffers[buttonNumber]!
-      }
-      
-      let fileName = NSURL(fileURLWithPath: filePath).lastPathComponent
-      let soundUrl = self.getDocumentsDirectory().appendingPathComponent(fileName!)
-      
-      if FileManager.default.fileExists(atPath: soundUrl.path) {
-        do{
-          floatArray = try loadAudioSignal(audioURL: soundUrl as NSURL)
-          if floatArray.count > 0 // if buffer does not contain value already
-          {
-            buffers.updateValue(floatArray, forKey: buttonNumber)
-          } else {
-            buffers.removeValue(forKey: buttonNumber)
+      var floatArray = [Float]()
+      let fileManager = FileManager.default
+
+      if let filePath = UserDefaults.standard.string(forKey: String(buttonNumber)) {
+
+          if filePath.isEmpty {
+              notifyViewController(key: audioMessage.buttonNotConfigured, messageData: String(buttonNumber))
+              return floatArray
           }
-        } catch{
-          notifyViewController(key: audioMessage.error, messageData: String(error.localizedDescription))
+
+        // temp code
+        if filePath == "KeyRadio" {
+          notifyViewController(key: audioMessage.KeyRadio, messageData: String(buttonNumber))
+            return floatArray
         }
+
+
+          // check cache first
+          if buffers[buttonNumber] != nil {
+              return buffers[buttonNumber]!
+          }
+
+          if (fileManager.fileExists(atPath: filePath))
+          {
+              let soundUrl = URL(fileURLWithPath: filePath)
+              do{
+                  floatArray = try loadAudioSignal(audioURL: soundUrl as NSURL)
+                  if floatArray.count > 0 // if buffer does not contain value already
+                  {
+                      buffers.updateValue(floatArray, forKey: buttonNumber)
+                  } else {
+                      buffers.removeValue(forKey: buttonNumber)
+                  }
+              } catch{
+                  notifyViewController(key: audioMessage.error, messageData: String(error.localizedDescription))
+              }
+          } else {
+              notifyViewController(key: audioMessage.fileMissing, messageData: filePath)
+          }
       }
-      else {
-        notifyViewController(key: audioMessage.fileMissing, messageData: filePath)
-      }
-    }
-    
-    return floatArray
+
+      return floatArray
   }
-  
+
+  /// Mark: - End Legacy
+  ///
   /**
    Read an audio file from disk and convert it to PCM.
    - parameter filePath: path to the file to be converted

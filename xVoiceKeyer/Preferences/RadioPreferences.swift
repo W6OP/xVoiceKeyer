@@ -141,7 +141,7 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
      */
     override func viewWillDisappear() {
         
-        isDefaultSet = false // don't save radio on exit
+        //isDefaultSet = false // don't save radio on exit
     }
     
     /**

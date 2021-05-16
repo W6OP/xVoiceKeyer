@@ -79,7 +79,8 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
   // MARK: Outlets ---------------------------------------------------------------------------
   @IBOutlet weak var voiceButton1: NSButton!
   @IBOutlet weak var serialNumberLabel: NSTextField!
-  //@IBOutlet weak var statusLabel: NSTextField!
+
+  @IBOutlet weak var labelStatus: NSTextField!
   @IBOutlet weak var buttonStackView: NSStackView!
   @IBOutlet weak var buttonStackViewTwo: NSStackView!
   @IBOutlet weak var gainSlider: NSSlider!
@@ -163,8 +164,11 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     // create the audio manager
     audiomanager = AudioManager()
     audiomanager.audioManagerDelegate = self
-    //statusLabel.stringValue = "Connecting"
-    view.window?.title = "xVoiceKeyer - " + "Connecting"
+    labelStatus.stringValue = "Connecting"
+    view.window?.title = "xVoiceKeyer"
+
+    gainSlider.intValue = 35
+    gainLabel.stringValue = "35"
     
     updateButtonTitles(view: view)
     
@@ -357,9 +361,9 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
                                    clientId: clientId,
                                    didConnect: doConnect) == true {
       connectedStationName = stationName
-      view.window?.title = "xVoiceKeyer - " + defaultStation.nickname + " - Connected"
+      view.window?.title = "xVoiceKeyer - " + defaultStation.nickname
       isRadioConnected = true
-      //statusLabel.stringValue = "Connected"
+      labelStatus.stringValue = "Connected"
     }
   }
   
@@ -370,15 +374,15 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
   func doBindToStation(clientId: String, station: String)  {
 
     if clientId.isEmpty {
-      view.window?.title = "xVoiceKeyer - " + defaultStation.nickname + " - Invalid ClientId"
-      //statusLabel.stringValue = "Invalid client id"
+      view.window?.title = "xVoiceKeyer - " + defaultStation.nickname
+      labelStatus.stringValue = "Invalid client id"
       return
     }
 
     connectedStationHandle = radioManager.bindToStation(clientId: clientId, station: station)
     
     if connectedStationHandle != 0 {
-      view.window?.title = "xVoiceKeyer - " + defaultStation.nickname + " - Connected"
+      view.window?.title = "xVoiceKeyer - " + defaultStation.nickname
       isBoundToClient = true
       connectedStationName = station
       
@@ -394,8 +398,8 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     isBoundToClient = false
     connectedStationName = ""
     connectedStationHandle = 0
-    view.window?.title = "xVoiceKeyer - " + defaultStation.nickname + " - Disconnected"
-    //statusLabel.stringValue = "Disconnected"
+    view.window?.title = "xVoiceKeyer - " + defaultStation.nickname
+    labelStatus.stringValue = "Disconnected"
   }
   
   /**
@@ -645,10 +649,10 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
       if defaults["xmitGain"] != nil {
         gainSlider.intValue = Int32(defaults["xmitGain"] as! String) ?? 35
         gainLabel.stringValue = defaults["xmitGain"] as! String
-      } else {
-        gainSlider.intValue = 35
-        gainLabel.stringValue = "35"
-      }
+      } //else {
+//        gainSlider.intValue = 35
+//        gainLabel.stringValue = "35"
+//      }
       
       updateUserDefaults()
     }
