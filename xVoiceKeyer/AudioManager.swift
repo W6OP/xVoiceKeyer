@@ -103,13 +103,13 @@ class AudioManager: NSObject {
     buffers.removeAll()
   }
   
-//  func getDocumentsDirectory() -> URL {
-//    // find all possible documents directories for this user
-//    let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-//
-//    // just send back the first one, which ought to be the only one
-//    return paths[0]
-//  }
+  func getDocumentsDirectory() -> URL {
+    // find all possible documents directories for this user
+    let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+
+    // just send back the first one, which ought to be the only one
+    return paths[0]
+  }
 
   /**
    Retrieve the file from the user preferences that matches this buttonNumber (tag).
@@ -117,50 +117,57 @@ class AudioManager: NSObject {
    - parameter buttonNumber: the tag associated with the button
    - returns: PCM encoded audio as an array of floats at 24khz bit rate
    */
-//  func selectAudioFile(buttonNumber: Int) -> [Float] {
-//    var floatArray = [Float]()
-//
-//    if let filePath = UserDefaults.standard.string(forKey: String(buttonNumber)) {
-//
-//      if filePath.isEmpty {
-//        notifyViewController(key: audioMessage.buttonNotConfigured, messageData: String(buttonNumber))
-//        return floatArray
-//      }
-//
-//      // temp code
-//      if filePath == "KeyRadio" {
-//        notifyViewController(key: audioMessage.KeyRadio, messageData: String(buttonNumber))
-//        return floatArray
-//      }
-//
-//      //  check cache first
-//      if buffers[buttonNumber] != nil {
-//        return buffers[buttonNumber]!
-//      }
-//
-//      let fileName = NSURL(fileURLWithPath: filePath).lastPathComponent
-//      let soundUrl = self.getDocumentsDirectory().appendingPathComponent(fileName!)
-//
-//      if FileManager.default.fileExists(atPath: soundUrl.path) {
-//        do{
-//          floatArray = try loadAudioSignal(audioURL: soundUrl as NSURL)
-//          if floatArray.count > 0 // if buffer does not contain value already
-//          {
-//            buffers.updateValue(floatArray, forKey: buttonNumber)
-//          } else {
-//            buffers.removeValue(forKey: buttonNumber)
-//          }
-//        } catch{
-//          notifyViewController(key: audioMessage.error, messageData: String(error.localizedDescription))
-//        }
-//      }
-//      else {
-//        notifyViewController(key: audioMessage.fileMissing, messageData: filePath)
-//      }
-//    }
-//
-//    return floatArray
-//  }
+  func selectAudioFile(buttonNumber: Int) -> [Float] {
+    var floatArray = [Float]()
+
+    // fileArray = [sourceFilePath, labelText, destURL.absoluteString]
+    guard let fileArray = UserDefaults.standard.array(forKey: String(buttonNumber)) else {
+      return floatArray
+    }
+
+
+
+    if let filePath = fileArray[2] as? String { //UserDefaults.standard.string(forKey: String(buttonNumber)) {
+
+      if filePath.isEmpty {
+        notifyViewController(key: audioMessage.buttonNotConfigured, messageData: String(buttonNumber))
+        return floatArray
+      }
+
+      // temp code
+      if filePath == "KeyRadio" {
+        notifyViewController(key: audioMessage.KeyRadio, messageData: String(buttonNumber))
+        return floatArray
+      }
+
+      //  check cache first
+      if buffers[buttonNumber] != nil {
+        return buffers[buttonNumber]!
+      }
+
+      let fileName = NSURL(fileURLWithPath: filePath).lastPathComponent
+      let soundUrl = self.getDocumentsDirectory().appendingPathComponent(fileName!)
+
+      if FileManager.default.fileExists(atPath: soundUrl.path) {
+        do{
+          floatArray = try loadAudioSignal(audioURL: soundUrl as NSURL)
+          if floatArray.count > 0 // if buffer does not contain value already
+          {
+            buffers.updateValue(floatArray, forKey: buttonNumber)
+          } else {
+            buffers.removeValue(forKey: buttonNumber)
+          }
+        } catch{
+          notifyViewController(key: audioMessage.error, messageData: String(error.localizedDescription))
+        }
+      }
+      else {
+        notifyViewController(key: audioMessage.fileMissing, messageData: filePath)
+      }
+    }
+
+    return floatArray
+  }
 
   /// Mark: - Legacy
 
@@ -170,50 +177,52 @@ class AudioManager: NSObject {
    - parameter buttonNumber: the tag associated with the button
    - returns: PCM encoded audio as an array of floats at 24khz bit rate
    */
-  func selectAudioFile(buttonNumber: Int) -> [Float] {
-      var floatArray = [Float]()
-      let fileManager = FileManager.default
-
-      if let filePath = UserDefaults.standard.string(forKey: String(buttonNumber)) {
-
-          if filePath.isEmpty {
-              notifyViewController(key: audioMessage.buttonNotConfigured, messageData: String(buttonNumber))
-              return floatArray
-          }
-
-        // temp code
-        if filePath == "KeyRadio" {
-          notifyViewController(key: audioMessage.KeyRadio, messageData: String(buttonNumber))
-            return floatArray
-        }
-
-
-          // check cache first
-          if buffers[buttonNumber] != nil {
-              return buffers[buttonNumber]!
-          }
-
-          if (fileManager.fileExists(atPath: filePath))
-          {
-              let soundUrl = URL(fileURLWithPath: filePath)
-              do{
-                  floatArray = try loadAudioSignal(audioURL: soundUrl as NSURL)
-                  if floatArray.count > 0 // if buffer does not contain value already
-                  {
-                      buffers.updateValue(floatArray, forKey: buttonNumber)
-                  } else {
-                      buffers.removeValue(forKey: buttonNumber)
-                  }
-              } catch{
-                  notifyViewController(key: audioMessage.error, messageData: String(error.localizedDescription))
-              }
-          } else {
-              notifyViewController(key: audioMessage.fileMissing, messageData: filePath)
-          }
-      }
-
-      return floatArray
-  }
+//  func selectAudioFile(buttonNumber: Int) -> [Float] {
+//      var floatArray = [Float]()
+//      let fileManager = FileManager.default
+//
+//      if let filePath = UserDefaults.standard.string(forKey: String(buttonNumber)) {
+//
+//          if filePath.isEmpty {
+//              notifyViewController(key: audioMessage.buttonNotConfigured, messageData: String(buttonNumber))
+//              return floatArray
+//          }
+//
+//        // temp code
+////        if filePath == "KeyRadio" {
+////          notifyViewController(key: audioMessage.KeyRadio, messageData: String(buttonNumber))
+////            return floatArray
+////        }
+//
+//
+//          // check cache first
+////          if buffers[buttonNumber] != nil {
+////              return buffers[buttonNumber]!
+////          }
+//
+//        // let destinationUrl = documentsDirectoryURL.appendingPathComponent("\(reciter.name): \(surah.number).mp3")
+//
+//          if (fileManager.fileExists(atPath: filePath))
+//          {
+//              let soundUrl = URL(fileURLWithPath: filePath)
+//              do{
+//                  floatArray = try loadAudioSignal(audioURL: soundUrl as NSURL)
+//                  if floatArray.count > 0 // if buffer does not contain value already
+//                  {
+//                      buffers.updateValue(floatArray, forKey: buttonNumber)
+//                  } else {
+//                      buffers.removeValue(forKey: buttonNumber)
+//                  }
+//              } catch{
+//                  notifyViewController(key: audioMessage.error, messageData: String(error.localizedDescription))
+//              }
+//          } else {
+//              notifyViewController(key: audioMessage.fileMissing, messageData: filePath)
+//          }
+//      }
+//
+//      return floatArray
+//  }
 
   /// Mark: - End Legacy
   ///
@@ -225,15 +234,33 @@ class AudioManager: NSObject {
   func loadAudioSignal(audioURL: NSURL) throws -> ([Float]) {
     var floatArray = [Float]()
     var sourceFileID: AudioFileID? = nil
-    
+    var stream: AVAudioFile
     
     // read the file to a stream
-    guard let stream = try? AVAudioFile(forReading: audioURL as URL) else {
-      notifyViewController(key: audioMessage.invalidFileType, messageData: audioURL.absoluteString!)
-      return floatArray
-    }
-    
-    
+//    guard let stream = try? AVAudioFile(forReading: audioURL as URL) else {
+//      notifyViewController(key: audioMessage.invalidFileType, messageData: audioURL.absoluteString!)
+//      return floatArray
+//    }
+    /*
+     file:///Users/pbourget/Documents/Ham%20Radio/Voice%20Files/Flex%20Wav%20Files/W6OP_Once.wav
+     file:///Users/pbourget/Documents/Ham%20Radio/Voice%20Files/Flex%20Wav%20Files/W6OP_Once.wav
+     file:///Users/pbourget/Library/Containers/com.w6op.xVoiceKeyer/Data/Documents/W6OP_Once.wav
+     */
+
+    // let destinationUrl = documentsDirectoryURL.appendingPathComponent("\(reciter.name): \(surah.number).mp3")
+    do {
+      stream = try AVAudioFile(forReading: audioURL as URL)
+       } catch let error {
+           //showAlert(title: Alerts.AudioFileError, message: String(describing: error))
+        print ("Error: \(error)")
+        notifyViewController(key: audioMessage.invalidFileType, messageData: audioURL.absoluteString!)
+        return floatArray
+       }
+
+    // debugging
+    //return floatArray
+
+
     // Get the source data format
     AudioFileOpenURL(audioURL as CFURL, .readPermission, 0, &sourceFileID)
     defer {AudioFileClose(sourceFileID!)}

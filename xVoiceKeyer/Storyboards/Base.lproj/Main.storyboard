@@ -691,8 +691,9 @@
                         <touchBarItems>
                             <touchBarItem id="VSA-aW-Cmj">
                                 <viewController key="viewController" id="Km9-cl-wQC">
-                                    <button key="view" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="7zL-nQ-2nY">
+                                    <button key="view" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="7zL-nQ-2nY">
                                         <rect key="frame" x="7" y="-5" width="72" height="30"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <buttonCell key="cell" type="push" title="Stop" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="iDU-9V-sx9">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" usesAppearanceFont="YES"/>
@@ -706,8 +707,9 @@
                             </touchBarItem>
                             <touchBarItem id="blz-n6-gIM">
                                 <viewController key="viewController" id="l2Z-oY-eRF">
-                                    <segmentedControl key="view" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="jFD-bj-Vnf">
+                                    <segmentedControl key="view" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="jFD-bj-Vnf">
                                         <rect key="frame" x="3" y="-2" width="527" height="30"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <segmentedCell key="cell" borderStyle="border" alignment="left" tag="1" segmentDistribution="fillEqually" style="rounded" trackingMode="momentary" id="Dkx-0L-Esg">
                                             <font key="font" metaFont="system"/>
                                             <segments>
@@ -754,7 +756,7 @@
                                 <subviews>
                                     <button verticalHuggingPriority="750" tag="1" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="IbK-12-Q7U">
                                         <rect key="frame" x="-7" y="-7" width="119" height="32"/>
-                                        <buttonCell key="cell" type="push" title="unused" bezelStyle="rounded" alignment="center" scrollable="YES" lineBreakMode="clipping" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="oHM-Tc-mW7">
+                                        <buttonCell key="cell" type="push" bezelStyle="rounded" alignment="center" scrollable="YES" lineBreakMode="clipping" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="oHM-Tc-mW7">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
                                             <string key="keyEquivalent">1</string>
@@ -766,7 +768,7 @@
                                     </button>
                                     <button verticalHuggingPriority="750" tag="2" translatesAutoresizingMaskIntoConstraints="NO" id="jO2-V4-UMI">
                                         <rect key="frame" x="103" y="-7" width="119" height="32"/>
-                                        <buttonCell key="cell" type="push" title="unused" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Wbb-re-Xto">
+                                        <buttonCell key="cell" type="push" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Wbb-re-Xto">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
                                             <string key="keyEquivalent">2</string>
@@ -778,7 +780,7 @@
                                     </button>
                                     <button verticalHuggingPriority="750" tag="3" translatesAutoresizingMaskIntoConstraints="NO" id="LrM-Yv-oNY">
                                         <rect key="frame" x="213" y="-7" width="119" height="32"/>
-                                        <buttonCell key="cell" type="push" title="unused" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="tm8-FQ-wIl">
+                                        <buttonCell key="cell" type="push" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="tm8-FQ-wIl">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
                                             <string key="keyEquivalent">3</string>
@@ -790,7 +792,7 @@
                                     </button>
                                     <button verticalHuggingPriority="750" tag="4" translatesAutoresizingMaskIntoConstraints="NO" id="1g3-9e-Wjy">
                                         <rect key="frame" x="323" y="-7" width="119" height="32"/>
-                                        <buttonCell key="cell" type="push" title="unused" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Efn-Je-EDE">
+                                        <buttonCell key="cell" type="push" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Efn-Je-EDE">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
                                             <string key="keyEquivalent">4</string>
@@ -802,7 +804,7 @@
                                     </button>
                                     <button verticalHuggingPriority="750" tag="5" translatesAutoresizingMaskIntoConstraints="NO" id="fMN-D9-kp9">
                                         <rect key="frame" x="433" y="-7" width="119" height="32"/>
-                                        <buttonCell key="cell" type="push" title="unused" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="LwW-lF-Te8">
+                                        <buttonCell key="cell" type="push" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="LwW-lF-Te8">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
                                             <string key="keyEquivalent">5</string>
@@ -867,7 +869,7 @@ Gw
                                 <subviews>
                                     <button verticalHuggingPriority="750" tag="6" translatesAutoresizingMaskIntoConstraints="NO" id="HiG-HA-Znb">
                                         <rect key="frame" x="-7" y="-7" width="119" height="32"/>
-                                        <buttonCell key="cell" type="push" title="unused" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Yu9-1n-weZ">
+                                        <buttonCell key="cell" type="push" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Yu9-1n-weZ">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
                                             <string key="keyEquivalent">6</string>
@@ -879,7 +881,7 @@ Gw
                                     </button>
                                     <button verticalHuggingPriority="750" tag="7" translatesAutoresizingMaskIntoConstraints="NO" id="85k-UI-Gmr">
                                         <rect key="frame" x="103" y="-7" width="119" height="32"/>
-                                        <buttonCell key="cell" type="push" title="unused" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Uxr-x2-zcY">
+                                        <buttonCell key="cell" type="push" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Uxr-x2-zcY">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
                                             <string key="keyEquivalent">7</string>
@@ -891,7 +893,7 @@ Gw
                                     </button>
                                     <button verticalHuggingPriority="750" tag="8" translatesAutoresizingMaskIntoConstraints="NO" id="bjk-8X-d2t">
                                         <rect key="frame" x="213" y="-7" width="119" height="32"/>
-                                        <buttonCell key="cell" type="push" title="unused" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="hDQ-NJ-JXi">
+                                        <buttonCell key="cell" type="push" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="hDQ-NJ-JXi">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
                                             <string key="keyEquivalent">8</string>
@@ -903,7 +905,7 @@ Gw
                                     </button>
                                     <button verticalHuggingPriority="750" tag="9" translatesAutoresizingMaskIntoConstraints="NO" id="XO0-hV-nbC">
                                         <rect key="frame" x="323" y="-7" width="119" height="32"/>
-                                        <buttonCell key="cell" type="push" title="unused" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Jaf-Ao-QUf">
+                                        <buttonCell key="cell" type="push" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Jaf-Ao-QUf">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
                                             <string key="keyEquivalent">9</string>
@@ -915,7 +917,7 @@ Gw
                                     </button>
                                     <button verticalHuggingPriority="750" tag="10" translatesAutoresizingMaskIntoConstraints="NO" id="1oe-WH-WzE">
                                         <rect key="frame" x="433" y="-7" width="119" height="32"/>
-                                        <buttonCell key="cell" type="push" title="unused" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="7BN-Ne-umF">
+                                        <buttonCell key="cell" type="push" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="7BN-Ne-umF">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
                                             <string key="keyEquivalent">0</string>

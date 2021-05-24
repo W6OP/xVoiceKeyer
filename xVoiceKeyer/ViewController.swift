@@ -613,18 +613,27 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
   /**
    Collect all the buttons from view and subviews and update their label (title)
    - parameter view: - the view to search
+   fileArray = [sourceFilePath, labelText, destURL.absoluteString]
    */
   func updateButtonTitles(view: NSView) {
     
-    var results = [NSButton]()
-    let offset = 10 // labels start with tag = 11
+    //var results = [NSButton]()
+    //let offset = 10 // labels start with tag = 11
+    let numRange = 1...10
     
     for subview in view.subviews as [NSView] {
       if let button = subview as? NSButton {
-        if button.tag != 0 && button.tag != 102 {
-          results += [button]
-          button.title = UserDefaults.standard.string(forKey: String(button.tag + offset)) ?? ""
-        }
+        //if button.tag != 0 && button.tag != 102 {
+          if numRange.contains(button.tag) {
+            guard let fileArray = UserDefaults.standard.array(forKey: String(button.tag)) else {
+              continue
+            }
+            button.title = fileArray[1] as! String
+          } else {
+            //results += [button]
+            //button.title = UserDefaults.standard.string(forKey: String(button.tag + offset)) ?? ""
+          }
+        //}
       } else {
         updateButtonTitles(view: subview)
       }
