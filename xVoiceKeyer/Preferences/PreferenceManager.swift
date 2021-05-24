@@ -43,7 +43,7 @@ import Cocoa
  */
 protocol PreferenceManagerDelegate: AnyObject {
     // radio was discovered
-    func doConnectRadio(serialNumber: String, stationName: String, clientId: String,IsDefaultStation: Bool, doConnect: Bool)
+  func doConnectRadio(serialNumber: String, nickName: String, stationName: String, clientId: String,IsDefaultStation: Bool, doConnect: Bool)
     // buttons updated
     func doUpdateButtons()
     // update button labels
@@ -87,9 +87,9 @@ class PreferenceManager: NSObject {
         using the radio's serial number.
         - parameter serialNumber: String
      */
-  @objc func connectToRadio(serialNumber: String, stationName: String, clientId: String, IsDefaultStation: Bool){
+  @objc func connectToRadio(serialNumber: String, nickName: String, stationName: String, clientId: String, IsDefaultStation: Bool){
         
-    self.preferenceManagerDelegate?.doConnectRadio(serialNumber: serialNumber, stationName: stationName, clientId: clientId, IsDefaultStation: IsDefaultStation, doConnect: true)
+    self.preferenceManagerDelegate?.doConnectRadio(serialNumber: serialNumber, nickName: nickName, stationName: stationName, clientId: clientId, IsDefaultStation: IsDefaultStation, doConnect: true)
         
     }
 

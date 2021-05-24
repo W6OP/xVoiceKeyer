@@ -91,17 +91,7 @@ class FilePreferences: NSViewController {
    - button: Handle to the button clicked.
    */
   @IBAction func selectTimerFile(_ sender: NSButton) {
-    //let filePath = self.getFilePath()
-    //let textField: NSTextField = allTextFields[sender.tag]!
-
     saveFileToDocumentsDirectory(tag: sender.tag, timerFile: true)
-
-//    if !filePath.isEmpty {
-//      textField.stringValue = filePath
-//      UserDefaults.standard.set(allTextFields[sender.tag]!.stringValue, forKey: String(sender.tag))
-//    } else {
-//      UserDefaults.standard.set("", forKey: String(sender.tag))
-//    }
   }
   
   
@@ -135,82 +125,16 @@ class FilePreferences: NSViewController {
     preferenceManager.updateButtonLables()
   }
 
-
-//  @IBAction func loadFileNameClicked(_ sender: NSButton) {
-//
-//      let filePath = self.getFilePath()
-//      let offset = 10
-//
-//      let textField: NSTextField = allTextFields[sender.tag]!
-//      let labelField: NSTextField = allTextFields[sender.tag + offset]!
-//      let label = labelField.stringValue
-//
-//      if !filePath.isEmpty {
-//          textField.stringValue = filePath
-//      }
-//
-//      if (label.isEmpty) {
-//          let fileName = NSURL(fileURLWithPath: filePath).deletingPathExtension!.lastPathComponent
-//          labelField.stringValue = fileName
-//      }
-//  }
-
-
   /**
    Find the correct field using the tag value and populate it.
    */
   @IBAction func loadFileNameClicked(_ sender: NSButton) {
-
     saveFileToDocumentsDirectory(tag: sender.tag, timerFile: false)
-
-//    var message = ""
-//    let sourceFilePath = self.getFilePath()
-//    let offset = 10
-//
-//    let textField: NSTextField = allTextFields[sender.tag]!
-//    let labelField: NSTextField = allTextFields[sender.tag + offset]!
-//
-//    if !sourceFilePath.isEmpty {
-//      textField.stringValue = sourceFilePath
-//    }
-//
-//    let labelText = NSURL(fileURLWithPath: sourceFilePath).deletingPathExtension!.lastPathComponent
-//    labelField.stringValue = labelText
-//
-//    let fileUrl = self.getDocumentsDirectory()
-//    let destURL = fileUrl.appendingPathComponent(NSURL(fileURLWithPath: sourceFilePath).lastPathComponent!)
-//
-//    if FileManager.default.secureCopyItem(at: URL(fileURLWithPath: sourceFilePath), to: destURL, message: &message) {
-//      print("file \(sourceFilePath) saved to \(destURL)")
-//
-//      let fileArray = [sourceFilePath, labelText, destURL.absoluteString]
-//      UserDefaults.standard.set(fileArray, forKey: String(sender.tag))
-//
-//    } else {
-//      // let the user know if this fails
-//      let alert = NSAlert()
-//      alert.messageText = "Cannot copy item"
-//      alert.informativeText = "Cannot copy item at \(sourceFilePath) to \(destURL) - Error: \(message)"
-//
-//      alert.addButton(withTitle: "Cancel")
-//      alert.alertStyle = .warning
-//      var w: NSWindow?
-//      if let window = view.window{
-//        w = window
-//      }
-//      else if let window = NSApplication.shared.windows.first{
-//        w = window
-//      }
-//      if let window = w{
-//        alert.beginSheetModal(for: window){ (modalResponse) in
-//          if modalResponse == .alertFirstButtonReturn {
-//            print("alert handled")
-//          }
-//        }
-//      }
-//    }
   }
-  
+
+
+  /// Get the document directory for this user.
+  /// - Returns: URL
   func getDocumentsDirectory() -> URL {
     // find all possible documents directories for this user
     let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
@@ -348,7 +272,6 @@ class FilePreferences: NSViewController {
           continue
         }
         allTextFields[tag]!.stringValue = fileArray[0] as! String
-        //allTextFields[tag]!.stringValue = UserDefaults.standard.string(forKey: String(tag)) ?? ""
       default:
         break
       }
@@ -359,31 +282,8 @@ class FilePreferences: NSViewController {
    Persist the user settings. File paths and the button labels.
    */
   func saveUserFileDefaults() {
-
     let tag = 101
-
     UserDefaults.standard.set(allTextFields[tag]!.stringValue, forKey: "TimerInterval")
-//    for item in allTextFields
-//    {
-//      let tag = item.key
-//
-//      if tag == 0 {
-//        continue
-//      }
-//
-//      if allTextFields[tag]!.stringValue.isEmpty
-//      {
-//        UserDefaults.standard.set("", forKey: String(tag))
-//        if tag == 101 {
-//          UserDefaults.standard.set("10", forKey: "TimerInterval")
-//        }
-//      } else {
-//        //UserDefaults.standard.set(allTextFields[tag]!.stringValue, forKey: String(tag))
-//        if tag == 101 {
-//          UserDefaults.standard.set(allTextFields[tag]!.stringValue, forKey: "TimerInterval")
-//        }
-//      }
-//    }
   }
   
 } // end class

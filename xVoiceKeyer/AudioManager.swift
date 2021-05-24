@@ -169,63 +169,6 @@ class AudioManager: NSObject {
     return floatArray
   }
 
-  /// Mark: - Legacy
-
-  /**
-   Retrieve the file from the user preferences that matches this buttonNumber (tag).
-   Pass it on the the method that will load the file and send it to the radio
-   - parameter buttonNumber: the tag associated with the button
-   - returns: PCM encoded audio as an array of floats at 24khz bit rate
-   */
-//  func selectAudioFile(buttonNumber: Int) -> [Float] {
-//      var floatArray = [Float]()
-//      let fileManager = FileManager.default
-//
-//      if let filePath = UserDefaults.standard.string(forKey: String(buttonNumber)) {
-//
-//          if filePath.isEmpty {
-//              notifyViewController(key: audioMessage.buttonNotConfigured, messageData: String(buttonNumber))
-//              return floatArray
-//          }
-//
-//        // temp code
-////        if filePath == "KeyRadio" {
-////          notifyViewController(key: audioMessage.KeyRadio, messageData: String(buttonNumber))
-////            return floatArray
-////        }
-//
-//
-//          // check cache first
-////          if buffers[buttonNumber] != nil {
-////              return buffers[buttonNumber]!
-////          }
-//
-//        // let destinationUrl = documentsDirectoryURL.appendingPathComponent("\(reciter.name): \(surah.number).mp3")
-//
-//          if (fileManager.fileExists(atPath: filePath))
-//          {
-//              let soundUrl = URL(fileURLWithPath: filePath)
-//              do{
-//                  floatArray = try loadAudioSignal(audioURL: soundUrl as NSURL)
-//                  if floatArray.count > 0 // if buffer does not contain value already
-//                  {
-//                      buffers.updateValue(floatArray, forKey: buttonNumber)
-//                  } else {
-//                      buffers.removeValue(forKey: buttonNumber)
-//                  }
-//              } catch{
-//                  notifyViewController(key: audioMessage.error, messageData: String(error.localizedDescription))
-//              }
-//          } else {
-//              notifyViewController(key: audioMessage.fileMissing, messageData: filePath)
-//          }
-//      }
-//
-//      return floatArray
-//  }
-
-  /// Mark: - End Legacy
-  ///
   /**
    Read an audio file from disk and convert it to PCM.
    - parameter filePath: path to the file to be converted
@@ -241,25 +184,14 @@ class AudioManager: NSObject {
 //      notifyViewController(key: audioMessage.invalidFileType, messageData: audioURL.absoluteString!)
 //      return floatArray
 //    }
-    /*
-     file:///Users/pbourget/Documents/Ham%20Radio/Voice%20Files/Flex%20Wav%20Files/W6OP_Once.wav
-     file:///Users/pbourget/Documents/Ham%20Radio/Voice%20Files/Flex%20Wav%20Files/W6OP_Once.wav
-     file:///Users/pbourget/Library/Containers/com.w6op.xVoiceKeyer/Data/Documents/W6OP_Once.wav
-     */
 
-    // let destinationUrl = documentsDirectoryURL.appendingPathComponent("\(reciter.name): \(surah.number).mp3")
     do {
       stream = try AVAudioFile(forReading: audioURL as URL)
-       } catch let error {
-           //showAlert(title: Alerts.AudioFileError, message: String(describing: error))
-        print ("Error: \(error)")
-        notifyViewController(key: audioMessage.invalidFileType, messageData: audioURL.absoluteString!)
-        return floatArray
-       }
-
-    // debugging
-    //return floatArray
-
+    } catch let error {
+      print ("Error: \(error)")
+      notifyViewController(key: audioMessage.invalidFileType, messageData: audioURL.absoluteString!)
+      return floatArray
+    }
 
     // Get the source data format
     AudioFileOpenURL(audioURL as CFURL, .readPermission, 0, &sourceFileID)
