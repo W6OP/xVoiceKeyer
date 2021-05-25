@@ -73,13 +73,9 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
    Save the default radio and reload the tableview.
    */
   @IBAction func buttonDefault(_ sender: Any) {
-
     isDefaultSet = true
-
     saveUserDefaults()
-
     tableViewRadioPicker.reloadData()
-
     buttonConnectControl.isEnabled = true
   }
 
@@ -87,24 +83,21 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
    Clear the default radio.
    */
   @IBAction func buttonClearDefault(_ sender: NSButton) {
-    
     isDefaultSet = false
-    
     clearDefaultRadio()
-    
     tableViewRadioPicker.reloadData()
-    
   }
   /**
    Connect the radio in the main view controller by calling delegate in preference manager.
    */
   @IBAction func buttonConnect(_ sender: NSButton) {
-
     self.dismiss(self)
-
     selectedStation = station[tableViewRadioPicker.selectedRow]
-
-    preferenceManager.connectToRadio(serialNumber: selectedStation.serialNumber, nickName: selectedStation.nickname, stationName: selectedStation.stationName, clientId: selectedStation.clientId, IsDefaultStation: Bool(self.selectedStation.default) ?? false)
+    preferenceManager.connectToRadio(serialNumber: selectedStation.serialNumber,
+                                     nickName: selectedStation.nickname,
+                                     stationName: selectedStation.stationName,
+                                     clientId: selectedStation.clientId,
+                                     IsDefaultStation: Bool(self.selectedStation.default) ?? false)
   }
 
   // MARK: generated code
@@ -117,10 +110,8 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
     super.viewDidLoad()
 
     retrieveUserDefaults()
-
     tableViewRadioPicker.dataSource = self
     tableViewRadioPicker.delegate = self
-
     buttonConnectControl.isEnabled = true
   }
 
@@ -128,9 +119,7 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
   override   func viewWillAppear() {
     self.view.window?.titleVisibility = .hidden
     self.view.window?.titlebarAppearsTransparent = true
-
     self.view.window?.styleMask.insert(.fullSizeContentView)
-
     self.view.window?.styleMask.remove(.fullScreen)
     self.view.window?.styleMask.remove(.miniaturizable)
     self.view.window?.styleMask.remove(.resizable)
@@ -140,8 +129,6 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
    Save the user defaults when the view is closed.
    */
   override func viewWillDisappear() {
-
-    //isDefaultSet = false // don't save radio on exit
   }
 
   /**
@@ -240,7 +227,6 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
   func tableView(_ tableView: NSTableView, objectValueFor tableColumn: NSTableColumn?, row: Int) -> Any? {
 
     var result = ""
-
     let columnIdentifier = tableColumn?.identifier
 
     // swift 4
@@ -265,7 +251,6 @@ class RadioPreferences: NSViewController, NSTableViewDataSource, NSTableViewDele
    - parameter notification: a notification
    */
   func tableViewSelectionDidChange(_ notification: Notification) {
-
     if (notification.object as? NSTableView) != nil {
       buttonDefaultControl.isEnabled = true
       buttonConnectControl.isEnabled = true

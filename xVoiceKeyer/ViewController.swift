@@ -71,6 +71,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
   var connectedStationHandle: UInt32 = 0
   
   var timerState: String = "ON"
+  var timerExpired = false
   var idTimer :Repeater?
   var sendIdTimer :Repeater?
   
@@ -110,7 +111,6 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
 
 
   @IBAction func daxButtonClicked(_ sender: NSButton) {
-
     if sender.state == .on {
       toggleDAX(buttonState: true)
     } else {
@@ -119,7 +119,6 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
   }
 
   @IBAction func sendID(_ sender: NSButton) {
-    
     sendIdTimer = nil
     voiceButtonSelected(buttonNumber: sender.tag)
   }
@@ -136,8 +135,6 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
   
   // enable the id timer
   @IBAction func enableIDTimer(_ sender: NSButton) {
-    
-    // reset back for distribution
     let timerInterval: Int = Int(UserDefaults.standard.string(forKey: "TimerInterval") ?? "10") ?? 10
     
     switch sender.state {
@@ -235,7 +232,6 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
    in case the user wants to select a new radio/station.
    */
   func didAddStations(discoveredStations: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)]) {
-    print("didAddStations")
     availableStations = discoveredStations
   }
   
@@ -248,8 +244,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
    This is the normal flow. When the Connect button is clicked it goes straight to doConnectToRadio()
    */
   func didDiscoverStations(discoveredStations: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)]) {
-    
-    //loadUserDefaults()
+
     availableStations = discoveredStations
 
     // find if a default is set and connect if it is else show preference panel
@@ -258,8 +253,13 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
       currentStation.nickname = discoveredStations[index].nickname
       currentStation.stationName = discoveredStations[index].stationName
 
-      if !isRadioConnected && currentStation.default == "Yes"  {
-        doConnectRadio(serialNumber: currentStation.serialNumber, nickName: currentStation.nickname, stationName: currentStation.stationName, clientId: currentStation.clientId, IsDefaultStation: Bool(currentStation.default) ?? false,  doConnect: true)
+      if !isRadioConnected && currentStation.default == YesNo.Yes.rawValue  {
+        doConnectRadio(serialNumber: currentStation.serialNumber,
+                       nickName: currentStation.nickname,
+                       stationName: currentStation.stationName,
+                       clientId: currentStation.clientId,
+                       IsDefaultStation: Bool(currentStation.default) ?? false,
+                       doConnect: true)
       }
     } else {
       showPreferences("" as AnyObject)
@@ -272,14 +272,10 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
   func didUpdateStations(discoveredStations: [(model: String, nickname: String, stationName: String, default: String, serialNumber: String, clientId: String, handle: UInt32)]) {
 
     availableStations = discoveredStations
-    print("didUpdateStations")
     // this makes it version 3 only
     if let index = discoveredStations.firstIndex(where: {$0.stationName == connectedStationName}) {
-      
       if discoveredStations[index].clientId != "" {
         currentStation.clientId = discoveredStations[index].clientId
-        //updateUserDefaults()
-        
         if !isBoundToClient {
           doBindToStation(clientId: discoveredStations[index].clientId, station: discoveredStations[index].stationName)
         }
@@ -372,7 +368,6 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
    - parameter clientId: String
    */
   func doBindToStation(clientId: String, station: String)  {
-    print("doBindToStation")
     if clientId.isEmpty {
       view.window?.title = "xVoiceKeyer"
       labelStatus.stringValue = "Invalid client id"
@@ -382,10 +377,8 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     connectedStationHandle = radioManager.bindToStation(clientId: clientId, station: station)
     
     if connectedStationHandle != 0 {
-      //view.window?.title = "xVoiceKeyer - " + defaultStation.nickname
       isBoundToClient = true
       connectedStationName = station
-      
       updateView(sliceHandle: connectedStationHandle)
     }
   }
@@ -419,12 +412,13 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
    Update the status labels when the radio notifies us of a change
    */
   func updateView(sliceHandle: UInt32) {
-    print("updateView")
     if sliceView.firstIndex(where: { $0.sliceHandle == connectedStationHandle && $0.txEnabled == true && $0.radioMode != radioMode.invalid }) != nil {
       
-      if let index = sliceView.firstIndex(where: { $0.sliceHandle == connectedStationHandle && $0.txEnabled == true && $0.radioMode != radioMode.invalid }) {
+      if let index = sliceView.firstIndex(where: {
+                                            $0.sliceHandle == connectedStationHandle &&
+                                            $0.txEnabled == true &&
+                                            $0.radioMode != radioMode.invalid }) {
 
-        //view.window?.title = "xVoiceKeyer - " + defaultStation.nickname
         labelFrequency.stringValue = sliceView[index].frequency
         labelMode.stringValue = sliceView[index].radioMode.rawValue
         labelSlice.stringValue = "Slice \(sliceView[index].sliceLetter)"
@@ -433,7 +427,9 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
       }
     } else {
       
-      if let index = sliceView.firstIndex(where: { $0.sliceHandle == connectedStationHandle && $0.radioMode == radioMode.invalid }) {
+      if let index = sliceView.firstIndex(where: {
+                                            $0.sliceHandle == connectedStationHandle &&
+                                            $0.radioMode == radioMode.invalid }) {
         
         labelFrequency.stringValue = sliceView[index].frequency
         labelMode.stringValue = sliceView[index].radioMode.rawValue
@@ -451,7 +447,6 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
    Add a slice information object to the local sliceView collection.
    */
   func didAddSlice(slice: [(sliceLetter: String, radioMode: radioMode, txEnabled: Bool, frequency: String, sliceHandle: UInt32)]) {
-    print("didAddSlice")
     sliceView += slice
     
     updateView(sliceHandle: slice[0].sliceHandle)
@@ -461,7 +456,6 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
    Find the slice to be updated by its handle.
    */
   func didUpdateSlice(sliceHandle: UInt32, sliceLetter: String, sliceStatus: sliceStatus, newValue: Any) {
-    print("didUpdateSlice")
     // find the slice to update
     if let index = sliceView.firstIndex(where: { $0.sliceHandle == sliceHandle &&  $0.sliceLetter == sliceLetter }) {
       
@@ -478,7 +472,6 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     }
     
     updateView(sliceHandle: sliceHandle)
-    
   }
   
   /**
@@ -550,7 +543,7 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
    Refresh the voice buttons.
    */
   func doUpdateButtons() {
-    //enableVoiceButtons(validSliceAvailable: true)
+
   }
   
   /**
@@ -617,24 +610,18 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
    fileArray = [sourceFilePath, labelText, destURL.absoluteString]
    */
   func updateButtonTitles(view: NSView) {
-    
-    //var results = [NSButton]()
+
     //let offset = 10 // labels start with tag = 11
     let numRange = 1...10
-    
+
     for subview in view.subviews as [NSView] {
       if let button = subview as? NSButton {
-        //if button.tag != 0 && button.tag != 102 {
         if numRange.contains(button.tag) {
           guard let fileArray = UserDefaults.standard.array(forKey: String(button.tag)) else {
             continue
           }
           button.title = fileArray[1] as! String
-        } else {
-          //results += [button]
-          //button.title = UserDefaults.standard.string(forKey: String(button.tag + offset)) ?? ""
         }
-        //}
       } else {
         updateButtonTitles(view: subview)
       }
@@ -646,13 +633,10 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
   // if defaults exists then retrieve them and update them
   // if one of the guiClients matches one of these set default to yes in guiClients
   func loadUserDefaults() {
-    print("loadUserDefaults")
     if let defaults = UserDefaults.standard.dictionary(forKey: radioKey) {
       currentStation.model = defaults["model"] as! String
       currentStation.nickname = defaults["nickname"] as! String
-      print("loadUserDefaults found: \(currentStation.nickname)")
       currentStation.stationName = defaults["stationName"] as! String
-      
       currentStation.default = defaults["default"] as! String
       currentStation.serialNumber = defaults["serialNumber"] as! String
 
@@ -660,7 +644,6 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
         gainSlider.intValue = Int32(defaults["xmitGain"] as! String) ?? 35
         gainLabel.stringValue = defaults["xmitGain"] as! String
       }
-      //updateUserDefaults()
     }
   }
 
@@ -668,7 +651,6 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
    Update the user defaults.
    */
   func updateUserDefaults() {
-    print("updateUserDefaults: \(currentStation.nickname)")
     var defaults = [String : String]()
     
     defaults["model"] = currentStation.model
@@ -700,8 +682,6 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     UserDefaults.standard.set(nil, forKey: "\(102)")
   }
   
-  
-  
   // MARK: Timer Methods ---------------------------------------------------------------------------
   
   /**
@@ -717,9 +697,9 @@ class ViewController: NSViewController, RadioManagerDelegate, PreferenceManagerD
     
     idTimer!.start()
   }
-  var timerExpired = false
+
+  /// Description
   func startLabelTimer() {
-    
     sendIdTimer = Repeater(interval: .milliseconds(750), mode: .infinite) { _ in
       UI{
         if self.timerExpired {

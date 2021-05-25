@@ -611,7 +611,7 @@ class RadioManager: NSObject, ApiDelegate {
     }
     
     daxTxAudioStreamRequested = false
-    api.radio?.boundClientId = nil
+    //api.radio?.boundClientId = nil
   }
   
   /**
